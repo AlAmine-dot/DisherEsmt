@@ -42,7 +42,7 @@ data class Meal(
     }
 
     override fun toString(): String {
-        return "Meal(id=$id, dateModified=$dateModified, strCreativeCommonsConfirmed=$strCreativeCommonsConfirmed, strDrinkAlternate=$strDrinkAlternate, strImageSource=$strImageSource, strArea=$strArea, strCategory=$strCategory, strInstructions=$strInstructions, strMealName=$strMealName, strMealThumb=$strMealThumb, strSource=$strSource, strTags=$strTags, strYoutube=$strYoutube, ingredients=$ingredients, measures=$measures)"
+        return "Meal(id=$id, strCategory=$strCategory,strMealName=$strMealName)"
     }
 
 

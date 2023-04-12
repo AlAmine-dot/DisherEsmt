@@ -10,7 +10,8 @@ data class Category(
     val categoryName: String,
     val categoryThumb: String,
     val categoryDescription: String,
-    val ratings: Double
+    // Pour le moment je laisse 5 en attendant d'avoir un bon algo
+    val ratings: Double = 5.0
 
 ) {
     fun toCategoryEntity(): CategoryEntity {
@@ -21,7 +22,10 @@ data class Category(
             categoryDescription = categoryDescription
         )
     }
+//    override fun toString(): String {
+//        return "Category(categoryName='$categoryName', categoryThumb='$categoryThumb', categoryDescription='$categoryDescription')"
+//    }
     override fun toString(): String {
-        return "Category(categoryName='$categoryName', categoryThumb='$categoryThumb', categoryDescription='$categoryDescription')"
+        return "Category(categoryName='$categoryName')"
     }
 }

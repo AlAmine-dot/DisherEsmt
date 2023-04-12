@@ -1,16 +1,18 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
+import android.media.Image
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -18,39 +20,76 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.room.util.appendPlaceholders
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
+import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ){
-//    val uiState = viewModel.state.value
+    val homeUiState by homeViewModel.uiState.collectAsState()
+    val categoryFeatures = homeUiState.getCategoryFeatures()
 
-    Box(
-        modifier = Modifier
-            .background(Color.White)
-            .fillMaxSize()
-    ) {
-        Column {
+    Scaffold(
+        topBar = {
 
-                val homeUiState by homeViewModel.uiState.collectAsState()
-
-                MealsList("Trending recipees", homeUiState.meals, homeUiState.isLoading)
-                Text(text = homeUiState.error)
-
+        },
+        bottomBar = {
 
         }
+    ) { innerPadding ->
 
+        LazyColumn(
+            modifier = Modifier
+                .background(Color.White)
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(start = 15.dp)
+
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(60.dp))
+            }
+            items(categoryFeatures) {feature ->
+                
+                CategoryFeature(feature)
+            }
+            item{
+                Text(homeUiState.error)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun CategoryFeature(feature: CategoryFeature) {
+
+    Text(
+        text= feature.featureTitle,
+        color= DarkTurquoise,
+        style = MaterialTheme.typography.h1,
+        modifier = Modifier.padding(vertical = 15.dp)
+    )
+    LazyRow(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+        items(feature.featuredMeals) { item ->
+            MealCard(meal = item)
+        }
     }
 }
 
@@ -60,28 +99,49 @@ fun MealCard(
 ){
     Column(
         modifier = Modifier
-            .height(300.dp)
-            .width(250.dp),
+            .height(226.dp)
+            .width(200.dp),
     ){
-
 
         Card(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(.85f),
+            .fillMaxHeight(.89f),
         shape = RoundedCornerShape(16.dp),
         backgroundColor = Color.White,
-        elevation = 16.dp
-        ) {
-
-                AsyncImage(
-                    model = meal.strMealThumb,
-                    placeholder = painterResource(id = R.drawable.ic_placeholder),
-                    contentDescription = "Meal img",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
+        elevation = 10.dp
+        ) { 
+                val painter = rememberImagePainter(
+                    data = meal.strMealThumb,
+                    builder = {
+                        crossfade(durationMillis = 1200)
+                        placeholder(R.drawable.ic_placeholder)
+                        error(R.drawable.ic_placeholder)
+                    }
                 )
+                Image(
+                    painter = painter,
+                    contentDescription = "Image ${meal.strMealName}",
+                    modifier = Modifier.fillMaxSize()
+                )
+//                AsyncImage(
+//                    model = meal.strMealThumb,
+//                    placeholder = rememberAsyncImagePainter(
+//                        ImageRequest.Builder(LocalContext.current)
+//                            .data(data = R.drawable.ic_placeholder).apply(block = fun ImageRequest.Builder.() {
+//                                crossfade(durationMillis = 1000)
+//                                error(R.drawable.ic_placeholder)
+//                                placeholder(R.drawable.ic_placeholder)
+//                            }).build()
+//                    ),
+//                    painterResource(id = R.drawable.ic_placeholder){
+//                        crossfade(durationMillis = 1000)
+//                    },
+//                    contentDescription = "Meal img",
+//                    contentScale = ContentScale.Crop,
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                )
 
                 Column(modifier = Modifier
                     .fillMaxSize()
@@ -91,7 +151,7 @@ fun MealCard(
                                 Color.Transparent,
                                 Color.Black
                             ),
-                            startY = 300f
+                            startY = 200f
                         )
                     )
                 ){
@@ -162,116 +222,6 @@ fun MealCard(
 }
 
 
-@Composable
-fun MealsList(
-    listTitle: String,
-    meals: List<Meal>,
-    isLoading: Boolean
-){
-    Text(
-        text=listTitle,
-        color= DarkTurquoise,
-        style = MaterialTheme.typography.h1,
-        modifier = Modifier.padding(15.dp)
-    )
-    LazyRow(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 0.dp),
-        contentPadding = PaddingValues(start = 10.dp, end = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-
-    ) {
-        if(isLoading){
-            item {
-                CircularProgressIndicator()
-            }
-        }else {
-            itemsIndexed(meals) { index: Int, meal: Meal ->
-                val painter = rememberImagePainter(data = meal.strMealThumb, builder = {
-                    crossfade(durationMillis = 1000)
-                    error(R.drawable.ic_placeholder)
-                    placeholder(R.drawable.ic_placeholder)
-                })
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clip(RoundedCornerShape(20.dp))
-//                        .background(Color(0xFFE8EDFA))
-//                        .height(200.dp)
-//                        .padding(16.dp)
-//                ) {
-//                    Column(
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .weight(2f)
-//                    ) {
-//                        Box(
-//                            modifier = Modifier
-//                                .wrapContentSize()
-//                                .clip(RoundedCornerShape(24.dp))
-//                                .background(Color(209, 213, 225))
-//                        ) {
-//                            Text(
-//                                text = meal.strArea.orEmpty(), modifier = Modifier
-//                                    .padding(7.dp)
-//                                    .clickable {
-//                                    }, style = TextStyle(fontSize = 12.sp)
-//                            )
-//
-//                        }
-//                        Spacer(modifier = Modifier.height(4.dp))
-//
-//                        Text(
-//                            text = meal.strMealName.orEmpty(),
-//                            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
-//                        )
-//                        Row {
-//                            //                    product.rating?.let {
-//                            //                        Text( text=product.rating.toString())
-//                            //                        repeat(product.rating?.toInt() ?: 0){
-//                            //                            Icon(imageVector = Icons.Outlined.Star, tint = Color.Yellow, contentDescription = null)
-//                            //                        }
-//                            //                    }
-//                        }
-//                        Spacer(modifier = Modifier.height(4.dp))
-//                        OutlinedButton(
-//                            onClick = {
-//                                //                    product.id?.let{
-//                                //                        onProductClick(it)
-//                                //                    }
-//                                //                    println("Level 1: ${product.id} ")
-//                                //                    onEvent(StoreViewModel.StoreEvent.OnProductClick(product))
-//
-//                            },
-//                            shape = RoundedCornerShape(12.dp),
-//                            colors = ButtonDefaults.buttonColors(
-//                                backgroundColor = Color.DarkGray
-//                            )
-//                        ) {
-//                            Text(
-//                                text = "See Details",
-//                                color = Color.White,
-//                                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
-//                            )
-//                        }
-//                    }
-//                    AsyncImage(
-//                        model = meal.strMealThumb.orEmpty(),
-//                        placeholder = painter,
-//                        error = painter,
-//                        contentDescription = null,
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .weight(1f)
-//                            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-//                    )
-//                }
-                MealCard(meal = meal)
-            }
-        }
-    }
-
-}
 
 @Composable
 @Preview(showBackground = true)
