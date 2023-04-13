@@ -22,13 +22,14 @@ class MealService @Inject constructor(
 
     suspend fun getMealsByCategoryFromRemote(str: String): List<Meal>  {
         val response = api.getAllMealsByCategory(str).meals.map {
-            api.getDetailedMealById(it.idMeal)
+            api.getDetailedMealById(it.idMeal).meals.firstOrNull()
         }
 
         if(response.isNullOrEmpty()){
             return emptyList()
         }else{
-            return response.map { it.meals.first().toMeal() }
+            // J'ai pas mal de questions ici, il faudra revoir ça
+            return response.filterNotNull().map { it.toMeal() }
         }
     }
 
@@ -99,7 +100,7 @@ class MealService @Inject constructor(
     }
 
     suspend fun getMealByIdFromRemote(id: Int): Meal? {
-        val response = api.getDetailedMealById(id).meals?.takeIf { it.isNotEmpty() }?.first()?.toMeal()
+        val response = api.getDetailedMealById(id).meals.firstOrNull()
 //        val response = api.getDetailedMealById(id).meals?.let{
 //            if(it.isEmpty()){
 //                null
@@ -108,7 +109,7 @@ class MealService @Inject constructor(
 //            }
 //        }
 
-        return response
+        return response?.toMeal()
     }
 
     // GET ALL CATEGORIES FROM REMOTE :

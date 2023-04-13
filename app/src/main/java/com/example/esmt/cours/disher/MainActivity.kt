@@ -1,13 +1,12 @@
 package com.example.esmt.cours.disher
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
+import androidx.navigation.compose.rememberNavController
+import com.example.esmt.cours.disher.core.presentation.graphs.RootNavigationGraph
 //import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
 import com.example.esmt.cours.disher.ui.theme.DisherTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,9 +19,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             DisherTheme {
-                // A surface container using the 'background' color from the theme
-                        HomeScreen()
-//                    Greeting("Morioh !")
+//                        HomeScreen()
+                RootNavigationGraph(navController = rememberNavController())
             }
 
         }

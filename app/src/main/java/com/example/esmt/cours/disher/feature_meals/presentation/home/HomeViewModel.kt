@@ -17,8 +17,8 @@ class HomeViewModel @Inject constructor(
 ): ViewModel() {
 
 
-    private val _uiState : MutableStateFlow<HomeState> =  MutableStateFlow(HomeState())
-    val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
+    private val _uiState : MutableStateFlow<HomeUiState> =  MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
 //    private var isCategoriesRetrievedSuccessfully = false
 
@@ -74,7 +74,7 @@ class HomeViewModel @Inject constructor(
         )
         categories.forEach { singleCategory ->
 
-        provideFeatures(singleCategory,"Trending in ${singleCategory.categoryName}",1,HomeState.MEALS_PAGE_SIZE).onEach { result ->
+        provideFeatures(singleCategory,"Trending in ${singleCategory.categoryName}",1,HomeUiState.MEALS_PAGE_SIZE).onEach { result ->
                 when (result){
                     is Resource.Success -> {
                         val categoryFeature = result.data

@@ -1,9 +1,9 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
-import android.media.Image
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,20 +19,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.room.util.appendPlaceholders
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
@@ -40,45 +32,39 @@ import com.example.esmt.cours.disher.ui.theme.*
 
 @Composable
 fun HomeScreen(
+    onNavigate: (HomeUiEvent.Navigate) -> Unit,
+    onPopBackStack: () -> Unit,
+    onShowMealDetailsScreen: (HomeUiEvent.ShowMealDetails) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ){
-    val homeUiState by homeViewModel.uiState.collectAsState()
-    val categoryFeatures = homeUiState.getCategoryFeatures()
-
-    Scaffold(
-        topBar = {
-
-        },
-        bottomBar = {
-
-        }
-    ) { innerPadding ->
+        val homeUiState by homeViewModel.uiState.collectAsState()
+        val categoryFeatures = homeUiState.getCategoryFeatures()
 
         LazyColumn(
             modifier = Modifier
-                .background(Color.White)
+                .background(TextWhite)
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(start = 15.dp)
+                .padding(start = 15.dp, bottom = 64.dp)
 
         ) {
             item {
                 Spacer(modifier = Modifier.height(60.dp))
             }
             items(categoryFeatures) {feature ->
-                
-                CategoryFeature(feature)
+                CategoryFeature(feature, onMealClicked = { mealId ->
+                    Log.d("argsmealId", "Reached level 1")
+                    onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
+                })
             }
             item{
                 Text(homeUiState.error)
             }
         }
-    }
 
 }
 
 @Composable
-fun CategoryFeature(feature: CategoryFeature) {
+fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) {
 
     Text(
         text= feature.featureTitle,
@@ -88,7 +74,9 @@ fun CategoryFeature(feature: CategoryFeature) {
     )
     LazyRow(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(15.dp)) {
         items(feature.featuredMeals) { item ->
-            MealCard(meal = item)
+            MealCard(meal = item, onClick = { id ->
+                Log.d("argsmealId", "Reached level 2")
+                onMealClicked(id)})
         }
     }
 }
@@ -96,11 +84,17 @@ fun CategoryFeature(feature: CategoryFeature) {
 @Composable
 fun MealCard(
     meal: Meal,
+    onClick: (id: Int) -> Unit
 ){
     Column(
         modifier = Modifier
             .height(226.dp)
-            .width(200.dp),
+            .width(200.dp)
+            .clickable {
+                Log.d("argsmealId", "Reached level 3")
+               onClick(meal.id)
+            },
+
     ){
 
         Card(

@@ -1,10 +1,8 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
-import com.example.esmt.cours.disher.feature_meals.domain.model.Category
-import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 
-data class HomeState(
+data class HomeUiState(
     val isLoading: Boolean = false,
     private var categoryFeatures: List<CategoryFeature> = emptyList(),
 //    val mealCategories: List<Category> = emptyList(),
