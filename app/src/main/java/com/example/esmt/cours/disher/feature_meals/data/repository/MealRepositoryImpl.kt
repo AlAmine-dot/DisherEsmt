@@ -17,6 +17,7 @@ class MealRepositoryImpl @Inject constructor(
 
     }
 
+
     override suspend fun getAllCategoriesFromLocalSource(): List<Category> {
 
         return mealService.getAllCategoriesFromLocalSource().map{ it.toCategory() }
@@ -77,8 +78,17 @@ class MealRepositoryImpl @Inject constructor(
 
     // TESTED
     override suspend fun addMealsToLocalSource(meals: List<Meal>) {
-        val newList = meals.map { it.toMealEntity() }
+        var newList = meals.map { it.toMealEntity() }
+        newList = newList.map {
+            it.copy(
+                isFavorite = mealService.isMealFavorite(it)
+            )
+        }
         mealService.addMealsToLocalSource(newList)
+    }
+
+    override suspend fun getFavoriteMeals() : List<Meal>{
+        return mealService.getFavoriteMealsFromLocalSource()
     }
 
     override suspend fun addCategoriesToLocalSource(categories: List<Category>) {
@@ -89,6 +99,14 @@ class MealRepositoryImpl @Inject constructor(
     // TESTED
     override suspend fun deleteAllMealsFromLocalSource() {
         mealService.removeAllMealsFromLocalSource()
+    }
+
+    override suspend fun addMealToFavorites(meal: Meal) {
+        mealService.addMealToFavorite(meal.toMealEntity())
+    }
+
+    override suspend fun removeMealFromFavorites(meal: Meal) {
+        mealService.removeMealFromFavorite(meal.toMealEntity())
     }
 
 }

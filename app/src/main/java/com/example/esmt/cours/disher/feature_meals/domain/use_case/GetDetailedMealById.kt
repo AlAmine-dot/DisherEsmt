@@ -45,7 +45,7 @@ class GetDetailedMealById @Inject constructor(
         else {
             // Sinon, on finit la rafraîchissement du cache et on récupère la réponse finale :
             repository.addMealsToLocalSource(listOf(remoteResponse))
-            val finalResponse = repository.getDetailedMealByIdFromRemote(id)
+            val finalResponse = repository.getDetailedMealByIdFromLocalSource(id)
 
             emit(Resource.Success(finalResponse))
         }

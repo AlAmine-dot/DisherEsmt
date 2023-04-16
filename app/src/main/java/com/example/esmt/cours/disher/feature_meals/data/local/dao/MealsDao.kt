@@ -13,7 +13,6 @@ interface MealsDao {
     @Query("SELECT * FROM ${Constants.MEALS_TABLE}")
     suspend fun getAllMeals(): List<MealEntity>
 
-
     // TESTED
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -1,34 +1,58 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.meal_details
 
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberImagePainter
+import com.example.esmt.cours.disher.R
+import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeViewModel
+import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiState
+import com.example.esmt.cours.disher.ui.customized_items.GradientButton
+import com.example.esmt.cours.disher.ui.theme.*
+import com.plcoding.mvvmtodoapp.util.UiEvent
 
 @Composable
 fun MealDetailsScreen(
     onNavigate: (HomeUiEvent.Navigate) -> Unit,
     onPopBackStack: () -> Unit,
     mealId: Int,
-    mealDetailsViewModel: MealDetailsViewModel = hiltViewModel()
-){
+    mealDetailsViewModel: MealDetailsViewModel = hiltViewModel(),
+    sendMainUiEvent: (UiEvent) -> Unit,
+) {
 
 
     val mealDetailsUiState by mealDetailsViewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     // Ceci est une side effect car cet appel modifie une partie de ton code qui n'a rien à voir avec
     // le composable, pour éviter que cet effet de bord ne créee une boucle, utilise LaunchedEffect :
@@ -38,21 +62,381 @@ fun MealDetailsScreen(
         // peut-être parce que la vue s'occupe de quelque chose qu'elle n'est pas censée faire
         // optimiser la façon dont tu récupères la recette est envisageable
         mealDetailsViewModel.getDetailedMeal(mealId)
+
+        mealDetailsViewModel.uiEvent.collect { event ->
+            when (event) {
+                is MealDetailsUiEvent.ShowSnackbar -> {
+                    sendMainUiEvent(UiEvent.HideSnackbar)
+                    sendMainUiEvent(UiEvent.ShowSnackbar(event.message, event.action))
+                }
+                is MealDetailsUiEvent.Navigate -> {
+
+                }
+                else -> Unit
+            }
+        }
     }
+
+
 
     val detailedMeal = mealDetailsUiState.detailedMeal
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Text(
-            modifier = Modifier.clickable {},
-            text = "${detailedMeal?.strMealName}",
-            fontSize = MaterialTheme.typography.h3.fontSize,
-            fontWeight = FontWeight.Bold
+    if(detailedMeal != null){
+        MealDetailsApp(
+            detailedMeal = detailedMeal,
+            onPopBackStack,
+            { event ->
+            val browserIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(event.uri)
+            )
+            startActivity(context, browserIntent, null)
+            },
+            {   Log.d("argsvm", "toggled last level !")
+                mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealFromFavorite(detailedMeal))
+            },
+            mealDetailsUiState
         )
+    }else{
+        Text("Oops, couldn't find recipe")
     }
+}
+
+@Composable
+fun MealDetailsApp(
+    detailedMeal: Meal,
+    onPopBackStack: () -> Unit,
+    onRedirect: (MealDetailsUiEvent.RedirectToURI) -> Unit,
+    onToggleFavorite: () -> Unit,
+    uiState: MealDetailsUiState
+){
+
+    LazyColumn(
+        modifier = Modifier
+            .background(Color.White)
+            .fillMaxSize()
+            .padding(bottom = 0.dp)
+
+    ) {
+        item {
+            HeaderComponent(detailedMeal.strMealName.orEmpty(), onPopBackStack = onPopBackStack, onInfoClicked = {onRedirect(MealDetailsUiEvent.RedirectToURI(detailedMeal.strSource))})
+            HeroComponent(detailedMeal.strMealThumb.orEmpty())
+            AboutComponent(mealCategory = detailedMeal.strCategory.orEmpty(), mealArea = detailedMeal.strArea.orEmpty(), onClickFavoriteButton = onToggleFavorite, favoriteButtonState = uiState.favoriteButtonState)
+        }
+    }
+}
+
+@Composable
+fun AboutComponent(
+    mealCategory: String,
+    mealArea: String,
+    favoriteButtonState: MealDetailsUiState.Companion.FavoriteButtonState?,
+    onClickFavoriteButton: () -> Unit
+){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .heightIn(min = 110.dp)
+        ,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(30.dp)
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = Modifier.widthIn(min = 120.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy((-4).dp)
+            ){
+                    Card(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .padding(10.dp),
+                        elevation = 4.dp,
+                        shape = CircleShape
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "Location",
+                                tint = MeltyGreen,
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        text = mealArea,
+                        style = MaterialTheme.typography.body1,
+                        fontSize = 16.sp
+                    )
+            }
+
+            Column(
+                modifier = Modifier.widthIn(min = 120.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy((-4).dp)
+            ){
+                Card(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .padding(10.dp),
+                    elevation = 4.dp,
+                    shape = CircleShape
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "List",
+                            tint = MeltyGreen,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+                Text(
+                    text= mealCategory,
+                    style = MaterialTheme.typography.body1,
+                    fontSize = 16.sp
+                )
+            }
+
+            Column(
+                modifier = Modifier.widthIn(min = 120.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy((-4).dp)
+            ){
+                Card(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .padding(10.dp),
+                    elevation = 4.dp,
+                    shape = CircleShape
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ThumbUp,
+                            contentDescription = "Thumb up",
+                            tint = MeltyGreen,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+                Text(
+                    text= "Easy",
+                    style = MaterialTheme.typography.body1,
+                    fontSize = 16.sp
+                )
+            }
+
+        }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ){
+            GradientButton(
+                text = favoriteButtonState?.text.orEmpty(),
+                textColor = Color.White,
+                gradient = Brush.horizontalGradient(
+                    colors = listOf(
+                        MeltyGreen,
+                        MeltyGreen,
+                        Color(0xFF11998E),
+                    )
+                ),
+                335.dp,
+                65.dp,
+                20,
+                onClick = onClickFavoriteButton,
+                icon = favoriteButtonState?.icon
+            )
+
+            OutlinedButton(
+                onClick = { /*TODO*/ },
+                border = BorderStroke(3.dp, MeltyGreen),
+
+            ) {
+                    Text(
+                        text = "Add to cart",
+                        fontSize = 20.sp,
+                        color = DarkTurquoise,
+                                modifier = Modifier
+                                .padding(horizontal = 98.dp, vertical = 10.dp)
+                        )
+            }
+        }
+    }
+
+    }
+}
+
+@Composable
+fun HeroComponent(
+    detailedMealThumb: String
+) {
+
+        val painter = rememberImagePainter(
+            data = detailedMealThumb,
+//            painterResource(id = R.drawable.ic_placeholder),
+            builder = {
+                crossfade(durationMillis = 1200)
+                placeholder(R.drawable.ic_placeholder)
+                error(R.drawable.ic_placeholder)
+            }
+        )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(0.dp))
+            .heightIn(min = 405.dp),
+    ){
+            Image(
+                painter = painter,
+                contentDescription = "Meal image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .height(40.dp)
+                    .align(Alignment.BottomCenter)
+                    .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
+                    .background(Color.White)
+                ,
+            ){
+
+            }
+    }
+}
+
+@Composable
+fun HeaderComponent(
+    detailedMealName: String,
+    onPopBackStack: () -> Unit,
+    onInfoClicked: () -> Unit
+){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 90.dp)
+            .background(Color.White)
+            .padding(vertical = 12.dp)
+
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                .fillMaxWidth()
+        ){
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = DarkTurquoise,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable { onPopBackStack() }
+            )
+            Text(
+                text = detailedMealName,
+                style = MaterialTheme.typography.h6,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth(.7f)
+            )
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "Info",
+                tint = MeltyGreen,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable { onInfoClicked() }
+            )
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+        ){
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Row(
+                    modifier = Modifier.padding(start = 3.dp),
+                ){
+                    Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, modifier = Modifier.size(24.dp), contentDescription = null)
+                    Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, modifier = Modifier.size(24.dp), contentDescription = null)
+                    Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, modifier = Modifier.size(24.dp), contentDescription = null)
+                    Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, modifier = Modifier.size(24.dp), contentDescription = null)
+                    Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, modifier = Modifier.size(24.dp), contentDescription = null)
+                }
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                    text="4.6/5",
+                    color = LightTurquoise,
+                )
+            }
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun defaultPreview(){
+    val mockMeal = Meal(
+        id = 52815,
+        dateModified = null,
+        strCreativeCommonsConfirmed = null,
+        strDrinkAlternate = null,
+        strImageSource = null,
+        strArea = "French",
+        strCategory = "Miscellaneous",
+        strInstructions = "Place a large saucepan over medium heat and add oil. When hot, add chopped vegetables and sauté until softened, 5 to 10 minutes.\nAdd 6 cups water, lentils, thyme, bay leaves and salt. Bring to a boil, then reduce to a fast simmer.\nSimmer lentils until they are tender and have absorbed most of the water, 20 to 25 minutes. If necessary, drain any excess water after lentils have cooked. Serve immediately, or allow them to cool and reheat later.\nFor a fuller taste, use some chicken stock and reduce the water by the same amount.",
+        strMealName = "French Lentils With Garlic and Thyme",
+        strMealThumb = "https://www.themealdb.com/images/media/meals/vwwspt1487394060.jpg",
+        strSource = null,
+        strTags = "Pulse",
+        strYoutube = "https://www.youtube.com/watch?v=CrlTS1mJQMA",
+        ingredients = listOf("Olive Oil", "Onion", "Garlic", "Carrot", "French Lentils", "Thyme", "Bay Leaf", "Salt", "Celery", "", "", "", "", "", "", "", "", "", "", ""),
+        measures = listOf("3 tablespoons", "1", "2 cloves", "1", "2 1/4 cups", "1 teaspoon", "3", "1 tablespoon", "2 sticks", "", "", "", "", "", "", "", "", "", "", ""),
+        isFavorite = false
+    )
+
+//    MealDetailsApp(detailedMeal = mockMeal, onPopBackStack = {},{},MealDetailsUiState())
 }

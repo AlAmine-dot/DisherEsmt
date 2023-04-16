@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,13 +30,15 @@ import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
+import com.plcoding.mvvmtodoapp.util.UiEvent
 
 @Composable
 fun HomeScreen(
     onNavigate: (HomeUiEvent.Navigate) -> Unit,
     onPopBackStack: () -> Unit,
     onShowMealDetailsScreen: (HomeUiEvent.ShowMealDetails) -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    sendMainUiEvent: (UiEvent) -> Unit
 ){
         val homeUiState by homeViewModel.uiState.collectAsState()
         val categoryFeatures = homeUiState.getCategoryFeatures()
@@ -44,7 +47,7 @@ fun HomeScreen(
             modifier = Modifier
                 .background(TextWhite)
                 .fillMaxSize()
-                .padding(start = 15.dp, bottom = 64.dp)
+                .padding(start = 0.dp, bottom = 60.dp)
 
         ) {
             item {
@@ -70,13 +73,19 @@ fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) 
         text= feature.featureTitle,
         color= DarkTurquoise,
         style = MaterialTheme.typography.h1,
-        modifier = Modifier.padding(vertical = 15.dp)
+        modifier = Modifier.padding(vertical = 15.dp, horizontal = 15.dp)
     )
     LazyRow(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+        item{
+            Spacer(modifier = Modifier.width(0.dp))
+        }
         items(feature.featuredMeals) { item ->
             MealCard(meal = item, onClick = { id ->
                 Log.d("argsmealId", "Reached level 2")
                 onMealClicked(id)})
+        }
+        item{
+            Spacer(modifier = Modifier.width(0.dp))
         }
     }
 }
@@ -92,7 +101,7 @@ fun MealCard(
             .width(200.dp)
             .clickable {
                 Log.d("argsmealId", "Reached level 3")
-               onClick(meal.id)
+                onClick(meal.id)
             },
 
     ){
@@ -116,6 +125,7 @@ fun MealCard(
                 Image(
                     painter = painter,
                     contentDescription = "Image ${meal.strMealName}",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
 //                AsyncImage(

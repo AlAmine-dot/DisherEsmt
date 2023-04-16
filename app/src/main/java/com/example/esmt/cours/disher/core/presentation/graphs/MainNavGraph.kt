@@ -1,10 +1,11 @@
 package com.example.esmt.cours.disher.core.presentation.graphs
 
 import android.util.Log
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
@@ -14,12 +15,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsScreen
-import com.example.esmt.cours.disher.feature_meals.presentation.search.CartScreen
+import com.example.esmt.cours.disher.feature_meals.presentation.search.FavScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.SearchScreen
+import com.plcoding.mvvmtodoapp.util.UiEvent
 
 
 @Composable
-fun MainNavGraph(navController: NavHostController) {
+fun MainNavGraph(navController: NavHostController,snackbarHostState: SnackbarHostState,sendMainUiEvent: (UiEvent) -> Unit) {
     NavHost(
         navController = navController,
         route = Graph.HOME.route,
@@ -37,6 +39,9 @@ fun MainNavGraph(navController: NavHostController) {
                     val id = uiEvent.id
                     Log.d("argsmealid", "step-out 1: $id")
                     navController.navigate(MealDetailsScreen.Details.passMealId(id))
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
                 }
             )
         }
@@ -44,7 +49,21 @@ fun MainNavGraph(navController: NavHostController) {
             SearchScreen()
         }
         composable(route = BottomBarScreen.Cart.route){
-            CartScreen()
+            FavScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                },onShowMealDetailsScreen = { uiEvent ->
+                    val id = uiEvent.id
+                    Log.d("argsmealid", "step-out 1: $id")
+                    navController.navigate(MealDetailsScreen.Details.passMealId(id))
+                }
+            )
         }
         composable(route = MealDetailsScreen.Details.route + "?mealId={mealId}",
             arguments = listOf(
@@ -64,6 +83,10 @@ fun MainNavGraph(navController: NavHostController) {
                 onPopBackStack = {
                     navController.popBackStack()
                 },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                },
+//                snackbarHostState = snackbarHostState
             )
         }
     }
@@ -77,20 +100,20 @@ sealed class BottomBarScreen(
 ) {
     object Home : BottomBarScreen(
         route = "HOME",
-        title = "HOME",
+        title = "Home",
         icon = Icons.Default.Home
     )
 
     object Search : BottomBarScreen(
         route = "SEARCH",
-        title = "SEARCH",
+        title = "Search",
         icon = Icons.Default.Search
     )
 
     object Cart : BottomBarScreen(
-        route = "CART",
-        title = "CART",
-        icon = Icons.Default.ShoppingCart
+        route = "FAVORITES",
+        title = "Favorites",
+        icon = Icons.Default.Favorite
     )
 }
 

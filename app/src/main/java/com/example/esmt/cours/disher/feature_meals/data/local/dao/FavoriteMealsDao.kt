@@ -15,4 +15,9 @@ interface FavoriteMealsDao {
     @Query("DELETE FROM ${Constants.FAVORITE_MEALS_TABLE} WHERE mealId = :mealId")
     suspend fun removeMealFromFavorite(mealId: Int)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM ${Constants.FAVORITE_MEALS_TABLE} WHERE mealId = :mealId LIMIT 1)")
+    suspend fun isMealFavorite(mealId: Int): Boolean
+
+    @Query("SELECT * FROM ${Constants.FAVORITE_MEALS_TABLE}")
+    suspend fun getAllFavorites(): List<FavoriteMealItemEntity>
 }

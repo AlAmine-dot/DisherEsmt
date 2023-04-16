@@ -27,7 +27,12 @@ interface MealRepository {
 
     suspend fun deleteAllMealsFromLocalSource()
 
+    suspend fun addMealToFavorites(meal: Meal)
+
+    suspend fun removeMealFromFavorites(meal: Meal)
     // Méthodes et use-cases pas encore implémentées :
     // Delete all meals of a category from Local Source
+
+    suspend fun getFavoriteMeals(): List<Meal>
 
 }

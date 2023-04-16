@@ -18,6 +18,12 @@ class MealService @Inject constructor(
     private val favoritesDao = db.favoriteMealsDao()
     private val categoriesDao = db.categoriesDao()
 
+    // IS MEAL FAVORITE :
+
+    suspend fun isMealFavorite(mealEntity: MealEntity): Boolean {
+        return favoritesDao.isMealFavorite(mealId = mealEntity.mealId)
+    }
+
     // GET MEALS BY CATEGORY :
 
     suspend fun getMealsByCategoryFromRemote(str: String): List<Meal>  {
@@ -64,6 +70,12 @@ class MealService @Inject constructor(
             return response.map { it.toMeal() }
         }
 
+    }
+
+    suspend fun getFavoriteMealsFromLocalSource() : List<Meal> {
+        val response = favoritesDao.getAllFavorites()
+
+        return response.map { it.FavoriteMeal.toMeal() }
     }
 
 
@@ -134,15 +146,15 @@ class MealService @Inject constructor(
     suspend fun addMealToFavorite(mealEntity: MealEntity){
 
         favoritesDao.addMealToFavorite(FavoriteMealItemEntity(0 , mealEntity))
-
+        mealsDao.addMeals(listOf(mealEntity.copy(isFavorite = true)))
     }
 
     // REMOVE MEAL FROM FAVORITE FAVORITE :
 
-    suspend fun removeMealFromFavorite(meal: Meal){
+    suspend fun removeMealFromFavorite(mealEntity: MealEntity){
 
-        favoritesDao.removeMealFromFavorite(meal.id)
-
+        favoritesDao.removeMealFromFavorite(mealEntity.mealId)
+        mealsDao.addMeals(listOf(mealEntity.copy(isFavorite = false)))
     }
 
 }

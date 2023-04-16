@@ -18,9 +18,14 @@ data class Meal(
     val strTags: String?,
     val strYoutube: String?,
     val ingredients: List<String>,
-    val measures: List<String>
+    val measures: List<String>,
+    var isFavorite: Boolean
 
 ){
+    fun toggleIsFavorite(): Unit {
+        this.isFavorite = !this.isFavorite
+    }
+
     fun toMealEntity(): MealEntity {
         return MealEntity(
             mealId = this.id,
@@ -41,9 +46,14 @@ data class Meal(
         )
     }
 
+//    override fun toString(): String {
+//        return "Meal(id=$id, dateModified=$dateModified, strCreativeCommonsConfirmed=$strCreativeCommonsConfirmed, strDrinkAlternate=$strDrinkAlternate, strImageSource=$strImageSource, strArea=$strArea, strCategory=$strCategory, strInstructions=$strInstructions, strMealName=$strMealName, strMealThumb=$strMealThumb, strSource=$strSource, strTags=$strTags, strYoutube=$strYoutube, ingredients=$ingredients, measures=$measures)"
+//    }
+
     override fun toString(): String {
         return "Meal(id=$id, strCategory=$strCategory,strMealName=$strMealName)"
     }
+
 
 
 }
