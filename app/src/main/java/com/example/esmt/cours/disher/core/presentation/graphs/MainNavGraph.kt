@@ -46,7 +46,17 @@ fun MainNavGraph(navController: NavHostController,snackbarHostState: SnackbarHos
             )
         }
         composable(route = BottomBarScreen.Search.route){
-            SearchScreen()
+            SearchScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                }
+            )
         }
         composable(route = BottomBarScreen.Cart.route){
             FavScreen(

@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Star
@@ -28,8 +27,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,9 +39,6 @@ import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavUiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavViewModel
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsViewModel
 import com.example.esmt.cours.disher.ui.theme.*
 import com.plcoding.mvvmtodoapp.util.UiEvent
 
