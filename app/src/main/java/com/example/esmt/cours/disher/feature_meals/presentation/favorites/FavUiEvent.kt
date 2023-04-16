@@ -1,7 +1,6 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.favorites
 
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiEvent
 
 sealed class FavUiEvent {
 

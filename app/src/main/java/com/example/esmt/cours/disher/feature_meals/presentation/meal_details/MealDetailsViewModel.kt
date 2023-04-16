@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
-import com.example.esmt.cours.disher.core.presentation.main_screen.MainScreenViewModel
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToFavorites
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.GetDetailedMealById
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.RemoveMealFromFavorites

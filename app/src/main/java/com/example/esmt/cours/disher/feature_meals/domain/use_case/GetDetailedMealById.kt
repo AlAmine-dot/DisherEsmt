@@ -1,6 +1,5 @@
 package com.example.esmt.cours.disher.feature_meals.domain.use_case
 
-import android.util.Log
 import com.example.esmt.cours.disher.core.common.Resource
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.domain.repository.MealRepository

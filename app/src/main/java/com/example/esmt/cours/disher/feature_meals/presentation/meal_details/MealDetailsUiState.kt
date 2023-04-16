@@ -1,14 +1,7 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.meal_details
 
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.esmt.cours.disher.feature_meals.domain.model.Category
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
-import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToFavorites
-import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 
 data class MealDetailsUiState(
     val isLoading: Boolean = false,

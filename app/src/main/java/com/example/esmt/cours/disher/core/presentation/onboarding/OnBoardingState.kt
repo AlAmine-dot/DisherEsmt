@@ -1,9 +1,5 @@
 package com.example.esmt.cours.disher.core.presentation.onboarding
 
-import com.example.esmt.cours.disher.feature_meals.domain.model.Category
-import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
-import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
-
 data class OnBoardingState(
     val isLoading: Boolean = false,
     val error: String = "",

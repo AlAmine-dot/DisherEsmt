@@ -1,7 +1,6 @@
 package com.example.esmt.cours.disher.core.presentation.main_screen
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -10,7 +9,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -80,7 +78,7 @@ fun MainScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "DISHER V.01", color= TextWhite)
+                    Text(text = "DISHER ESMT V.01", color= TextWhite)
                 },
                 backgroundColor = MeltyGreen
             )

@@ -1,17 +1,11 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.favorites
 
 import android.util.Log
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
-import com.example.esmt.cours.disher.feature_meals.domain.model.Category
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideFavoriteMeals
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.RemoveMealFromFavorites
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiState
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*

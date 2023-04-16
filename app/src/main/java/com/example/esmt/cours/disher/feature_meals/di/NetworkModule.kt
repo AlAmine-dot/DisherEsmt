@@ -1,10 +1,7 @@
 package com.example.esmt.cours.disher.feature_meals.di
 
-import com.example.esmt.cours.disher.feature_meals.data.local.dao.FavoriteMealsDao
-import com.example.esmt.cours.disher.feature_meals.data.local.dao.MealsDao
 import com.example.esmt.cours.disher.feature_meals.data.remote.api.TheMealApi
 import com.example.esmt.cours.disher.feature_meals.data.remote.api.TheMealApiImpl
-import com.example.esmt.cours.disher.feature_meals.data.service.MealService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

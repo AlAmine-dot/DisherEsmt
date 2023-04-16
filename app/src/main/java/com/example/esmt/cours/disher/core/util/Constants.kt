@@ -8,6 +8,6 @@ object Constants {
 
     const val FAVORITE_MEALS_TABLE = "favorite_meals_table"
 
-    const val DISHER_DATABASE = "disher_db"
+    const val DISHER_DATABASE = "disher_db_esmt"
 
 }

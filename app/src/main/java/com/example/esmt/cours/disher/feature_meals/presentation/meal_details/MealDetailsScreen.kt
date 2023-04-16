@@ -36,7 +36,6 @@ import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiState
 import com.example.esmt.cours.disher.ui.customized_items.GradientButton
 import com.example.esmt.cours.disher.ui.theme.*
 import com.plcoding.mvvmtodoapp.util.UiEvent
