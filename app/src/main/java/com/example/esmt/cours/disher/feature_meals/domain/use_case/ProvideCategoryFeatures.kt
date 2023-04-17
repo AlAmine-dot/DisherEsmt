@@ -8,19 +8,42 @@ import com.example.esmt.cours.disher.feature_meals.domain.repository.MealReposit
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.util.Locale
 import javax.inject.Inject
 
-class BuildAndGetCategoryFeatures @Inject constructor(
+class ProvideCategoryFeatures @Inject constructor(
     private val repository: MealRepository
 ) {
 
+
     // C'est juste pour qu'on puisse appeler la classe comme si c'était une fonction
-    operator fun invoke(category: Category?,featureTitle: String, page: Int, pageSize: Int): Flow<Resource<CategoryFeature>> = flow {
+    operator fun invoke(category: Category?, page: Int, pageSize: Int): Flow<Resource<CategoryFeature>> = flow {
         val startingIndex = (page - 1) * pageSize
         if (category != null) {
             Log.d("ArgsCategory",category.categoryName)
         }
-
+        // Les titres de catégories que nous retourne l'API sont un peu impersonnels, on refactor
+        // le tout ici en vitesse pour un accueil plus chaleureux
+        val featureTitle = when(category?.categoryName){
+            "Miscellaneous" -> {
+                "Our trending recipes"
+            }
+            "Breakfast" -> {
+                "For the breakfast"
+            }
+            "Dessert" -> {
+                "To complete your meals"
+            }
+            "Beef" -> {
+                "Eat meat, eat spicy"
+            }
+            "Vegetarian" -> {
+                "For the vegetarians"
+            }
+            else -> {
+                "Trending in ${category?.categoryName?.lowercase(Locale.ROOT)}"
+            }
+        }
         // On signale le chargement des données...
         val localResponse = repository.getAllMealsByCategoryFromLocalSource(category)
         emit(Resource.Loading(null))

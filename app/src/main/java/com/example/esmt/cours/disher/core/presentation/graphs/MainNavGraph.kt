@@ -8,15 +8,18 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.example.esmt.cours.disher.feature_meals.presentation.Mainsearch.main_screen.MainSearchScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.FavScreen
-import com.example.esmt.cours.disher.feature_meals.presentation.search.SearchScreen
+import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.SearchScreen
 import com.plcoding.mvvmtodoapp.util.UiEvent
 
 
@@ -45,19 +48,24 @@ fun MainNavGraph(navController: NavHostController,snackbarHostState: SnackbarHos
                 }
             )
         }
-        composable(route = BottomBarScreen.Search.route){
-            SearchScreen(
-                onNavigate = {
-                    navController.navigate(it.route)
-                },
-                onPopBackStack = {
-                    navController.popBackStack()
-                },
-                sendMainUiEvent = { uiEvent ->
-                    sendMainUiEvent(uiEvent)
-                }
-            )
-        }
+//        composable(route = BottomBarScreen.Search.route){
+//            SearchScreen(
+//                onNavigate = {
+//                    navController.navigate(it.route)
+//                },
+//                onPopBackStack = {
+//                    navController.popBackStack()
+//                },
+//                sendMainUiEvent = { uiEvent ->
+//                    sendMainUiEvent(uiEvent)
+//                },
+//                onShowMealDetailsScreen = { uiEvent ->
+//                    val id = uiEvent.id
+//                    Log.d("argsmealid", "step-out 1: $id")
+//                    navController.navigate(MealDetailsScreen.Details.passMealId(id))
+//                }
+//            )
+//        }
         composable(route = BottomBarScreen.Cart.route){
             FavScreen(
                 onNavigate = {
@@ -96,8 +104,70 @@ fun MainNavGraph(navController: NavHostController,snackbarHostState: SnackbarHos
                 sendMainUiEvent = { uiEvent ->
                     sendMainUiEvent(uiEvent)
                 },
-//                snackbarHostState = snackbarHostState
             )
+        }
+        searchNavGraph(navController = navController,sendMainUiEvent)
+    }
+}
+
+fun NavGraphBuilder.searchNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> Unit) {
+    navigation(
+        route = Graph.SEARCH.route,
+        startDestination = BottomBarScreen.Search.route,
+    ) {
+        composable(
+            route = BottomBarScreen.Search.route){
+            MainSearchScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onShowOverview = { event ->
+                    val query = event.query
+                    navController.navigate(SearchScreen.Overview.passQueryString(query))
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                }
+            )
+        }
+        composable(
+            route = SearchScreen.Overview.route,
+            arguments = listOf(navArgument("query"){
+                type = NavType.StringType
+            })
+        ){
+            val query = it.arguments?.getString("query").toString()
+            Log.d("testRedirectSearch",query)
+
+            SearchScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                },
+                onShowMealDetailsScreen = { uiEvent ->
+                    val id = uiEvent.id
+                    Log.d("argsmealid", "step-out 1: $id")
+                    navController.navigate(MealDetailsScreen.Details.passMealId(id))
+                },
+                query = query
+            )
+        }
+    }
+}
+
+sealed class SearchScreen(val route: String) {
+//    object Main : SearchScreen(route = "search_main_screen")
+    object Overview : SearchScreen(route = "search_overview_screen/{query}"){
+        fun passQueryString(query: String): String{
+            return "search_overview_screen/${query}"
         }
     }
 }

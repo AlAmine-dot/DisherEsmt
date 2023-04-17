@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.feature_meals.presentation.search
+package com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,37 +21,37 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -59,6 +59,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,9 +67,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
-import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
 import com.example.esmt.cours.disher.ui.theme.DarkTurquoise
 import com.example.esmt.cours.disher.ui.theme.LightBrown
 import com.example.esmt.cours.disher.ui.theme.LightTurquoise
@@ -83,6 +82,8 @@ fun SearchScreen(
     onPopBackStack: () -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel(),
     sendMainUiEvent: (UiEvent) -> Unit,
+    onShowMealDetailsScreen: (SearchUiEvent.ShowMealDetails) -> Unit,
+    query: String
 ){
 
     val searchUiState by searchViewModel.uiState.collectAsState()
@@ -90,22 +91,23 @@ fun SearchScreen(
     val onEvent: (SearchUiEvent) -> Unit = { event -> searchViewModel.onEvent(event) }
     val resultList = remember {searchUiState.searchResult}
 
+    LaunchedEffect(key1 = true, query){
+        onSearchTextChange(query)
+        searchViewModel.onEvent(SearchUiEvent.onDoneSearching(null))
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        HeaderComponent(searchUiState,onSearchTextChange,onEvent)
+        HeaderComponent(searchUiState,onSearchTextChange,onEvent,onPopBackStack)
         MealsListComponent(
             mealItems = searchUiState.searchResult,
             onNavigate = onNavigate,
-            isSearching = searchUiState.isSearching
-//            onMealClicked = { mealId ->
-//                Log.d("argsmealId", "Reached level 1")
-//                onShowMealDetailsScreen(FavUiEvent.ShowMealDetails(mealId))
-//            },
-//            onDeleteClicked = { meal ->
-//                favViewModel.onEvent(FavUiEvent.RemoveMealFromFavorites(meal))
-//            }
+            isSearching = searchUiState.isSearching,
+            onMealClicked = {mealId ->
+                onShowMealDetailsScreen(SearchUiEvent.ShowMealDetails(mealId))
+            }
         )
     }
 }
@@ -114,20 +116,10 @@ fun SearchScreen(
 fun MealsListComponent(
     mealItems: List<Meal>,
     onNavigate: (SearchUiEvent.Navigate) -> Unit,
-    isSearching: Boolean
-//    onMealClicked : (mealId: Int) -> Unit,
+    isSearching: Boolean,
+    onMealClicked : (mealId: Int) -> Unit,
 //    onDeleteClicked: (meal: Meal) -> Unit
 ){
-    if(isSearching){
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            CircularProgressIndicator(color = MeltyGreen)
-        }
-    }else{
 
         Column(
             modifier = Modifier
@@ -136,39 +128,96 @@ fun MealsListComponent(
             verticalArrangement = Arrangement.spacedBy(20.dp)
 
         ){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 15.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(
-                    text =  "${if (mealItems.size == 0) "No" else mealItems.size} recipe${if (mealItems.size != 1) "s" else ""} found",
-                    style = MaterialTheme.typography.h5,
-                    color = LightTurquoise,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-//                Button(
-//                    modifier = Modifier
-//                        .widthIn(180.dp),
-//                    onClick = { onNavigate(SearchUiEvent.Navigate(BottomBarScreen.Home.route)) },
-//                    shape = RoundedCornerShape(70.dp),
-//                    colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
-//                ) {
-//                    Text(
-//                        text = "Add recipes",
-//                        color = Color.White,
-//                    )
-//                    Spacer(modifier = Modifier.width(5.dp))
-//                    Icon(
-//                        imageVector = Icons.Default.AddCircle,
-//                        contentDescription = "Add recipe icon",
-//                        tint = Color.White
-//                    )
-//                }
-            }
+
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.Center
+//            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 15.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = if(isSearching) {
+                            "Searching recipes..."
+                        }else {
+                            "${if (mealItems.size == 0) "No" else mealItems.size} recipe${if (mealItems.size != 1) "s" else ""} found"
+
+                        },
+                        style = MaterialTheme.typography.h5,
+                        color = LightTurquoise,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
+                Divider(
+                    color = Color.LightGray,
+                    thickness = .5.dp,
+                    modifier = Modifier
+                    .padding(horizontal = 20.dp),
+                    )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 20.dp)
+                        .padding(horizontal = 20.dp)
+
+                    ,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Column(
+                        modifier = Modifier
+
+                            ,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.DateRange, contentDescription = "Filter",
+                                tint = DarkTurquoise,
+                                modifier = Modifier.size(23.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                "Filter",
+                                textDecoration = TextDecoration.Underline,
+                            style = MaterialTheme.typography.body1,
+                            fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                    }
+
+                    Column(
+                        modifier = Modifier
+                        ,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
+
+                        Row {
+                            Text(
+                                "Sort by :",
+                                style = MaterialTheme.typography.body1,
+                                color = Color.LightGray,
+
+                                )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            DropdownMenuComponent()
+                        }
+                    }
+                }
+//            }
 
             Row(
                 modifier = Modifier
@@ -176,18 +225,80 @@ fun MealsListComponent(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ){
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(start = 7.5.dp, end = 7.5.dp, bottom = 100.dp),
-                    modifier = Modifier.fillMaxHeight(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(mealItems.size, key = {mealItems[it].id}) {
-                        MealSearchedItem(meal = mealItems[it],
-    //                        onMealClicked, onDeleteClicked
-                        )
+                if(isSearching){
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
+                        CircularProgressIndicator(color = MeltyGreen)
                     }
+                }else {
+//                    ajoute le link vers les détails
+
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(
+                            start = 7.5.dp,
+                            end = 7.5.dp,
+                            bottom = 100.dp
+                        ),
+                        modifier = Modifier.fillMaxHeight(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(mealItems.size, key = { mealItems[it].id }) {
+                            MealSearchedItem(
+                                meal = mealItems[it],
+                                onMealClicked
+                            )
+                        }
+                    }
+                }
+            }
+        }
+}
+
+@Composable
+fun DropdownMenuComponent() {
+    var expanded by remember { mutableStateOf(false) }
+    val options = listOf("Relevance", "Rating", "Reviews")
+    var selectedOption by remember { mutableStateOf(options[1]) }
+
+    Column {
+        // Bouton pour afficher le menu
+        Row(
+            modifier = Modifier
+                .widthIn(76.dp)
+        ){
+            Text(
+                selectedOption,
+                modifier = Modifier.widthIn(76.dp)
+            )
+            Icon(
+                imageVector = Icons.Outlined.ArrowDropDown,
+                contentDescription = "Dropdown menu",
+                modifier = Modifier.clickable {
+                    expanded = true
+                }
+            )
+        }
+
+        // Menu déroulant
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            // Liste d'options à afficher
+            options.forEach { option ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        selectedOption = option
+                    }
+                ) {
+                    Text(option)
                 }
             }
         }
@@ -198,7 +309,7 @@ fun MealsListComponent(
 @Composable
 fun MealSearchedItem(
     meal: Meal,
-//    onMealClicked: (mealId: Int) -> Unit,
+    onMealClicked: (mealId: Int) -> Unit,
 //    onDeleteClicked: (meal: Meal) -> Unit
 ){
     Column(
@@ -213,7 +324,7 @@ fun MealSearchedItem(
                 .fillMaxWidth()
                 .fillMaxHeight(.89f)
                 .clickable {
-//                    onMealClicked(meal.id)
+                    onMealClicked(meal.id)
                 },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = Color.White,
@@ -313,8 +424,8 @@ fun MealSearchedItem(
 fun HeaderComponent(
     searchUiState: SearchUiState,
     onSearchTextChange: (String) -> Unit,
-    onEvent: (SearchUiEvent) -> Unit
-//onPopBackStack: () -> Unit,
+    onEvent: (SearchUiEvent) -> Unit,
+    onPopBackStack: () -> Unit,
 //onInfoClicked: () -> Unit
 ){
     val searchedString = searchUiState.searchText
@@ -342,7 +453,7 @@ fun HeaderComponent(
                 modifier = Modifier
                     .size(28.dp)
                     .clickable {
-//                        onPopBackStack()
+                        onPopBackStack()
                     }
             )
             Text(
@@ -420,5 +531,5 @@ fun SearchBarComponent(
 @Composable
 @Preview(showBackground = true)
 fun DefaultPreviewer(){
-    SearchScreen({},{}, searchViewModel = viewModel(),{})
+//    SearchScreen({},{}, searchViewModel = viewModel(),{},{})
 }

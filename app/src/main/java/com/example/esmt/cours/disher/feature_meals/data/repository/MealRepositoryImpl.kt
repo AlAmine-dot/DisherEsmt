@@ -11,18 +11,18 @@ class MealRepositoryImpl @Inject constructor(
 ): MealRepository {
 
     // TESTED
-    override suspend fun getAllCategoriesFromRemote(): List<Category> {
+//    override suspend fun getAllCategoriesFromRemote(): List<Category> {
+//
+//        return mealService.getAllCategoriesFromRemote().map{ it.toCategory() }
+//
+//    }
 
-        return mealService.getAllCategoriesFromRemote().map{ it.toCategory() }
 
-    }
-
-
-    override suspend fun getAllCategoriesFromLocalSource(): List<Category> {
-
-        return mealService.getAllCategoriesFromLocalSource().map{ it.toCategory() }
-
-    }
+//    override suspend fun getAllCategoriesFromLocalSource(): List<Category> {
+//
+//        return mealService.getAllCategoriesFromLocalSource().map{ it.toCategory() }
+//
+//    }
 
     // TESTED
     override suspend fun getAllMealsByCategoryFromRemote(category: Category?): List<Meal> {
@@ -91,10 +91,10 @@ class MealRepositoryImpl @Inject constructor(
         return mealService.getFavoriteMealsFromLocalSource()
     }
 
-    override suspend fun addCategoriesToLocalSource(categories: List<Category>) {
-        val newList = categories.map { it.toCategoryEntity() }
-        mealService.addCategoriesToLocalSource(newList)
-    }
+//    override suspend fun addCategoriesToLocalSource(categories: List<Category>) {
+//        val newList = categories.map { it.toCategoryEntity() }
+//        mealService.addCategoriesToLocalSource(newList)
+//    }
 
     // TESTED
     override suspend fun deleteAllMealsFromLocalSource() {

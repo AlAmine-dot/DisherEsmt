@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.feature_meals.presentation.search
+package com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen
 
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 

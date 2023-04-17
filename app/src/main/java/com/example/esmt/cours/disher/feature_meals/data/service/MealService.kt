@@ -16,7 +16,6 @@ class MealService @Inject constructor(
 
     private val mealsDao = db.mealsDao()
     private val favoritesDao = db.favoriteMealsDao()
-    private val categoriesDao = db.categoriesDao()
 
     // IS MEAL FAVORITE :
 
@@ -85,11 +84,7 @@ class MealService @Inject constructor(
         mealsDao.addMeals(mealEntities)
     }
 
-    // ADD CATEGORIES TO LOCAL SOURCE :
 
-    suspend fun addCategoriesToLocalSource(categoryEntities: List<CategoryEntity>){
-        categoriesDao.addCategories(categoryEntities)
-    }
 
     // REMOVE ALL MEALS FROM LOCAL SOURCE :
 
@@ -123,23 +118,6 @@ class MealService @Inject constructor(
 
         return response?.toMeal()
     }
-
-    // GET ALL CATEGORIES FROM REMOTE :
-
-    suspend fun getAllCategoriesFromRemote(): List<CategoriesDTO.CategoryItemDTO>{
-        val response = api.getAllCategories().categories
-
-        return response
-    }
-
-    // GET ALL CATEGORIES FROM LOCALSOURCE :
-
-    suspend fun getAllCategoriesFromLocalSource(): List<CategoryEntity>{
-        val response = categoriesDao.getAllCategories()
-
-        return response
-    }
-
 
     // ADD MEAL TO FAVORITE :
 

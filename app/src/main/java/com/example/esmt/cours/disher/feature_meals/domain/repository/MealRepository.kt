@@ -5,9 +5,9 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 
 interface MealRepository {
 
-    suspend fun getAllCategoriesFromRemote(): List<Category>
+//    suspend fun getAllCategoriesFromRemote(): List<Category>
 
-    suspend fun getAllCategoriesFromLocalSource(): List<Category>
+//    suspend fun getAllCategoriesFromLocalSource(): List<Category>
 
     suspend fun getAllMealsByCategoryFromRemote(category: Category?): List<Meal>
 
@@ -23,7 +23,7 @@ interface MealRepository {
 
     suspend fun addMealsToLocalSource(meals: List<Meal>)
 
-    suspend fun addCategoriesToLocalSource(categories: List<Category>)
+//    suspend fun addCategoriesToLocalSource(categories: List<Category>)
 
     suspend fun deleteAllMealsFromLocalSource()
 

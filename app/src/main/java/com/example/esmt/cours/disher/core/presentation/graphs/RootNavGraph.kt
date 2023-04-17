@@ -28,6 +28,7 @@ sealed class Graph(val route: String) {
     // Je sais pas si on va garder celui là en graph ou en page singleton :
     object ONBOARDING: Graph(route = "onboarding_graph")
     object HOME: Graph(route = "home_graph")
+    object SEARCH: Graph(route = "search_graph")
 //    object DETAILS: Graph(route = "details_graph?id={id}"){
 //        fun passId(id: Int): String {
 //            return "details_graph?id=$id"
