@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,11 +49,19 @@ fun HomeScreen(
             modifier = Modifier
                 .background(TextWhite)
                 .fillMaxSize()
-                .padding(start = 0.dp, bottom = 60.dp)
+                .padding(start = 0.dp, bottom = 60.dp),
 
         ) {
             item {
                 Spacer(modifier = Modifier.height(60.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ){
+
+                    AskCardComponent()
+                }
             }
             items(categoryFeatures) {feature ->
                 CategoryFeature(feature, onMealClicked = { mealId ->
@@ -64,6 +74,75 @@ fun HomeScreen(
             }
         }
 
+}
+
+@Composable
+fun AskCardComponent(){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(.93f)
+            .width(300.dp)
+            .height(200.dp)
+        ,
+        backgroundColor = MeltyGreenLO,
+        elevation = 16.dp,
+        shape = RoundedCornerShape(18.dp)
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+//            horizontalArrangement = Arrangement.Center,
+//            verticalAlignment = Alignment.CenterVertically
+        ){
+            Column(
+                modifier = Modifier
+
+                    .fillMaxHeight()
+                    .weight(.5f)
+                    .padding(start = 10.dp)
+                ,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                    ,
+                    verticalArrangement = Arrangement.spacedBy(30.dp),
+                ) {
+                    Text(
+                        text = "Do you like fast food ?",
+                        style = MaterialTheme.typography.h5,
+                        fontWeight = FontWeight.Bold,
+                        color = DarkTurquoise
+                    )
+                    Button(
+                        colors = ButtonDefaults.buttonColors(DarkTurquoise),
+                        shape = RoundedCornerShape(16.dp),
+                        onClick = {}
+                    ) {
+                        Text(
+                            text = "Of course",
+                            fontSize = 18.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .weight(.5f)
+                    .fillMaxHeight()
+                ,
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painterResource(id = R.drawable.ic_fastfood),
+                    contentDescription = "Burger image")
+            }
+        }
+
+    }
 }
 
 @Composable
@@ -230,13 +309,5 @@ fun MealCard(
 @Composable
 @Preview(showBackground = true)
 fun DefaultPreview(){
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ){
-//        MealCard()
-    }
+    AskCardComponent()
 }

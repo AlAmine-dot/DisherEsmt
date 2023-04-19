@@ -4,8 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,12 +30,17 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -133,8 +140,256 @@ fun MealDetailsApp(
             HeroComponent(detailedMeal.strMealThumb.orEmpty())
             AboutComponent(mealCategory = detailedMeal.strCategory.orEmpty(), mealArea = detailedMeal.strArea.orEmpty(), onClickFavoriteButton = onToggleFavorite, favoriteButtonState = uiState.favoriteButtonState)
             DetailsComponent(uiState.mealDetailsOption,onToggleMealDetailsOption,uiState.quantifiedIngredients)
+            PreparationComponent(uiState.detailedMeal?.strInstructions.orEmpty())
         }
     }
+}
+
+@Composable
+fun PreparationComponent(
+    instructions: String
+){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 25.dp)
+        ,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+            ,
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Card(
+                elevation = 7.dp,
+                shape = RectangleShape,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+
+                Text(
+                    "Preparation",
+                    style = MaterialTheme.typography.h6,
+                    color = MeltyGreen,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 15.dp)
+                    ,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(.9f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.LightGray.copy(alpha = .3f))
+                .padding(vertical = 10.dp)
+            ,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append("Total duration : ",
+                            )
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                            )
+                        ) {
+                            append("55 min",
+                            )
+                        }
+                    }
+                )
+            }
+            Divider(thickness = .5.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        ) {
+                            append("Cooking : \n",
+                            )
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                            )
+                        ) {
+                            append("\n-",
+                            )
+                        }
+                    },
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append("Resting : \n",
+                            )
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                            )
+                        ) {
+                            append("\n-",
+                            )
+                        }
+                    },
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append("Preparation : \n",
+                            )
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                            )
+                        ) {
+                            append("\n55 min",
+                            )
+                        }
+                    },
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 15.dp)
+        ,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ){
+
+        val steps = instructions.split("\n")
+        val circlesColor = MeltyGreenLO
+        val linesColor = MeltyGreenLO.copy(alpha = .5f)
+
+        steps.forEach { step ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                    ,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                        ,
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Canvas(modifier = Modifier
+                            .height(36.dp)
+                            .width(12.dp), onDraw = {
+                                if(steps.indexOf(step) != 0){
+                                    drawLine(linesColor,Offset(23f,-19f), Offset(23f, size.height/2), strokeWidth = 2f)
+                                }
+                                drawCircle(color = circlesColor,radius = 17f,center = Offset(23f,size.height/2 + 3f))
+                                if(steps.indexOf(step) != steps.size - 1) {
+                                    drawLine(
+                                        linesColor,
+                                        Offset(23f, size.height/2 + 17f + 2f),
+                                        Offset(23f, size.height),
+                                        strokeWidth = 2f
+                                    )
+                                }
+                        })
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Text(
+                            text = "STEP ${steps.indexOf(step) + 1}",
+                            style = MaterialTheme.typography.h6,
+                            color = MeltyGreen,
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                        ,
+                    ){
+
+                        Text(
+                            text = step.trim(),
+                            style = MaterialTheme.typography.body1,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .padding(start = (33.5).dp, bottom = 10.dp)
+                                .drawBehind {
+                                    if (steps.indexOf(step) != steps.size - 1) {
+                                        drawLine(
+                                            linesColor,
+                                            Offset(-40f, 0f),
+                                            Offset(-40f, size.height),
+                                            strokeWidth = 2f
+                                        )
+                                    }
+
+                                }
+                        )
+                    }
+                }
+        }
+
+    }
+
 }
 
 @Composable
@@ -251,7 +506,9 @@ fun DetailsComponent(
         }
         Row(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(horizontal = 15.dp)
+            ,
             verticalAlignment = Alignment.CenterVertically
         ){
 
@@ -289,92 +546,93 @@ fun DetailsComponent(
 fun IngredientGrid(items: List<MealDetailsUiState.Companion.QuantifiedIngredient>) {
     val chunkedItems = items.chunked(3)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        for (row in chunkedItems) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp)
-            ) {
-                for (item in row) {
-                    Column(
-                        modifier = Modifier
-                            .widthIn(max = 120.dp),
-//                            .heightIn(max = 100.dp),
-                    ){
 
-                        Card(
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            for (row in chunkedItems) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp)
+                ) {
+                    for (item in row) {
+                        Column(
                             modifier = Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(15.dp),
-                            elevation = 5.dp
+                                .widthIn(max = 120.dp),
+    //                            .heightIn(max = 100.dp),
                         ) {
-                            // Contenu de la carte ici
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(16.dp)
+
+                            Card(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(15.dp),
+                                elevation = 5.dp
                             ) {
-                                val painter = rememberImagePainter(
-                                    data = item.ingredientThumb,
-                                    builder = {
-                                        crossfade(durationMillis = 1200)
-                                        placeholder(R.drawable.ic_placeholder)
-                                        error(R.drawable.ic_placeholder)
-                                    }
-                                )
-                                Image(
-                                    painter = painter,
-                                    contentDescription = "Image ${item.name}",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.size(60.dp)
+                                // Contenu de la carte ici
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    val painter = rememberImagePainter(
+                                        data = item.ingredientThumb,
+                                        builder = {
+                                            crossfade(durationMillis = 1200)
+                                            placeholder(R.drawable.ic_placeholder)
+                                            error(R.drawable.ic_placeholder)
+                                        }
+                                    )
+                                    Image(
+                                        painter = painter,
+                                        contentDescription = "Image ${item.name}",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.size(60.dp)
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Text(
+                                    text = "${item.quantity}",
+                                    style = MaterialTheme.typography.body1,
+                                    color = DarkTurquoise,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
                                 )
                             }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            
-                            Text(
-                                text = "${item.quantity}",
-                                style = MaterialTheme.typography.body1,
-                                color = DarkTurquoise,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Text(
-                                text = "${item.name}",
-                                style = MaterialTheme.typography.body1,
-                                color = DarkTurquoise,
-                                textDecoration = TextDecoration.Underline,
-                                textAlign = TextAlign.Center
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${item.name}",
+                                    style = MaterialTheme.typography.body1,
+                                    color = DarkTurquoise,
+                                    textDecoration = TextDecoration.Underline,
+                                    textAlign = TextAlign.Center
 
-                            )
-                        }
+                                )
+                            }
 
+
+                        }
 
                     }
-
                 }
             }
         }
-    }
 }
 
 
@@ -689,33 +947,33 @@ fun defaultPreview(){
         measures = listOf("3 tablespoons", "1", "2 cloves", "1", "2 1/4 cups", "1 teaspoon", "3", "1 tablespoon", "2 sticks", "", "", "", "", "", "", "", "", "", "", ""),
         isFavorite = false
     )
-
-    DetailsComponent(MealDetailsOption.UTENSILS,{}, listOf(
-        MealDetailsUiState.Companion.QuantifiedIngredient(
-            "Carrots",
-            "https://image.com/carrots.jpg",
-            "2"
-        ),
-        MealDetailsUiState.Companion.QuantifiedIngredient(
-            "Potatoes",
-            "https://image.com/potatoes.jpg",
-            "3"
-        ),
-        MealDetailsUiState.Companion.QuantifiedIngredient(
-            "Onions",
-            "https://image.com/onions.jpg",
-            "1"
-        ),
-        MealDetailsUiState.Companion.QuantifiedIngredient(
-            "Tomatoes",
-            "https://image.com/tomatoes.jpg",
-            "4"
-        ),
-        MealDetailsUiState.Companion.QuantifiedIngredient(
-            "Peppers",
-            "https://image.com/peppers.jpg",
-            "2"
-        )
-    ))
+    PreparationComponent(mockMeal?.strInstructions.orEmpty())
+//    DetailsComponent(MealDetailsOption.UTENSILS,{}, listOf(
+//        MealDetailsUiState.Companion.QuantifiedIngredient(
+//            "Carrots",
+//            "https://image.com/carrots.jpg",
+//            "2"
+//        ),
+//        MealDetailsUiState.Companion.QuantifiedIngredient(
+//            "Potatoes",
+//            "https://image.com/potatoes.jpg",
+//            "3"
+//        ),
+//        MealDetailsUiState.Companion.QuantifiedIngredient(
+//            "Onions",
+//            "https://image.com/onions.jpg",
+//            "1"
+//        ),
+//        MealDetailsUiState.Companion.QuantifiedIngredient(
+//            "Tomatoes",
+//            "https://image.com/tomatoes.jpg",
+//            "4"
+//        ),
+//        MealDetailsUiState.Companion.QuantifiedIngredient(
+//            "Peppers",
+//            "https://image.com/peppers.jpg",
+//            "2"
+//        )
+//    ))
 //    MealDetailsApp(detailedMeal = mockMeal, onPopBackStack = {},{},MealDetailsUiState())
 }
