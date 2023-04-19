@@ -1,4 +1,4 @@
-package com.plcoding.mvvmtodoapp.util
+package com.example.esmt.cours.disher.core.presentation.main_screen
 
 sealed class UiEvent{
     object PopBackStack: UiEvent()

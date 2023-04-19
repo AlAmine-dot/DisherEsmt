@@ -51,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -64,7 +63,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
@@ -74,7 +72,7 @@ import com.example.esmt.cours.disher.ui.theme.LightTurquoise
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import com.example.esmt.cours.disher.ui.theme.MeltyGreenLO
 import com.example.esmt.cours.disher.ui.theme.TextWhite
-import com.plcoding.mvvmtodoapp.util.UiEvent
+import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 
 @Composable
 fun SearchScreen(
@@ -113,7 +111,7 @@ fun SearchScreen(
 }
 
 @Composable
-fun MealsListComponent(
+private fun MealsListComponent(
     mealItems: List<Meal>,
     onNavigate: (SearchUiEvent.Navigate) -> Unit,
     isSearching: Boolean,
@@ -261,7 +259,7 @@ fun MealsListComponent(
 }
 
 @Composable
-fun DropdownMenuComponent() {
+private fun DropdownMenuComponent() {
     var expanded by remember { mutableStateOf(false) }
     val options = listOf("Relevance", "Rating", "Reviews")
     var selectedOption by remember { mutableStateOf(options[1]) }
@@ -307,7 +305,7 @@ fun DropdownMenuComponent() {
 
 
 @Composable
-fun MealSearchedItem(
+private fun MealSearchedItem(
     meal: Meal,
     onMealClicked: (mealId: Int) -> Unit,
 //    onDeleteClicked: (meal: Meal) -> Unit

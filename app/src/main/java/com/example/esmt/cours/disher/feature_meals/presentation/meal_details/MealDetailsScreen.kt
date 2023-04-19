@@ -9,6 +9,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -22,11 +24,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,10 +43,10 @@ import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiState
 import com.example.esmt.cours.disher.ui.customized_items.GradientButton
 import com.example.esmt.cours.disher.ui.theme.*
-import com.plcoding.mvvmtodoapp.util.UiEvent
+import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
 
 @Composable
 fun MealDetailsScreen(
@@ -80,7 +87,6 @@ fun MealDetailsScreen(
 
 
     val detailedMeal = mealDetailsUiState.detailedMeal
-
     if(detailedMeal != null){
         MealDetailsApp(
             detailedMeal = detailedMeal,
@@ -95,7 +101,10 @@ fun MealDetailsScreen(
             {   Log.d("argsvm", "toggled last level !")
                 mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealFromFavorite(detailedMeal))
             },
-            mealDetailsUiState
+            mealDetailsUiState,
+            { mealDetailsOption ->
+                mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealDetailsOption(mealDetailsOption))
+            }
         )
     }else{
         Text("Oops, couldn't find recipe")
@@ -108,7 +117,8 @@ fun MealDetailsApp(
     onPopBackStack: () -> Unit,
     onRedirect: (MealDetailsUiEvent.RedirectToURI) -> Unit,
     onToggleFavorite: () -> Unit,
-    uiState: MealDetailsUiState
+    uiState: MealDetailsUiState,
+    onToggleMealDetailsOption: (MealDetailsOption) -> Unit
 ){
 
     LazyColumn(
@@ -122,9 +132,251 @@ fun MealDetailsApp(
             HeaderComponent(detailedMeal.strMealName.orEmpty(), onPopBackStack = onPopBackStack, onInfoClicked = {onRedirect(MealDetailsUiEvent.RedirectToURI(detailedMeal.strSource))})
             HeroComponent(detailedMeal.strMealThumb.orEmpty())
             AboutComponent(mealCategory = detailedMeal.strCategory.orEmpty(), mealArea = detailedMeal.strArea.orEmpty(), onClickFavoriteButton = onToggleFavorite, favoriteButtonState = uiState.favoriteButtonState)
+            DetailsComponent(uiState.mealDetailsOption,onToggleMealDetailsOption,uiState.quantifiedIngredients)
         }
     }
 }
+
+@Composable
+fun DetailsComponent(
+    mealDetailsOption: MealDetailsOption,
+    onToggleMealDetailsOption: (MealDetailsOption) -> Unit,
+    quantifiedIngredients: List<MealDetailsUiState.Companion.QuantifiedIngredient>
+){
+//    var trigger by remember { mutableStateOf(mealDetailsOption == MealDetailsOption.INGREDIENTS) }
+    Spacer(modifier = Modifier.height(15.dp))
+    Column(
+        modifier = Modifier
+            .padding(top = 5.dp)
+            .fillMaxSize()
+        ,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    drawLine(
+                        color = Color.LightGray,
+                        start = Offset(25f, 0f),
+                        end = Offset((size.width - 25f), 0f),
+                        strokeWidth = (0.4.dp).toPx()
+                    )
+                }
+                .padding(vertical = 15.dp, horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Recipe's duration",
+                    tint = DarkTurquoise,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = "55 min",
+                    color = DarkTurquoise,
+                    style = MaterialTheme.typography.body1,
+                )
+            }
+            Text(
+                "•",
+                color = DarkTurquoise,
+                style = MaterialTheme.typography.body1,
+            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Icon(
+                    imageVector = Icons.Default.ThumbUp,
+                    contentDescription = "Cost",
+                    tint = DarkTurquoise,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = "Expensive",
+                    color = DarkTurquoise,
+                    style = MaterialTheme.typography.body1,
+                )
+            }
+            Text(
+                "•",
+                color = DarkTurquoise,
+                style = MaterialTheme.typography.body1,
+            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Recipe's duration",
+                    tint = DarkTurquoise,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = "55 min",
+                    color = DarkTurquoise,
+                    style = MaterialTheme.typography.body1,
+                )
+            }
+
+
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 15.dp, horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            RadioToggler(
+                item1 = "Ingredients",
+                item2 = "Ustensils",
+                mealDetailsOption == MealDetailsOption.INGREDIENTS,
+                {onToggleMealDetailsOption(MealDetailsOption.INGREDIENTS)},
+                {onToggleMealDetailsOption(MealDetailsOption.UTENSILS)})
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+
+            if(mealDetailsOption == MealDetailsOption.INGREDIENTS){
+                Log.d("argstestvms", quantifiedIngredients.toString())
+//                IngredientsDetailsSubComponent(quantifiedIngredients)
+                IngredientGrid(items = quantifiedIngredients)
+            }else{
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(500.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ){
+                    Image(
+                        painterResource(id = R.drawable.ph_emptysection),
+                        contentDescription = "Empty placeholder"
+                    )
+                    Text(
+                        "Oops, seems like we still gotta work on this section :/",
+                        style = MaterialTheme.typography.body1,
+                        color = DarkTurquoise
+                    )
+                }
+            }
+
+        }
+    }
+
+}
+
+
+@Composable
+fun IngredientGrid(items: List<MealDetailsUiState.Companion.QuantifiedIngredient>) {
+    val chunkedItems = items.chunked(3)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        for (row in chunkedItems) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp)
+            ) {
+                for (item in row) {
+                    Column(
+                        modifier = Modifier
+                            .widthIn(max = 120.dp),
+//                            .heightIn(max = 100.dp),
+                    ){
+
+                        Card(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(15.dp),
+                            elevation = 5.dp
+                        ) {
+                            // Contenu de la carte ici
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                val painter = rememberImagePainter(
+                                    data = item.ingredientThumb,
+                                    builder = {
+                                        crossfade(durationMillis = 1200)
+                                        placeholder(R.drawable.ic_placeholder)
+                                        error(R.drawable.ic_placeholder)
+                                    }
+                                )
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image ${item.name}",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.size(60.dp)
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            
+                            Text(
+                                text = "${item.quantity}",
+                                style = MaterialTheme.typography.body1,
+                                color = DarkTurquoise,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = "${item.name}",
+                                style = MaterialTheme.typography.body1,
+                                color = DarkTurquoise,
+                                textDecoration = TextDecoration.Underline,
+                                textAlign = TextAlign.Center
+
+                            )
+                        }
+
+
+                    }
+
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun AboutComponent(
@@ -438,5 +690,32 @@ fun defaultPreview(){
         isFavorite = false
     )
 
+    DetailsComponent(MealDetailsOption.UTENSILS,{}, listOf(
+        MealDetailsUiState.Companion.QuantifiedIngredient(
+            "Carrots",
+            "https://image.com/carrots.jpg",
+            "2"
+        ),
+        MealDetailsUiState.Companion.QuantifiedIngredient(
+            "Potatoes",
+            "https://image.com/potatoes.jpg",
+            "3"
+        ),
+        MealDetailsUiState.Companion.QuantifiedIngredient(
+            "Onions",
+            "https://image.com/onions.jpg",
+            "1"
+        ),
+        MealDetailsUiState.Companion.QuantifiedIngredient(
+            "Tomatoes",
+            "https://image.com/tomatoes.jpg",
+            "4"
+        ),
+        MealDetailsUiState.Companion.QuantifiedIngredient(
+            "Peppers",
+            "https://image.com/peppers.jpg",
+            "2"
+        )
+    ))
 //    MealDetailsApp(detailedMeal = mockMeal, onPopBackStack = {},{},MealDetailsUiState())
 }

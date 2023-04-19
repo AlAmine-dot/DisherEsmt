@@ -1,7 +1,6 @@
 package com.example.esmt.cours.disher.core.presentation.main_screen
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -11,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -20,11 +20,12 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.MainNavGraph
 import com.example.esmt.cours.disher.ui.customized_items.NavBar2
+import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.theme.*
-import com.plcoding.mvvmtodoapp.util.UiEvent
 import kotlinx.coroutines.launch
 
 
@@ -38,9 +39,10 @@ fun MainScreen(
         SnackbarHostState()
     }
 
-    val scope = rememberCoroutineScope()
 
-    var lastSnackbarMessage by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    val mainUiState by viewModel.uiState.collectAsState()
+
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -77,18 +79,11 @@ fun MainScreen(
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
         snackbarHost = {snackbarHostState},
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "DISHER V.01", color= TextWhite)
-                },
-                backgroundColor = MeltyGreen
-            )
-        }
+        topBar = { TopBar(navController = navController) }
     ) { paddingValues -> Log.d("args", paddingValues.toString())
 
 
-        MainNavGraph(navController = navController, snackbarHostState) { uiEvent ->
+        MainNavGraph(navController = navController) { uiEvent ->
             // Cette solution ne me satisfait vraiment pas. Nous trouverons mieux plus tard
             snackbarHostState.currentSnackbarData?.dismiss()
             viewModel.sendMainUiEvent(uiEvent)
@@ -147,6 +142,29 @@ fun BottomBar(navController: NavHostController) {
 
     NavBar2(screens = screens, navController = navController)
 
+}
+
+@Composable
+fun TopBar(navController: NavHostController) {
+//    val screens = listOf(
+//        BottomBarScreen.Home,
+//        BottomBarScreen.Search,
+//        BottomBarScreen.Cart,
+//    )
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    TopAppBar2(navController = navController)
+
+//    TopAppBar(
+//        title = {
+//            Icon(painterResource(id = R.drawable.ic_disher_white), contentDescription = "", tint = Color.Unspecified)
+//            Text(text = "DISHER", color= MeltyGreen)
+//        },
+//        elevation = 16.dp,
+//        backgroundColor = Color.White
+//    )
 }
 
 

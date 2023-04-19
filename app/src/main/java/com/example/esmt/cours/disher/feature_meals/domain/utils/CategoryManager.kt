@@ -29,6 +29,10 @@ class CategoryManager @Inject constructor(categoryService: CategoryService){
         return categories.find { it.categoryName == name }
     }
 
+    fun getCategoryById(id: Int): Category? {
+        return categories.find { it.categoryId == id }
+    }
+
     fun getCategory(index: Int): Category? {
         if (index < 0 || index >= categories.size) {
             return null

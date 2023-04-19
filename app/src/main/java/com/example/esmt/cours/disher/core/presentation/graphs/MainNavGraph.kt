@@ -19,12 +19,13 @@ import com.example.esmt.cours.disher.feature_meals.presentation.Mainsearch.main_
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.FavScreen
+import com.example.esmt.cours.disher.feature_meals.presentation.search.category_details_screen.CategoryScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.SearchScreen
-import com.plcoding.mvvmtodoapp.util.UiEvent
+import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 
 
 @Composable
-fun MainNavGraph(navController: NavHostController,snackbarHostState: SnackbarHostState,sendMainUiEvent: (UiEvent) -> Unit) {
+fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> Unit) {
     NavHost(
         navController = navController,
         route = Graph.HOME.route,
@@ -125,6 +126,10 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController,sendMainUiEv
                     val query = event.query
                     navController.navigate(SearchScreen.Overview.passQueryString(query))
                 },
+                onShowCategoryDetails = { event ->
+                    val categoryId = event.idCategory
+                    navController.navigate(SearchScreen.CategoryDetails.passCategoryId(categoryId))
+                },
                 onPopBackStack = {
                     navController.popBackStack()
                 },
@@ -160,11 +165,44 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController,sendMainUiEv
                 query = query
             )
         }
+        composable(
+            route = SearchScreen.CategoryDetails.route,
+            arguments = listOf(navArgument("categoryId"){
+                type = NavType.IntType
+            })
+        ){
+            val categoryId = it.arguments?.getInt("categoryId")
+            Log.d("testRedirectCategory", categoryId.toString())
+
+            if (categoryId != null) {
+                CategoryScreen(
+                    onNavigate = {
+                        navController.navigate(it.route)
+                    },
+                    onPopBackStack = {
+                        navController.popBackStack()
+                    },
+                    sendMainUiEvent = { uiEvent ->
+                        sendMainUiEvent(uiEvent)
+                    },
+                    onShowMealDetailsScreen = { uiEvent ->
+                        val id = uiEvent.id
+                        Log.d("argsmealid", "step-out 1: $id")
+                        navController.navigate(MealDetailsScreen.Details.passMealId(id))
+                    },
+                    categoryId = categoryId
+                )
+            }
+        }
     }
 }
 
 sealed class SearchScreen(val route: String) {
-//    object Main : SearchScreen(route = "search_main_screen")
+    object CategoryDetails : SearchScreen(route = "search_category_screen/{categoryId}"){
+        fun passCategoryId(id: Int): String{
+            return "search_category_screen/${id}"
+        }
+    }
     object Overview : SearchScreen(route = "search_overview_screen/{query}"){
         fun passQueryString(query: String): String{
             return "search_overview_screen/${query}"

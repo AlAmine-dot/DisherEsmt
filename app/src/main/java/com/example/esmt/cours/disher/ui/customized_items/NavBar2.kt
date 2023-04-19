@@ -1,7 +1,10 @@
 package com.example.esmt.cours.disher.ui.customized_items
 
 import android.view.Surface
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,7 +38,13 @@ fun NavBar2(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val bottomBarDestination = screens.any { it.route == currentDestination?.route }
-    if (bottomBarDestination) {
+
+    AnimatedVisibility(
+        visible = bottomBarDestination,
+        enter = slideInVertically{56},
+        exit = slideOutVertically {56},
+//        modifier = Modifier.
+    ) {
         Surface(
             shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
             modifier = Modifier

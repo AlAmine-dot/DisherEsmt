@@ -44,12 +44,15 @@ class ProvideCategoryFeatures @Inject constructor(
                 "Trending in ${category?.categoryName?.lowercase(Locale.ROOT)}"
             }
         }
+
         // On signale le chargement des données...
         val localResponse = repository.getAllMealsByCategoryFromLocalSource(category)
+        Log.d("testProvideForCategoryD","LR : " + localResponse.toString())
         emit(Resource.Loading(null))
 
         // On récupère les données en Offline First et on les émet :
         val localMeals = getTruncatedResponse(localResponse,startingIndex,pageSize)
+        Log.d("testProvideForCategoryD","TR : " + localMeals.toString())
 
         if(localMeals.isEmpty()){
             emit(Resource.Loading(null))
@@ -63,8 +66,11 @@ class ProvideCategoryFeatures @Inject constructor(
         // On met ensuite à jour le cache, si l'utilisateur est connecté à internet :
         val remoteResponse = repository.getAllMealsByCategoryFromRemote(category)
 
+        Log.d("testProvideForCategoryD","RR : " + remoteResponse.toString())
         val remoteMeals = getTruncatedResponse(remoteResponse,startingIndex,pageSize)
+        Log.d("testProvideForCategoryD","TR : " + remoteMeals.toString())
 
+        Log.d("testProvideForCategoryD",remoteMeals.toString())
         if(remoteMeals.isEmpty()){
             emit(Resource.Error("Oops, no internet connection !", null))
         }else{
@@ -80,7 +86,11 @@ class ProvideCategoryFeatures @Inject constructor(
 
     private fun getTruncatedResponse(response: List<Meal>,startingIndex: Int, pageSize: Int): List<Meal> {
         Log.d("argsSize",response.size.toString())
-        return if(startingIndex + pageSize <= response.size) {
+
+        return if(pageSize == -1){
+            response
+        }
+        else if(startingIndex + pageSize <= response.size) {
             response.slice(startingIndex until startingIndex + pageSize)
         } else{
             emptyList()

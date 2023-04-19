@@ -34,6 +34,11 @@ class MealDetailsViewModel @Inject constructor(
 
     fun onEvent(event: MealDetailsUiEvent){
         when(event){
+            is MealDetailsUiEvent.ToggleMealDetailsOption -> {
+                _uiState.value = _uiState.value.copy(
+                    mealDetailsOption = event.newOption
+                )
+            }
             is MealDetailsUiEvent.ToggleMealFromFavorite -> {
                 event.meal.toggleIsFavorite()
 
@@ -121,6 +126,7 @@ class MealDetailsViewModel @Inject constructor(
                             Log.d("testMealVM", isFavorite.toString())
                     _uiState.value = MealDetailsUiState(
                         detailedMeal = result.data,
+                        quantifiedIngredients = getQuantifiedIngredients(result.data?.ingredients.orEmpty(),result.data?.measures.orEmpty()),
                         favoriteButtonState = MealDetailsUiState.Companion.FavoriteButtonState(
                             isLoading = false,
                             // Pour le moment j'initialise à false mais après tu devras avoir un attribut dans tes objets pour savoir si
@@ -142,6 +148,23 @@ class MealDetailsViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
 
+    }
+
+    fun getQuantifiedIngredients(ingredients: List<String>, measures: List<String>): List<MealDetailsUiState.Companion.QuantifiedIngredient> {
+        val combined = ingredients.zip(measures)
+        return combined.mapNotNull { pair ->
+            val name = pair.first.trim()
+            val quantity = pair.second.trim()
+            if (name.isNotEmpty() && quantity.isNotEmpty()) {
+                MealDetailsUiState.Companion.QuantifiedIngredient(
+                    name,
+                    "https://www.themealdb.com/images/ingredients/${name}-small.png",
+                    quantity
+                )
+            } else {
+                null
+            }
+        }
     }
 
 }

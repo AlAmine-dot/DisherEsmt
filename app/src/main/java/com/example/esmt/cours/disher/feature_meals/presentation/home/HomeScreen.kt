@@ -29,9 +29,8 @@ import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiEvent
 import com.example.esmt.cours.disher.ui.theme.*
-import com.plcoding.mvvmtodoapp.util.UiEvent
+import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 
 @Composable
 fun HomeScreen(

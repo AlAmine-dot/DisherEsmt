@@ -40,7 +40,7 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavUiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavViewModel
 import com.example.esmt.cours.disher.ui.theme.*
-import com.plcoding.mvvmtodoapp.util.UiEvent
+import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 
 @Composable
 fun FavScreen(

@@ -42,7 +42,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -51,30 +50,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
-import com.example.esmt.cours.disher.core.presentation.graphs.SearchScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Category
-import com.example.esmt.cours.disher.feature_meals.domain.utils.CategoryManager
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.search.main_screen.MainSearchUiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.search.main_screen.MainSearchUiState
 import com.example.esmt.cours.disher.feature_meals.presentation.search.main_screen.MainSearchViewModel
-import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.MealSearchedItem
 import com.example.esmt.cours.disher.ui.theme.DarkTurquoise
 import com.example.esmt.cours.disher.ui.theme.LightTurquoise
 
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import com.example.esmt.cours.disher.ui.theme.MeltyGreenLO
 import com.example.esmt.cours.disher.ui.theme.TextWhite
-import com.plcoding.mvvmtodoapp.util.UiEvent
+import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 
 @Composable
 fun MainSearchScreen(
     onShowOverview : (MainSearchUiEvent.RedirectToSearchScreen) -> Unit,
+    onShowCategoryDetails : (MainSearchUiEvent.RedirectToCategoryScreen) -> Unit,
     onNavigate: (MainSearchUiEvent.Navigate) -> Unit,
     onPopBackStack: () -> Unit,
     mainSearchViewModel: MainSearchViewModel = hiltViewModel(),
@@ -99,7 +93,7 @@ fun MainSearchScreen(
                 }
                 is MainSearchUiEvent.RedirectToCategoryScreen -> {
                     val id = event.idCategory
-                    // Rediriger
+                    onShowCategoryDetails(MainSearchUiEvent.RedirectToCategoryScreen(id))
                 }
                 else -> Unit
             }

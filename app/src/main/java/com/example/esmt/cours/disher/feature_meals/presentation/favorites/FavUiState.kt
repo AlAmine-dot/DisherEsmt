@@ -7,6 +7,7 @@ data class FavUiState (
     val isLoading: Boolean = false,
     val favoriteMeals: List<Meal> = emptyList(),
     val error: String = "",
+
 ){
 
     override fun toString(): String {
