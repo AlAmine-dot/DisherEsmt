@@ -120,4 +120,8 @@ dependencies {
     testImplementation "io.mockk:mockk:1.12.0"
 //    androidTestImplementation "io.mockk:mockk-android:1.12.5"
 
+    // Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+
+
 }

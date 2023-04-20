@@ -73,7 +73,7 @@ fun FavScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 80.dp)
+            .padding(top = 7.dp)
         ,
     ) {
         TopCardComponent()

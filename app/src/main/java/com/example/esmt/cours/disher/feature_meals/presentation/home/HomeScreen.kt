@@ -27,12 +27,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
+import com.example.esmt.cours.disher.core.presentation.graphs.SearchScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
 
 @Composable
 fun HomeScreen(
@@ -40,27 +43,52 @@ fun HomeScreen(
     onPopBackStack: () -> Unit,
     onShowMealDetailsScreen: (HomeUiEvent.ShowMealDetails) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    sendMainUiEvent: (UiEvent) -> Unit
+    sendMainUiEvent: (UiEvent) -> Unit,
 ){
+
         val homeUiState by homeViewModel.uiState.collectAsState()
         val categoryFeatures = homeUiState.getCategoryFeatures()
+
+
+        val trigger by remember { mutableStateOf(homeUiState.feedModeOption == FeedMode.DISCOVERY) }
 
         LazyColumn(
             modifier = Modifier
                 .background(TextWhite)
                 .fillMaxSize()
-                .padding(start = 0.dp, bottom = 60.dp),
-
+                .padding(start = 0.dp, bottom = 39.dp),
+            verticalArrangement = Arrangement.spacedBy(25.dp)
         ) {
             item {
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(25.dp))
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    RadioToggler(
+                        item1 = "Discovery mode",
+                        item2 = "Custom mode",
+                        trigger = homeUiState.feedModeOption == FeedMode.DISCOVERY,
+                        onClickItem1 = {
+                            homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.DISCOVERY))
+                        },
+                        onClickItem2 = {
+                            homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.CUSTOM))
+                        }
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 0.dp)
+                    ,
                     horizontalArrangement = Arrangement.Center
                 ){
-
-                    AskCardComponent()
+                    AskCardComponent(onNavigate)
                 }
             }
             items(categoryFeatures) {feature ->
@@ -77,10 +105,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun AskCardComponent(){
+fun AskCardComponent(
+    onNavigate: (HomeUiEvent.Navigate) -> Unit
+){
     Card(
         modifier = Modifier
-            .fillMaxWidth(.93f)
+            .fillMaxWidth(.90f)
             .width(300.dp)
             .height(200.dp)
         ,
@@ -118,7 +148,11 @@ fun AskCardComponent(){
                     Button(
                         colors = ButtonDefaults.buttonColors(DarkTurquoise),
                         shape = RoundedCornerShape(16.dp),
-                        onClick = {}
+                        onClick = {
+                            // On redirige vers la catégorie "Beef", il serait plus pertinent de ne pas hard-coder
+                            // l'id de la catégorie, je rectifierai ça après, le temps manque
+                            onNavigate(HomeUiEvent.Navigate(SearchScreen.CategoryDetails.passCategoryId(1)))
+                        }
                     ) {
                         Text(
                             text = "Of course",
@@ -152,10 +186,11 @@ fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) 
         text= feature.featureTitle,
         color= DarkTurquoise,
         style = MaterialTheme.typography.h1,
-        modifier = Modifier.padding(vertical = 15.dp, horizontal = 15.dp)
+        modifier = Modifier.padding(bottom = 15.dp, start = 18.dp)
     )
+
     LazyRow(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-        item{
+        item {
             Spacer(modifier = Modifier.width(0.dp))
         }
         items(feature.featuredMeals) { item ->
@@ -163,10 +198,11 @@ fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) 
                 Log.d("argsmealId", "Reached level 2")
                 onMealClicked(id)})
         }
-        item{
+        item {
             Spacer(modifier = Modifier.width(0.dp))
         }
     }
+
 }
 
 @Composable
@@ -207,24 +243,6 @@ fun MealCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-//                AsyncImage(
-//                    model = meal.strMealThumb,
-//                    placeholder = rememberAsyncImagePainter(
-//                        ImageRequest.Builder(LocalContext.current)
-//                            .data(data = R.drawable.ic_placeholder).apply(block = fun ImageRequest.Builder.() {
-//                                crossfade(durationMillis = 1000)
-//                                error(R.drawable.ic_placeholder)
-//                                placeholder(R.drawable.ic_placeholder)
-//                            }).build()
-//                    ),
-//                    painterResource(id = R.drawable.ic_placeholder){
-//                        crossfade(durationMillis = 1000)
-//                    },
-//                    contentDescription = "Meal img",
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                )
 
                 Column(modifier = Modifier
                     .fillMaxSize()
@@ -293,8 +311,6 @@ fun MealCard(
                 Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
             }
 
-//            Spacer(Modifier.weight(1f))
-
             Text(
                 modifier = Modifier.padding(end = 10.dp),
                 text="4.6/5",
@@ -309,5 +325,5 @@ fun MealCard(
 @Composable
 @Preview(showBackground = true)
 fun DefaultPreview(){
-    AskCardComponent()
+    AskCardComponent({})
 }

@@ -26,7 +26,7 @@ class MainScreenViewModel(): ViewModel() {
         }
     }
 
-    fun toggleBottomBarVisibility(){
-        _uiState.value = _uiState.value.copy(isBottomBarVisible = !_uiState.value.isBottomBarVisible)
+    fun toggleBottomBarVisibility(bool: Boolean){
+        _uiState.value = _uiState.value.copy(isBottomBarVisible = bool)
     }
 }

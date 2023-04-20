@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCategoryFeatures
 import com.example.esmt.cours.disher.feature_meals.domain.utils.CategoryManager
+import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -23,6 +24,18 @@ class HomeViewModel @Inject constructor(
 
     init {
         getMeals()
+    }
+
+    fun onEvent(event: HomeUiEvent) {
+        when (event) {
+            is HomeUiEvent.OnToggleFeedMode -> {
+                _uiState.value = _uiState.value.copy(
+                    feedModeOption = event.newFeedMode
+                )
+            }
+
+            else -> {}
+        }
     }
 
     private fun getMeals(){

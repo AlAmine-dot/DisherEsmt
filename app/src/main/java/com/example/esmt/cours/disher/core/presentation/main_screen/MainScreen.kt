@@ -79,7 +79,8 @@ fun MainScreen(
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
         snackbarHost = {snackbarHostState},
-        topBar = { TopBar(navController = navController) }
+        topBar = { TopBar(navController = navController,mainUiState.isBottomBarVisible,{ bool -> viewModel.toggleBottomBarVisibility(bool)}) },
+        modifier = Modifier.padding(top = 0.dp)
     ) { paddingValues -> Log.d("args", paddingValues.toString())
 
 
@@ -145,17 +146,14 @@ fun BottomBar(navController: NavHostController) {
 }
 
 @Composable
-fun TopBar(navController: NavHostController) {
-//    val screens = listOf(
-//        BottomBarScreen.Home,
-//        BottomBarScreen.Search,
-//        BottomBarScreen.Cart,
-//    )
+fun TopBar(navController: NavHostController,isVisible: Boolean,onToggleVisibility: (Boolean) -> Unit) {
+
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    TopAppBar2(navController = navController)
+//    if()
+    TopAppBar2(navController = navController, isVisible, onToggleVisibility)
 
 //    TopAppBar(
 //        title = {

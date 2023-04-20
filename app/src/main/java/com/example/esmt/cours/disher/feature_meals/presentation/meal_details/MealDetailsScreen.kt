@@ -316,10 +316,15 @@ fun PreparationComponent(
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ){
 
-        val steps = instructions.split("\n")
+        var steps = instructions.split("\n")
         val circlesColor = MeltyGreenLO
         val linesColor = MeltyGreenLO.copy(alpha = .5f)
 
+        steps = steps.filterNotNull().filter {
+            it.isNotBlank()
+        }
+
+        Log.d("argstestsv", steps.toString())
         steps.forEach { step ->
                 Column(
                     modifier = Modifier
@@ -544,9 +549,7 @@ fun DetailsComponent(
 
 @Composable
 fun IngredientGrid(items: List<MealDetailsUiState.Companion.QuantifiedIngredient>) {
-    val chunkedItems = items.chunked(3)
-
-
+        val chunkedItems = items.chunked(3)
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
