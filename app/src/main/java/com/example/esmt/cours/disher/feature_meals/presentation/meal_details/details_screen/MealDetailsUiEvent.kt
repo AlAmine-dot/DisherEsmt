@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.feature_meals.presentation.meal_details
+package com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen
 
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 
@@ -14,4 +14,5 @@ sealed class MealDetailsUiEvent{
     data class RedirectToURI(val uri: String?) : MealDetailsUiEvent()
     data class ToggleMealFromFavorite(val meal: Meal) : MealDetailsUiEvent()
     data class ToggleMealDetailsOption(val newOption: MealDetailsOption): MealDetailsUiEvent()
+    data class OnShowMealDetailsVideo(val videoUrl: String): MealDetailsUiEvent()
 }

@@ -56,6 +56,7 @@ fun TopAppBar2(
     val noTopBarScreens = listOf(
         MealDetailsScreen.Details.route.substringBefore("?"),
         SearchScreen.CategoryDetails.route.substringBefore("/"),
+        MealDetailsScreen.YtViewer.route.substringBefore("/"),
         SearchScreen.Overview.route.substringBefore("/")
     )
 

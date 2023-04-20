@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.feature_meals.presentation.meal_details
+package com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen
 
 import android.util.Log
 import androidx.compose.material.icons.Icons
@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
-import com.example.esmt.cours.disher.core.presentation.main_screen.MainScreenViewModel
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToFavorites
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.GetDetailedMealById
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.RemoveMealFromFavorites
@@ -25,7 +24,9 @@ class MealDetailsViewModel @Inject constructor(
 ): ViewModel() {
 
 
-    private val _uiState : MutableStateFlow<MealDetailsUiState> =  MutableStateFlow(MealDetailsUiState())
+    private val _uiState : MutableStateFlow<MealDetailsUiState> =  MutableStateFlow(
+        MealDetailsUiState()
+    )
     val uiState: StateFlow<MealDetailsUiState> = _uiState.asStateFlow()
 
     private val _uiEvent = Channel<MealDetailsUiEvent>()
@@ -49,10 +50,10 @@ class MealDetailsViewModel @Inject constructor(
                                 is Resource.Success -> {
                                         _uiState.value = _uiState.value.copy(
                                             favoriteButtonState = MealDetailsUiState.Companion.FavoriteButtonState(
-                                            isToAdd = false,
-                                            text = "Remove from favorites",
-                                            icon = Icons.Default.Delete
-                                        ),
+                                                isToAdd = false,
+                                                text = "Remove from favorites",
+                                                icon = Icons.Default.Delete
+                                            ),
                                         isMealToFavorites = mealToAdd.isFavorite
                                         // Je me demande ici est-ce que ça ne va pas retirer le detailedMeal du state mais on verra
                                     )

@@ -1,7 +1,6 @@
 package com.example.esmt.cours.disher.core.presentation.graphs
 
 import android.util.Log
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -17,11 +16,12 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import com.example.esmt.cours.disher.feature_meals.presentation.Mainsearch.main_screen.MainSearchScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.MealDetailsScreen
+import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen.MealDetailsScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.FavScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.category_details_screen.CategoryScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.SearchScreen
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.youtube_viewer_screen.YtViewerScreen
 
 
 @Composable
@@ -49,24 +49,7 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
                 }
             )
         }
-//        composable(route = BottomBarScreen.Search.route){
-//            SearchScreen(
-//                onNavigate = {
-//                    navController.navigate(it.route)
-//                },
-//                onPopBackStack = {
-//                    navController.popBackStack()
-//                },
-//                sendMainUiEvent = { uiEvent ->
-//                    sendMainUiEvent(uiEvent)
-//                },
-//                onShowMealDetailsScreen = { uiEvent ->
-//                    val id = uiEvent.id
-//                    Log.d("argsmealid", "step-out 1: $id")
-//                    navController.navigate(MealDetailsScreen.Details.passMealId(id))
-//                }
-//            )
-//        }
+
         composable(route = BottomBarScreen.Cart.route){
             FavScreen(
                 onNavigate = {
@@ -84,6 +67,7 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
                 }
             )
         }
+
         composable(route = MealDetailsScreen.Details.route + "?mealId={mealId}",
             arguments = listOf(
                 navArgument(name = "mealId"){
@@ -105,6 +89,35 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
                 sendMainUiEvent = { uiEvent ->
                     sendMainUiEvent(uiEvent)
                 },
+                onShowMealDetailsVideo = { uiEvent ->
+                    val videoUrl = uiEvent.videoUrl
+                    Log.d("testVideoUrl",videoUrl)
+                    navController.navigate(MealDetailsScreen.YtViewer.passVideoUrl(videoUrl))
+                },
+            )
+        }
+        composable(
+            route = MealDetailsScreen.YtViewer.route + "?videoUrl={videoUrl}",
+            arguments = listOf(navArgument(name = "videoUrl"){
+                type = NavType.StringType
+                defaultValue = ""
+            }
+            )){
+
+            val videoUrl = it.arguments?.getString("videoUrl").toString()
+            Log.d("testRedirectSearchVideo",videoUrl)
+
+            YtViewerScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                },
+                ytVideoUrl = videoUrl
             )
         }
         searchNavGraph(navController = navController,sendMainUiEvent)
@@ -245,6 +258,16 @@ sealed class MealDetailsScreen(
     ){
         fun passMealId(id: Int): String {
             return "meal_details?mealId=$id"
+        }
+    }
+
+    object YtViewer : MealDetailsScreen(
+
+        route = "meal_video",
+        title = "MEAL_VIDEO"
+    ){
+        fun passVideoUrl(videoUrl: String): String {
+            return "meal_video?videoUrl=$videoUrl"
         }
     }
 }

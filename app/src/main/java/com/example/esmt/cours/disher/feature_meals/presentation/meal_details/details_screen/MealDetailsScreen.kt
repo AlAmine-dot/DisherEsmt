@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.feature_meals.presentation.meal_details
+package com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen
 
 import android.content.Intent
 import android.net.Uri
@@ -7,12 +7,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -31,7 +28,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -62,6 +58,7 @@ fun MealDetailsScreen(
     mealId: Int,
     mealDetailsViewModel: MealDetailsViewModel = hiltViewModel(),
     sendMainUiEvent: (UiEvent) -> Unit,
+    onShowMealDetailsVideo: (MealDetailsUiEvent.OnShowMealDetailsVideo) -> Unit
 ) {
 
 
@@ -97,21 +94,24 @@ fun MealDetailsScreen(
     if(detailedMeal != null){
         MealDetailsApp(
             detailedMeal = detailedMeal,
-            onPopBackStack,
-            { event ->
+            onPopBackStack = onPopBackStack,
+            onShowMealDetailsVideo = onShowMealDetailsVideo
+            ,
+            onRedirect = { event ->
             val browserIntent = Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse(event.uri)
             )
             startActivity(context, browserIntent, null)
             },
-            {   Log.d("argsvm", "toggled last level !")
+            onToggleFavorite = {   Log.d("argsvm", "toggled last level !")
                 mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealFromFavorite(detailedMeal))
             },
-            mealDetailsUiState,
+            onToggleMealDetailsOption =
             { mealDetailsOption ->
                 mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealDetailsOption(mealDetailsOption))
-            }
+            },
+            uiState = mealDetailsUiState
         )
     }else{
         Text("Oops, couldn't find recipe")
@@ -125,7 +125,8 @@ fun MealDetailsApp(
     onRedirect: (MealDetailsUiEvent.RedirectToURI) -> Unit,
     onToggleFavorite: () -> Unit,
     uiState: MealDetailsUiState,
-    onToggleMealDetailsOption: (MealDetailsOption) -> Unit
+    onToggleMealDetailsOption: (MealDetailsOption) -> Unit,
+    onShowMealDetailsVideo: (MealDetailsUiEvent.OnShowMealDetailsVideo) -> Unit
 ){
 
     LazyColumn(
@@ -136,8 +137,10 @@ fun MealDetailsApp(
 
     ) {
         item {
-            HeaderComponent(detailedMeal.strMealName.orEmpty(), onPopBackStack = onPopBackStack, onInfoClicked = {onRedirect(MealDetailsUiEvent.RedirectToURI(detailedMeal.strSource))})
-            HeroComponent(detailedMeal.strMealThumb.orEmpty())
+            HeaderComponent(detailedMeal.strMealName.orEmpty(), onPopBackStack = onPopBackStack, onInfoClicked = {onRedirect(
+                MealDetailsUiEvent.RedirectToURI(detailedMeal.strSource)
+            )})
+            HeroComponent(detailedMeal.strMealThumb.orEmpty(),uiState.detailedMeal?.strYoutube.orEmpty(),onShowMealDetailsVideo)
             AboutComponent(mealCategory = detailedMeal.strCategory.orEmpty(), mealArea = detailedMeal.strArea.orEmpty(), onClickFavoriteButton = onToggleFavorite, favoriteButtonState = uiState.favoriteButtonState)
             DetailsComponent(uiState.mealDetailsOption,onToggleMealDetailsOption,uiState.quantifiedIngredients)
             PreparationComponent(uiState.detailedMeal?.strInstructions.orEmpty())
@@ -813,7 +816,9 @@ fun AboutComponent(
 
 @Composable
 fun HeroComponent(
-    detailedMealThumb: String
+    detailedMealThumb: String,
+    detailedMealVideoUrl: String,
+    onShowMealDetailsVideo: (MealDetailsUiEvent.OnShowMealDetailsVideo) -> Unit
 ) {
 
         val painter = rememberImagePainter(
@@ -829,7 +834,11 @@ fun HeroComponent(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(0.dp))
-            .heightIn(min = 405.dp),
+            .heightIn(min = 405.dp)
+            .clickable {
+                       onShowMealDetailsVideo(MealDetailsUiEvent.OnShowMealDetailsVideo(detailedMealVideoUrl))
+            }
+            ,
     ){
             Image(
                 painter = painter,
