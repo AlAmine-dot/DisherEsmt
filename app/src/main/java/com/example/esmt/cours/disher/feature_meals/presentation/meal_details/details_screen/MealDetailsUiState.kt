@@ -6,10 +6,12 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 data class MealDetailsUiState(
     val isLoading: Boolean = false,
     val favoriteButtonState: FavoriteButtonState = FavoriteButtonState(),
+    val cartButtonState: CartButtonState = CartButtonState(),
     val isTopBarVisible: Boolean = false,
     val quantifiedIngredients: List<QuantifiedIngredient> = emptyList(),
     // Je ne sais pas si c'est une bonne idée ici :
     val isMealToFavorites : Boolean = false,
+    val isMealIntoCart: Boolean = false,
     val detailedMeal: Meal? = null,
     val mealDetailsOption: MealDetailsOption = MealDetailsOption.INGREDIENTS,
     val error: String = "",
@@ -22,6 +24,13 @@ data class MealDetailsUiState(
              }
          }
         data class FavoriteButtonState(
+            val isToAdd: Boolean = false,
+            val isLoading: Boolean = false,
+            val text: String = "",
+            val icon: ImageVector? = null
+        )
+
+        data class CartButtonState(
             val isToAdd: Boolean = false,
             val isLoading: Boolean = false,
             val text: String = "",

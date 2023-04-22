@@ -19,11 +19,15 @@ data class Meal(
     val strYoutube: String?,
     val ingredients: List<String>,
     val measures: List<String>,
-    var isFavorite: Boolean
-
+    var isFavorite: Boolean,
+    var isIntoCart: Boolean = false,
 ){
-    fun toggleIsFavorite(): Unit {
+    fun toggleIsFavorite(){
         this.isFavorite = !this.isFavorite
+    }
+
+    fun toggleIsIntoCart(){
+        this.isIntoCart = !this.isIntoCart
     }
 
     fun toMealEntity(): MealEntity {

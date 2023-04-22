@@ -26,6 +26,7 @@ data class MealEntity(
     val strTags: String? = null,
     val strYoutube: String? = null,
     val isFavorite: Boolean = false,
+    val isIntoCart: Boolean = false,
     @ColumnInfo(name = "ingredients") val ingredients: List<String>,
     @ColumnInfo(name = "measures") val measures: List<String>
 
@@ -47,7 +48,8 @@ data class MealEntity(
             strSource = strSource ?: "",
             ingredients = ingredients,
             measures = measures,
-            isFavorite = isFavorite
+            isFavorite = isFavorite,
+            isIntoCart = isIntoCart
         )
     }
 }

@@ -136,6 +136,14 @@ fun MealDetailsScreen(
                         )
                     )
                 },
+                onToggleCart = {
+                    Log.d("argsvm", "toggled last level !")
+                    mealDetailsViewModel.onEvent(
+                        MealDetailsUiEvent.ToggleMealFromCart(
+                            detailedMeal
+                        )
+                    )
+                },
                 onToggleMealDetailsOption =
                 { mealDetailsOption ->
                     mealDetailsViewModel.onEvent(
@@ -172,6 +180,7 @@ fun MealDetailsApp(
     onPopBackStack: () -> Unit,
     onRedirect: (MealDetailsUiEvent.RedirectToURI) -> Unit,
     onToggleFavorite: () -> Unit,
+    onToggleCart: () -> Unit,
     uiState: MealDetailsUiState,
     onToggleMealDetailsOption: (MealDetailsOption) -> Unit,
     onShowMealDetailsVideo: (MealDetailsUiEvent.OnShowMealDetailsVideo) -> Unit,
@@ -207,7 +216,9 @@ fun MealDetailsApp(
                     mealCategory = detailedMeal.strCategory.orEmpty(),
                     mealArea = detailedMeal.strArea.orEmpty(),
                     onClickFavoriteButton = onToggleFavorite,
-                    favoriteButtonState = uiState.favoriteButtonState
+                    favoriteButtonState = uiState.favoriteButtonState,
+                    cartButtonState = uiState.cartButtonState,
+                    onClickCartButton = onToggleCart,
                 )
             }
             item {
@@ -736,7 +747,9 @@ fun AboutComponent(
     mealCategory: String,
     mealArea: String,
     favoriteButtonState: MealDetailsUiState.Companion.FavoriteButtonState?,
-    onClickFavoriteButton: () -> Unit
+    cartButtonState: MealDetailsUiState.Companion.CartButtonState?,
+    onClickFavoriteButton: () -> Unit,
+    onClickCartButton: () -> Unit,
 ){
     Column(
         modifier = Modifier
@@ -885,17 +898,39 @@ fun AboutComponent(
             )
 
             OutlinedButton(
-                onClick = { /*TODO*/ },
+                onClick = { onClickCartButton() },
                 border = BorderStroke(3.dp, MeltyGreen),
-
+                modifier = Modifier
+                    .width(335.dp),
             ) {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+//                    if(cartButtonState?.isLoading == true){
+//                        CircularProgressIndicator()
+//                    }else{
+//
+                    cartButtonState?.icon?.let {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = "Cart action icon",
+                            tint = MeltyGreen,
+                            modifier = Modifier
+                                .size(26.dp),
+                        )
+//                    }
                     Text(
-                        text = "Add to cart",
+                        text = cartButtonState?.text.orEmpty(),
                         fontSize = 20.sp,
                         color = DarkTurquoise,
                                 modifier = Modifier
-                                .padding(horizontal = 98.dp, vertical = 10.dp)
+                                .padding(horizontal = 8.dp, vertical = 10.dp)
                         )
+                    }
+                }
+
             }
         }
     }
@@ -1082,7 +1117,8 @@ fun defaultPreview(){
         strYoutube = "https://www.youtube.com/watch?v=CrlTS1mJQMA",
         ingredients = listOf("Olive Oil", "Onion", "Garlic", "Carrot", "French Lentils", "Thyme", "Bay Leaf", "Salt", "Celery", "", "", "", "", "", "", "", "", "", "", ""),
         measures = listOf("3 tablespoons", "1", "2 cloves", "1", "2 1/4 cups", "1 teaspoon", "3", "1 tablespoon", "2 sticks", "", "", "", "", "", "", "", "", "", "", ""),
-        isFavorite = false
+        isFavorite = false,
+        isIntoCart = false
     )
     HeroComponent(detailedMealThumb = mockMeal.strMealThumb.orEmpty(), detailedMealVideoUrl = "", onShowMealDetailsVideo = {})
 //    DetailsComponent(MealDetailsOption.UTENSILS,{}, listOf(

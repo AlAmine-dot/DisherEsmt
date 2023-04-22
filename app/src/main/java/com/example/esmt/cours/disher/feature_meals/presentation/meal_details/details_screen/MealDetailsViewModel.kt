@@ -4,11 +4,15 @@ import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToFavorites
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.GetDetailedMealById
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.RemoveMealFromCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.RemoveMealFromFavorites
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -20,6 +24,8 @@ import javax.inject.Inject
 class MealDetailsViewModel @Inject constructor(
     private val addMealToFavorites: AddMealToFavorites,
     private val removeMealFromFavorites: RemoveMealFromFavorites,
+    private val addMealToCart: AddMealToCart,
+    private val removeMealFromCart: RemoveMealFromCart,
     private val getDetailedMealById: GetDetailedMealById
 ): ViewModel() {
 
@@ -113,6 +119,74 @@ class MealDetailsViewModel @Inject constructor(
                     }
 
             }
+            is MealDetailsUiEvent.ToggleMealFromCart -> {
+                event.meal.toggleIsIntoCart()
+
+                if(event.meal.isIntoCart){
+                    val mealToAdd = event.meal
+                    addMealToCart(mealToAdd).onEach { result ->
+                        when (result) {
+                            is Resource.Success -> {
+                                _uiState.value = _uiState.value.copy(
+                                    cartButtonState = MealDetailsUiState.Companion.CartButtonState(
+                                        isToAdd = false,
+                                        text = "Remove from cart",
+                                        icon = Icons.Outlined.Delete
+                                    ),
+                                    isMealIntoCart = mealToAdd.isIntoCart
+                                    // Je me demande ici est-ce que ça ne va pas retirer le detailedMeal du state mais on verra
+                                )
+                                sendUiEvent(MealDetailsUiEvent.ShowSnackbar("Added recipe to cart successfully !"))
+                            }
+                            is Resource.Loading -> {
+                                _uiState.value = _uiState.value.copy(
+                                    cartButtonState = MealDetailsUiState.Companion.CartButtonState(
+                                        isLoading = true
+                                    )
+                                    // Je me demande ici est-ce que ça ne va pas retirer le detailedMeal du state mais on verra
+                                )
+                            }
+                            is Resource.Error -> {
+                                _uiState.value = _uiState.value.copy(
+                                    error = result.message ?: "An unexpected error occurred"
+                                )
+                            }
+                        }
+                    }.launchIn(viewModelScope)
+                }else {
+                    val mealToRemove = event.meal
+                    removeMealFromCart(mealToRemove).onEach { result ->
+                        when (result) {
+                            is Resource.Success -> {
+                                _uiState.value = _uiState.value.copy(
+                                    cartButtonState = MealDetailsUiState.Companion.CartButtonState(
+                                        isToAdd = true,
+                                        text = "Add to cart",
+                                        icon = Icons.Outlined.ShoppingCart
+                                    ),
+                                    isMealIntoCart = !mealToRemove.isIntoCart
+                                )
+                                sendUiEvent(MealDetailsUiEvent.ShowSnackbar("Recipe removed from cart."))
+                            }
+                            is Resource.Loading -> {
+                                _uiState.value = _uiState.value.copy(
+                                    cartButtonState = MealDetailsUiState.Companion.CartButtonState(
+                                        isLoading = true
+                                    )
+                                )
+                            }
+                            is Resource.Error -> {
+                                _uiState.value = _uiState.value.copy(
+                                    error = result.message ?: "An unexpected error occurred"
+                                )
+                                sendUiEvent(MealDetailsUiEvent.ShowSnackbar("Oops, an unexpected error occured, please retry !"))
+                            }
+                        }
+                    }.launchIn(viewModelScope)
+                }
+
+            }
+
             else -> Unit
         }
     }
@@ -129,6 +203,7 @@ class MealDetailsViewModel @Inject constructor(
             when (result){
                 is Resource.Success -> {
                     val isFavorite = result.data.let { it?.isFavorite ?: false }
+                    val isIntoCart = result.data.let { it?.isIntoCart ?: false }
                             Log.d("testMealVM", isFavorite.toString())
                     _uiState.value = MealDetailsUiState(
                         detailedMeal = result.data,
@@ -140,7 +215,15 @@ class MealDetailsViewModel @Inject constructor(
                             isToAdd = isFavorite,
                             text = if(!isFavorite){"Add to favorites"}else{"Remove from favorites"},
                             icon = if(!isFavorite){Icons.Default.Favorite}else{Icons.Default.Delete},
-                        )
+                        ),
+                        cartButtonState = MealDetailsUiState.Companion.CartButtonState(
+                            isLoading = false,
+                            // Pour le moment j'initialise à false mais après tu devras avoir un attribut dans tes objets pour savoir si
+                            // le repas est en favoris ou pas
+                            isToAdd = isIntoCart,
+                            text = if(!isIntoCart){"Add to cart"}else{"Remove from cart"},
+                            icon = if(!isIntoCart){Icons.Outlined.ShoppingCart}else{Icons.Outlined.Delete},
+                        ),
                     )
                     Log.d("testMealVM", _uiState.value.toString())
 

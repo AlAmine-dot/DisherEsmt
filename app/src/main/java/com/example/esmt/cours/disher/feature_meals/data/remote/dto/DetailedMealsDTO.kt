@@ -94,7 +94,8 @@ data class DetailedMealsDTO(
                     strMeasure11, strMeasure12, strMeasure13, strMeasure14, strMeasure15,
                     strMeasure16, strMeasure17, strMeasure18, strMeasure19, strMeasure20
                 ),
-                isFavorite = false
+                isFavorite = false,
+                isIntoCart = false
             )
         }
 

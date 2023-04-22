@@ -378,7 +378,8 @@ fun DefaultPreview(){
         strYoutube = "https://www.youtube.com/watch?v=CrlTS1mJQMA",
         ingredients = listOf("Olive Oil", "Onion", "Garlic", "Carrot", "French Lentils", "Thyme", "Bay Leaf", "Salt", "Celery", "", "", "", "", "", "", "", "", "", "", ""),
         measures = listOf("3 tablespoons", "1", "2 cloves", "1", "2 1/4 cups", "1 teaspoon", "3", "1 tablespoon", "2 sticks", "", "", "", "", "", "", "", "", "", "", ""),
-        isFavorite = false
+        isFavorite = false,
+        isIntoCart = false
     )
     MealCard(mockMeal,{})
 }

@@ -1,11 +1,13 @@
 package com.example.esmt.cours.disher.feature_meals.data.service
 
 import com.example.esmt.cours.disher.feature_meals.data.local.MealsDatabase
+import com.example.esmt.cours.disher.feature_meals.data.local.entities.CartItemEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.CategoryEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.FavoriteMealItemEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.MealEntity
 import com.example.esmt.cours.disher.feature_meals.data.remote.api.TheMealApi
 import com.example.esmt.cours.disher.feature_meals.data.remote.dto.CategoriesDTO
+import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import javax.inject.Inject
 
@@ -16,6 +18,7 @@ class MealService @Inject constructor(
 
     private val mealsDao = db.mealsDao()
     private val favoritesDao = db.favoriteMealsDao()
+    private val cartDao = db.cartMealsDao()
 
     // IS MEAL FAVORITE :
 
@@ -133,6 +136,32 @@ class MealService @Inject constructor(
 
         favoritesDao.removeMealFromFavorite(mealEntity.mealId)
         mealsDao.addMeals(listOf(mealEntity.copy(isFavorite = false)))
+    }
+
+     //////////////////////////////
+
+    suspend fun addMealToCart(mealEntity: MealEntity){
+        cartDao.addMealToCart(CartItemEntity(0,1,mealEntity))
+        mealsDao.addMeals(listOf(mealEntity.copy(isIntoCart = true)))
+
+    }
+
+    suspend fun removeMealFromCart(mealEntity: MealEntity){
+
+        cartDao.removeMealOfCart(mealEntity.mealId)
+        mealsDao.addMeals(listOf(mealEntity.copy(isIntoCart = false)))
+    }
+
+    suspend fun isMealIntoCart(mealEntity: MealEntity): Boolean {
+        return cartDao.isMealIntoCart(mealEntity.mealId)
+    }
+
+    suspend fun getCart(): List<CartItem>{
+        return cartDao.getAllCartsMeal().map { it.toCartItem() }
+    }
+
+    suspend fun updateCartItemQuantity(mealEntity: MealEntity, newValue: Int){
+        cartDao.updateQuantity(mealEntity.mealId, newValue)
     }
 
 }
