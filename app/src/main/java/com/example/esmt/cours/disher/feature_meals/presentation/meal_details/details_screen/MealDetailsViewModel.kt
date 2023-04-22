@@ -35,6 +35,11 @@ class MealDetailsViewModel @Inject constructor(
 
     fun onEvent(event: MealDetailsUiEvent){
         when(event){
+            is MealDetailsUiEvent.ToggleTopBar -> {
+                _uiState.value = _uiState.value.copy(
+                    isTopBarVisible = event.newState
+                )
+            }
             is MealDetailsUiEvent.ToggleMealDetailsOption -> {
                 _uiState.value = _uiState.value.copy(
                     mealDetailsOption = event.newOption

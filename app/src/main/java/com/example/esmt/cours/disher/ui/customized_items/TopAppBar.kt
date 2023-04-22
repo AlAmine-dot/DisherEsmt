@@ -7,6 +7,8 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -20,7 +22,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,44 +52,24 @@ import kotlin.concurrent.schedule
 
 @Composable
 fun TopAppBar2(
-    navController: NavHostController,
+    topBarContent: TopBarContent,
     isVisible: Boolean,
-    onToggleVisibility: (Boolean) -> Unit
+    onPopBackStack: () -> Unit = {},
 ){
+    Log.d("testTBState", isVisible.toString())
+    val currentRoute = topBarContent.route
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    val noTopBarScreens = listOf(
-        MealDetailsScreen.Details.route.substringBefore("?"),
-        SearchScreen.CategoryDetails.route.substringBefore("/"),
-        MealDetailsScreen.YtViewer.route.substringBefore("/"),
-        SearchScreen.Overview.route.substringBefore("/")
-    )
-
-    val topBarScreenDestination = currentDestination?.route?.substringBefore("?")?.substringBefore("/") !in noTopBarScreens
-
-    if(!topBarScreenDestination){
-        Timer().schedule(1000) {
-        onToggleVisibility(false)
-        }
-    }else{
-        Timer().schedule(1000) {
-            onToggleVisibility(true)
-        }
-    }
-
-//    if(isVisible) {
         AnimatedVisibility(
-            visible = topBarScreenDestination,
+            visible = isVisible,
             enter = slideInVertically(
                 // Enters by sliding down from offset -fullHeight to 0.
                 initialOffsetY = { fullHeight -> -fullHeight },
-                animationSpec = tween(durationMillis = 50, easing = LinearOutSlowInEasing)
+                animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
             ),
             exit = slideOutVertically(
                 // Exits by sliding up from offset 0 to -fullHeight.
                 targetOffsetY = { fullHeight -> -fullHeight },
-                animationSpec = tween(durationMillis = 350, easing = FastOutLinearInEasing)
+                animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
             )
         ) {
             Surface(
@@ -91,13 +77,72 @@ fun TopAppBar2(
                     .fillMaxWidth()
                     .height(70.dp),
                 elevation = 10.dp,
-                color = Color.White
+                color = if(currentRoute == MealDetailsScreen.Details.route.substringBefore("?")) {
+                    MeltyGreen
+                }else{
+                    Color.White
+                }
             ) {
                 TopAppBar(
                     elevation = 16.dp,
-                    backgroundColor = Color.White
+                    backgroundColor = if(currentRoute == MealDetailsScreen.Details.route.substringBefore("?")) {
+                        MeltyGreen
+                    }else{
+                        Color.White
+                    }
                 ) {
-                    when (currentDestination?.route) {
+                    when (currentRoute) {
+                        MealDetailsScreen.Details.route.substringBefore("?") -> {
+                            val mealName = topBarContent.getArgByKey("mealName")?.value.toString()
+                            val isMealFavorite = topBarContent.getArgByKey("isFavorite")?.value as Boolean
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth().padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = "Go back",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .align(Alignment.CenterStart)
+                                        .padding(start = 5.dp)
+                                        .clickable { onPopBackStack() }
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.Center),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Text(
+                                        text = mealName,
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.h3,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 20.sp
+                                    )
+
+                                }
+                                Icon(
+                                    imageVector = if(isMealFavorite) {
+                                        Icons.Default.Favorite
+                                    }else{
+                                         Icons.Outlined.FavoriteBorder
+                                    },
+                                    contentDescription = "Favorite meal button",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .align(Alignment.CenterEnd)
+                                        .padding(end = 5.dp)
+                                )
+                            }
+                        }
                         BottomBarScreen.Home.route -> {
                             Box(
                                 modifier = Modifier
@@ -152,7 +197,7 @@ fun TopAppBar2(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = currentDestination?.route.orEmpty()
+                                        text = currentRoute
                                             .toUpperCase(Locale.ROOT),
                                         color = MeltyGreen,
                                         style = MaterialTheme.typography.h3,
@@ -188,7 +233,7 @@ fun TopAppBar2(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = currentDestination?.route.orEmpty()
+                                        text = currentRoute
                                             .toUpperCase(Locale.ROOT),
                                         color = MeltyGreen,
                                         style = MaterialTheme.typography.h3,
@@ -220,5 +265,12 @@ fun TopAppBar2(
 @Composable
 @Preview(showBackground = true)
 private fun Preview(){
-    TopAppBar2(navController = rememberNavController(),true,{})
+//    TopAppBar2(navController = rememberNavController(),true,{})
 }
+
+data class TopBarContent(val route: String, val args: List<TopBarArgument>){
+    fun getArgByKey(argKey: String): TopBarArgument?{
+        return args.find { it.key == argKey }
+    }
+}
+data class TopBarArgument(val key: String, val value: Any)

@@ -3,20 +3,24 @@ package com.example.esmt.cours.disher.feature_meals.presentation.home
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -30,12 +34,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
+import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.SearchScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
+import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
+import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
 
 @Composable
 fun HomeScreen(
@@ -49,56 +56,61 @@ fun HomeScreen(
         val homeUiState by homeViewModel.uiState.collectAsState()
         val categoryFeatures = homeUiState.getCategoryFeatures()
 
-
         val trigger by remember { mutableStateOf(homeUiState.feedModeOption == FeedMode.DISCOVERY) }
 
-        LazyColumn(
-            modifier = Modifier
-                .background(TextWhite)
-                .fillMaxSize()
-                .padding(start = 0.dp, bottom = 39.dp),
-            verticalArrangement = Arrangement.spacedBy(25.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(25.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    RadioToggler(
-                        item1 = "Discovery mode",
-                        item2 = "Custom mode",
-                        trigger = homeUiState.feedModeOption == FeedMode.DISCOVERY,
-                        onClickItem1 = {
-                            homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.DISCOVERY))
-                        },
-                        onClickItem2 = {
-                            homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.CUSTOM))
-                        }
-                    )
+        Scaffold(
+            topBar = {TopAppBar2(TopBarContent(BottomBarScreen.Home.route, emptyList()),true,{})}
+        ) {paddingValues ->
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .background(TextWhite)
+                    .fillMaxSize()
+                    .padding(start = 0.dp, bottom = 39.dp),
+                verticalArrangement = Arrangement.spacedBy(25.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(25.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        RadioToggler(
+                            item1 = "Discovery mode",
+                            item2 = "Custom mode",
+                            trigger = homeUiState.feedModeOption == FeedMode.DISCOVERY,
+                            onClickItem1 = {
+                                homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.DISCOVERY))
+                            },
+                            onClickItem2 = {
+                                homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.CUSTOM))
+                            }
+                        )
+                    }
                 }
-            }
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 0.dp)
-                    ,
-                    horizontalArrangement = Arrangement.Center
-                ){
-                    AskCardComponent(onNavigate)
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 0.dp)
+                        ,
+                        horizontalArrangement = Arrangement.Center
+                    ){
+                        AskCardComponent(onNavigate)
+                    }
                 }
-            }
-            items(categoryFeatures) {feature ->
-                CategoryFeature(feature, onMealClicked = { mealId ->
-                    Log.d("argsmealId", "Reached level 1")
-                    onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
-                })
-            }
-            item{
-                Text(homeUiState.error)
+                items(categoryFeatures) {feature ->
+                    CategoryFeature(feature, onMealClicked = { mealId ->
+                        Log.d("argsmealId", "Reached level 1")
+                        onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
+                    })
+                }
+                item{
+                    Text(homeUiState.error)
+                }
             }
         }
 
@@ -214,17 +226,18 @@ fun MealCard(
         modifier = Modifier
             .height(226.dp)
             .width(200.dp)
-            .clickable {
-                Log.d("argsmealId", "Reached level 3")
-                onClick(meal.id)
-            },
+,
 
     ){
 
         Card(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(.89f),
+            .fillMaxHeight(.89f)
+            .clickable {
+                Log.d("argsmealId", "Reached level 3")
+                onClick(meal.id)
+            },
         shape = RoundedCornerShape(16.dp),
         backgroundColor = Color.White,
         elevation = 10.dp
@@ -244,7 +257,7 @@ fun MealCard(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                Column(modifier = Modifier
+                Box(modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
@@ -256,12 +269,34 @@ fun MealCard(
                         )
                     )
                 ){
+
+                    if(meal.strYoutube?.isNotBlank() == true){
+
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .align(Alignment.Center)
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = .4f))
+                                .shadow(100.dp, CircleShape)
+                                .border(3.dp, Color.White, CircleShape)
+                            ,
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Play video",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(30.dp),
+                            )
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-//                            .height(38.dp)
                             .padding(10.dp)
-//                            .background(Color.Red)
                     ) {
                         Text(
                             text = meal.strArea.orEmpty(),
@@ -279,16 +314,17 @@ fun MealCard(
 
 
                     }
-                Spacer(Modifier.weight(0.80f))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.25f),
+                        .padding(bottom = 5.dp)
+                        .align(Alignment.BottomStart)
+                    ,
                     contentAlignment = Alignment.CenterStart
                 ){
                     Text(
                         modifier = Modifier
-                            .padding(top = 5.dp, start = 10.dp),
+                            .padding(start = 10.dp),
                         text= meal.strMealName.orEmpty(),
                         color = TextWhite,
                     )
@@ -325,5 +361,24 @@ fun MealCard(
 @Composable
 @Preview(showBackground = true)
 fun DefaultPreview(){
-    AskCardComponent({})
+//    AskCardComponent({})
+    val mockMeal = Meal(
+        id = 52815,
+        dateModified = null,
+        strCreativeCommonsConfirmed = null,
+        strDrinkAlternate = null,
+        strImageSource = null,
+        strArea = "French",
+        strCategory = "Miscellaneous",
+        strInstructions = "Place a large saucepan over medium heat and add oil. When hot, add chopped vegetables and sauté until softened, 5 to 10 minutes.\nAdd 6 cups water, lentils, thyme, bay leaves and salt. Bring to a boil, then reduce to a fast simmer.\nSimmer lentils until they are tender and have absorbed most of the water, 20 to 25 minutes. If necessary, drain any excess water after lentils have cooked. Serve immediately, or allow them to cool and reheat later.\nFor a fuller taste, use some chicken stock and reduce the water by the same amount.",
+        strMealName = "French Lentils With Garlic and Thyme",
+        strMealThumb = "https://www.themealdb.com/images/media/meals/vwwspt1487394060.jpg",
+        strSource = null,
+        strTags = "Pulse",
+        strYoutube = "https://www.youtube.com/watch?v=CrlTS1mJQMA",
+        ingredients = listOf("Olive Oil", "Onion", "Garlic", "Carrot", "French Lentils", "Thyme", "Bay Leaf", "Salt", "Celery", "", "", "", "", "", "", "", "", "", "", ""),
+        measures = listOf("3 tablespoons", "1", "2 cloves", "1", "2 1/4 cups", "1 teaspoon", "3", "1 tablespoon", "2 sticks", "", "", "", "", "", "", "", "", "", "", ""),
+        isFavorite = false
+    )
+    MealCard(mockMeal,{})
 }

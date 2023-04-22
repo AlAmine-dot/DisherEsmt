@@ -5,6 +5,8 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 sealed class MealDetailsUiEvent{
 
     object PopBackStack: MealDetailsUiEvent()
+
+    data class ToggleTopBar(val newState: Boolean): MealDetailsUiEvent()
     data class ShowSnackbar(
         val message: String,
         val action: String? = null

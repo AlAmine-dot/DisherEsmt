@@ -1,6 +1,7 @@
 package com.example.esmt.cours.disher.core.presentation.main_screen
 
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -19,20 +20,21 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.MainNavGraph
 import com.example.esmt.cours.disher.ui.customized_items.NavBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.theme.*
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainScreen(
     viewModel: MainScreenViewModel = hiltViewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberAnimatedNavController()
 ) {
 
     val snackbarHostState = remember {
@@ -48,25 +50,11 @@ fun MainScreen(
         viewModel.uiEvent.collect { event ->
             when(event) {
                 is UiEvent.ShowSnackbar -> {
-//
-//                    if (event.message != lastSnackbarMessage) {
-//                        // Afficher le Snackbar avec un message et un action.
-//                        snackbarHostState.showSnackbar(
-//                            message = event.message,
-//                            actionLabel = event.action,
-//                            duration = SnackbarDuration.Long
-//                        )
-//
-//                        // Mettre à jour le dernier message affiché.
-//                        lastSnackbarMessage = event.message
-//                    }
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar(
                         event.message,
                         event.action,
                     )
-
-
                 }
                 is UiEvent.HideSnackbar -> {
                     snackbarHostState.currentSnackbarData?.dismiss()
@@ -79,7 +67,9 @@ fun MainScreen(
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
         snackbarHost = {snackbarHostState},
-        topBar = { TopBar(navController = navController,mainUiState.isBottomBarVisible,{ bool -> viewModel.toggleBottomBarVisibility(bool)}) },
+        topBar = {
+//            TopBar(navController = navController,mainUiState.isBottomBarVisible,{ bool -> viewModel.toggleBottomBarVisibility(bool)})
+                 },
         modifier = Modifier.padding(top = 0.dp)
     ) { paddingValues -> Log.d("args", paddingValues.toString())
 
@@ -97,7 +87,6 @@ fun MainScreen(
     SnackbarHost(
         hostState = snackbarHostState,
         snackbar = { data ->
-//            Spacer(Modifier.fillMaxHeight(0f))
             Snackbar(
                 content = {
                     Text(
@@ -123,7 +112,7 @@ fun MainScreen(
                 elevation = 8.dp,
                 modifier = Modifier
                     .padding(16.dp)
-                    .padding(top = 0.dp)
+                    .padding(top = 680.dp)
                     .defaultMinSize(minHeight = 70.dp)
             )
         }
@@ -153,7 +142,7 @@ fun TopBar(navController: NavHostController,isVisible: Boolean,onToggleVisibilit
     val currentDestination = navBackStackEntry?.destination
 
 //    if()
-    TopAppBar2(navController = navController, isVisible, onToggleVisibility)
+//    TopAppBar2(navController = navController, isVisible, onToggleVisibility)
 
 //    TopAppBar(
 //        title = {

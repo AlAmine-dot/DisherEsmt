@@ -3,6 +3,7 @@ package com.example.esmt.cours.disher
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,22 +17,25 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.compose.rememberNavController
 import com.example.esmt.cours.disher.core.presentation.graphs.RootNavigationGraph
 import com.example.esmt.cours.disher.ui.theme.DisherTheme
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.regex.Pattern
+import com.google.accompanist.navigation.animation.navigation
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
 
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             DisherTheme {
 //                        HomeScreen()
-                RootNavigationGraph(navController = rememberNavController())
+                RootNavigationGraph(navController = rememberAnimatedNavController())
 //                Column(
 //                    modifier = Modifier.fillMaxSize().background(Color.Black),
 //                    horizontalAlignment = Alignment.CenterHorizontally,

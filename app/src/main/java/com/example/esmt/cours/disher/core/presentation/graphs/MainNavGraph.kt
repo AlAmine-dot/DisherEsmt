@@ -1,6 +1,15 @@
 package com.example.esmt.cours.disher.core.presentation.graphs
 
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -11,7 +20,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import com.example.esmt.cours.disher.feature_meals.presentation.Mainsearch.main_screen.MainSearchScreen
@@ -22,16 +30,44 @@ import com.example.esmt.cours.disher.feature_meals.presentation.search.category_
 import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.SearchScreen
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.youtube_viewer_screen.YtViewerScreen
+import com.example.esmt.cours.disher.ui.TestScreen
+import com.example.esmt.cours.disher.ui.TestScreen2
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+//import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.composable
 
-
+    val fadeDuration = 800
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> Unit) {
-    NavHost(
+
+    AnimatedNavHost(
         navController = navController,
         route = Graph.HOME.route,
         startDestination = BottomBarScreen.Home.route
     ) {
-        composable(route = BottomBarScreen.Home.route){
+        composable(route = BottomBarScreen.Home.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            exitTransition = {
+                Log.d("testIS",targetState.destination.route.orEmpty())
+                when(targetState.destination.route?.substringBefore("?")){
+                    MealDetailsScreen.Details.route.substringBefore("?") ->{
+                        fadeOut(animationSpec = tween(durationMillis = fadeDuration + 5000))
+                    }
+                    else -> {
+                        fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+                    }
+                }
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+            }
+            ){
             HomeScreen(
                 onNavigate = {
                     navController.navigate(it.route)
@@ -50,7 +86,27 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
             )
         }
 
-        composable(route = BottomBarScreen.Cart.route){
+        composable(route = BottomBarScreen.Cart.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            exitTransition = {
+                when(targetState.destination.route?.substringBefore("?")){
+                    MealDetailsScreen.Details.route.substringBefore("?") ->{
+                        fadeOut(animationSpec = tween(durationMillis = 5000))
+                    }
+                    else -> {
+                        fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+                    }
+                }
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+            }
+            ){
             FavScreen(
                 onNavigate = {
                     navController.navigate(it.route)
@@ -69,6 +125,34 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
         }
 
         composable(route = MealDetailsScreen.Details.route + "?mealId={mealId}",
+            enterTransition = {
+                slideInVertically (
+                    initialOffsetY = { 600 },
+                    animationSpec = tween(700, easing = EaseIn)
+                ) +
+                fadeIn(animationSpec = tween(1100))
+            },
+            exitTransition = {
+                slideOutVertically (
+                    targetOffsetY = { 600 },
+                    animationSpec = tween(700, easing = EaseIn)
+                ) +
+                fadeOut(animationSpec = tween(500,100))
+            },
+            popEnterTransition = {
+                slideInVertically (
+                    initialOffsetY = { 600 },
+                    animationSpec = tween(700, easing = EaseIn)
+                ) +
+                        fadeIn(animationSpec = tween(1100))
+            },
+            popExitTransition = {
+                slideOutVertically (
+                    targetOffsetY = { 600 },
+                    animationSpec = tween(700, easing = EaseIn)
+                ) +
+                        fadeOut(animationSpec = tween(500,100))
+            },
             arguments = listOf(
                 navArgument(name = "mealId"){
                     type = NavType.IntType
@@ -95,6 +179,7 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
                     navController.navigate(MealDetailsScreen.YtViewer.passVideoUrl(videoUrl))
                 },
             )
+//            TestScreen2()
         }
         composable(
             route = MealDetailsScreen.YtViewer.route + "?videoUrl={videoUrl}",
@@ -124,13 +209,27 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
     }
 }
 
-fun NavGraphBuilder.searchNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> Unit) {
+@OptIn(ExperimentalAnimationApi::class)
+fun NavGraphBuilder.searchNavGraph(navController: NavHostController, sendMainUiEvent: (UiEvent) -> Unit) {
     navigation(
         route = Graph.SEARCH.route,
         startDestination = BottomBarScreen.Search.route,
     ) {
         composable(
-            route = BottomBarScreen.Search.route){
+            route = BottomBarScreen.Search.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+            }
+            ){
             MainSearchScreen(
                 onNavigate = {
                     navController.navigate(it.route)

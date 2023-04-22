@@ -2,7 +2,9 @@ package com.example.esmt.cours.disher.ui.customized_items
 
 import android.view.Surface
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -15,6 +17,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -39,6 +42,7 @@ fun NavBar2(
     val currentDestination = navBackStackEntry?.destination
     val bottomBarDestination = screens.any { it.route == currentDestination?.route }
 
+
     AnimatedVisibility(
         visible = bottomBarDestination,
         enter = slideInVertically{56},
@@ -58,8 +62,12 @@ fun NavBar2(
             Row(Modifier.fillMaxSize()) {
 
                 screens.forEachIndexed { index, screen ->
-                    val isSelected =
-                        currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                    val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                    val backgroundColor = if (isSelected) MeltyGreen else Color.Transparent
+                    val animatedColor by animateColorAsState(targetValue = backgroundColor, animationSpec = tween(durationMillis = 500, delayMillis = 0))
+
+                    val iconTint = if (isSelected) Color.White else DarkTurquoise.copy(alpha = .6f)
+                    val animatedTint by animateColorAsState(targetValue = iconTint, animationSpec = tween(durationMillis = 500, delayMillis = 0))
                     Box(
                         Modifier
                             .fillMaxHeight()
@@ -70,6 +78,7 @@ fun NavBar2(
                         Box(
                             Modifier
                                 .size(40.dp)
+                                .clip(RoundedCornerShape(18.dp))
                                 .clickable {
                                     navController.navigate(screen.route) {
                                         popUpTo(navController.graph.findStartDestination().id)
@@ -77,10 +86,9 @@ fun NavBar2(
                                     }
                                 }
                                 .background(
-                                    if (isSelected) MeltyGreen
-                                    else Color.Transparent,
+//                                    if (isSelected) MeltyGreen else Color.Transparent,
+                                    animatedColor,
                                     RoundedCornerShape(18.dp)
-
                                 ),
                             contentAlignment = Center
                         ) {
@@ -89,7 +97,9 @@ fun NavBar2(
                                 imageVector = screen.icon,
                                 null,
                                 Modifier.size(24.dp),
-                                tint = if (isSelected) Color.White else DarkTurquoise.copy(alpha = .6f)
+                                tint =
+//                                if (isSelected) Color.White else DarkTurquoise.copy(alpha = .6f)
+                                animatedTint
                             )
 
                         }

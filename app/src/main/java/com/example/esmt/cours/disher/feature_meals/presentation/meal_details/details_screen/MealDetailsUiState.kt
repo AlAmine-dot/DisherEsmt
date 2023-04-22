@@ -6,6 +6,7 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 data class MealDetailsUiState(
     val isLoading: Boolean = false,
     val favoriteButtonState: FavoriteButtonState = FavoriteButtonState(),
+    val isTopBarVisible: Boolean = false,
     val quantifiedIngredients: List<QuantifiedIngredient> = emptyList(),
     // Je ne sais pas si c'est une bonne idée ici :
     val isMealToFavorites : Boolean = false,

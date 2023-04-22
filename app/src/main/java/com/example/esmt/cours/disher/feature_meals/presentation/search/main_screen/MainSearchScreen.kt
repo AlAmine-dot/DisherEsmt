@@ -27,6 +27,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
+import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Category
 import com.example.esmt.cours.disher.feature_meals.presentation.search.main_screen.MainSearchUiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.search.main_screen.MainSearchUiState
@@ -64,6 +66,8 @@ import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import com.example.esmt.cours.disher.ui.theme.MeltyGreenLO
 import com.example.esmt.cours.disher.ui.theme.TextWhite
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
+import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
 
 @Composable
 fun MainSearchScreen(
@@ -100,19 +104,28 @@ fun MainSearchScreen(
         }
     }
 
+    Scaffold(
+        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Search.route, emptyList()),true,{}) }
+    ) { paddingValues ->
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        HeaderComponent(mainSearchUiState,onMainSearchTextChange,onEvent)
-        CategoryListComponent(
-            categories,
-            {idCategory ->
-                mainSearchViewModel.sendUiEvent(MainSearchUiEvent.RedirectToCategoryScreen(idCategory))
-            },
-            false)
-        // C'est plutot une categoryList component qu'il faudra ici :
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            HeaderComponent(mainSearchUiState, onMainSearchTextChange, onEvent)
+            CategoryListComponent(
+                categories,
+                { idCategory ->
+                    mainSearchViewModel.sendUiEvent(
+                        MainSearchUiEvent.RedirectToCategoryScreen(
+                            idCategory
+                        )
+                    )
+                },
+                false
+            )
+            // C'est plutot une categoryList component qu'il faudra ici :
 
 //        MealsListComponent(
 //            mealItems = mainSearchUiState.MainsearchResult,
@@ -122,6 +135,7 @@ fun MainSearchScreen(
 //                onShowMealDetailsScreen(MainSearchUiEvent.ShowMealDetails(mealId))
 //            }
 //        )
+        }
     }
 }
 

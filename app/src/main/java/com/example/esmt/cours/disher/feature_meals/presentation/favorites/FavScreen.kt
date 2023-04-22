@@ -41,6 +41,8 @@ import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavUiE
 import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavViewModel
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
+import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
 
 @Composable
 fun FavScreen(
@@ -70,24 +72,29 @@ fun FavScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 7.dp)
-        ,
-    ) {
-        TopCardComponent()
-        MealsListComponent(
-            mealItems = favoriteMeals,
-            onNavigate = onNavigate,
-            onMealClicked = { mealId ->
-                Log.d("argsmealId", "Reached level 1")
-                onShowMealDetailsScreen(FavUiEvent.ShowMealDetails(mealId))
-            },
-            onDeleteClicked = { meal ->
-                favViewModel.onEvent(FavUiEvent.RemoveMealFromFavorites(meal))
-            }
-        )
+    Scaffold(
+        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Cart.route, emptyList()),true,{}) }
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(top = 7.dp),
+        ) {
+            TopCardComponent()
+            MealsListComponent(
+                mealItems = favoriteMeals,
+                onNavigate = onNavigate,
+                onMealClicked = { mealId ->
+                    Log.d("argsmealId", "Reached level 1")
+                    onShowMealDetailsScreen(FavUiEvent.ShowMealDetails(mealId))
+                },
+                onDeleteClicked = { meal ->
+                    favViewModel.onEvent(FavUiEvent.RemoveMealFromFavorites(meal))
+                }
+            )
+        }
     }
 }
 

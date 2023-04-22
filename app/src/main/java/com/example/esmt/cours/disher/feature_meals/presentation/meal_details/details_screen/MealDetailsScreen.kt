@@ -6,10 +6,17 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,12 +25,16 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -44,12 +55,19 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
+import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
+import com.example.esmt.cours.disher.core.presentation.graphs.MealDetailsScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
 import com.example.esmt.cours.disher.ui.customized_items.GradientButton
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
+import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
+import com.example.esmt.cours.disher.ui.customized_items.TopBarArgument
+import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
+
+
 
 @Composable
 fun MealDetailsScreen(
@@ -64,6 +82,10 @@ fun MealDetailsScreen(
 
     val mealDetailsUiState by mealDetailsViewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+
+    val scrollState = rememberScrollState()
+    val listState = rememberLazyListState()
 
     // Ceci est une side effect car cet appel modifie une partie de ton code qui n'a rien à voir avec
     // le composable, pour éviter que cet effet de bord ne créee une boucle, utilise LaunchedEffect :
@@ -91,61 +113,128 @@ fun MealDetailsScreen(
 
 
     val detailedMeal = mealDetailsUiState.detailedMeal
-    if(detailedMeal != null){
-        MealDetailsApp(
-            detailedMeal = detailedMeal,
-            onPopBackStack = onPopBackStack,
-            onShowMealDetailsVideo = onShowMealDetailsVideo
-            ,
-            onRedirect = { event ->
-            val browserIntent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(event.uri)
+    if (detailedMeal != null) {
+
+            MealDetailsApp(
+                listState,
+                detailedMeal = detailedMeal,
+//                paddingValues,
+                onPopBackStack = onPopBackStack,
+                onShowMealDetailsVideo = onShowMealDetailsVideo,
+                onRedirect = { event ->
+                    val browserIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(event.uri)
+                    )
+                    startActivity(context, browserIntent, null)
+                },
+                onToggleFavorite = {
+                    Log.d("argsvm", "toggled last level !")
+                    mealDetailsViewModel.onEvent(
+                        MealDetailsUiEvent.ToggleMealFromFavorite(
+                            detailedMeal
+                        )
+                    )
+                },
+                onToggleMealDetailsOption =
+                { mealDetailsOption ->
+                    mealDetailsViewModel.onEvent(
+                        MealDetailsUiEvent.ToggleMealDetailsOption(
+                            mealDetailsOption
+                        )
+                    )
+                },
+                uiState = mealDetailsUiState,
+                onToggleTopBarVisibility = {newState ->
+                    mealDetailsViewModel.onEvent(
+                        MealDetailsUiEvent.ToggleTopBar(newState)
+                    )
+                }
             )
-            startActivity(context, browserIntent, null)
-            },
-            onToggleFavorite = {   Log.d("argsvm", "toggled last level !")
-                mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealFromFavorite(detailedMeal))
-            },
-            onToggleMealDetailsOption =
-            { mealDetailsOption ->
-                mealDetailsViewModel.onEvent(MealDetailsUiEvent.ToggleMealDetailsOption(mealDetailsOption))
-            },
-            uiState = mealDetailsUiState
-        )
-    }else{
-        Text("Oops, couldn't find recipe")
+    }
+    else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator()
+        }
     }
 }
 
 @Composable
 fun MealDetailsApp(
+    listState: LazyListState,
     detailedMeal: Meal,
     onPopBackStack: () -> Unit,
     onRedirect: (MealDetailsUiEvent.RedirectToURI) -> Unit,
     onToggleFavorite: () -> Unit,
     uiState: MealDetailsUiState,
     onToggleMealDetailsOption: (MealDetailsOption) -> Unit,
-    onShowMealDetailsVideo: (MealDetailsUiEvent.OnShowMealDetailsVideo) -> Unit
-){
-
-    LazyColumn(
+    onShowMealDetailsVideo: (MealDetailsUiEvent.OnShowMealDetailsVideo) -> Unit,
+    onToggleTopBarVisibility: (Boolean) -> Unit
+) {
+    Box(
         modifier = Modifier
             .background(Color.White)
             .fillMaxSize()
-            .padding(bottom = 0.dp)
-
     ) {
-        item {
-            HeaderComponent(detailedMeal.strMealName.orEmpty(), onPopBackStack = onPopBackStack, onInfoClicked = {onRedirect(
-                MealDetailsUiEvent.RedirectToURI(detailedMeal.strSource)
-            )})
-            HeroComponent(detailedMeal.strMealThumb.orEmpty(),uiState.detailedMeal?.strYoutube.orEmpty(),onShowMealDetailsVideo)
-            AboutComponent(mealCategory = detailedMeal.strCategory.orEmpty(), mealArea = detailedMeal.strArea.orEmpty(), onClickFavoriteButton = onToggleFavorite, favoriteButtonState = uiState.favoriteButtonState)
-            DetailsComponent(uiState.mealDetailsOption,onToggleMealDetailsOption,uiState.quantifiedIngredients)
-            PreparationComponent(uiState.detailedMeal?.strInstructions.orEmpty())
+
+        LazyColumn(
+            state = listState
+        ) {
+            item {
+                HeaderComponent(
+                    detailedMeal.strMealName.orEmpty(),
+                    onPopBackStack = onPopBackStack,
+                    onInfoClicked = {
+                        onRedirect(MealDetailsUiEvent.RedirectToURI(detailedMeal.strSource))
+                    }
+                )
+            }
+            item {
+                HeroComponent(
+                    detailedMeal.strMealThumb.orEmpty(),
+                    uiState.detailedMeal?.strYoutube.orEmpty(),
+                    onShowMealDetailsVideo
+                )
+            }
+            item {
+                AboutComponent(
+                    mealCategory = detailedMeal.strCategory.orEmpty(),
+                    mealArea = detailedMeal.strArea.orEmpty(),
+                    onClickFavoriteButton = onToggleFavorite,
+                    favoriteButtonState = uiState.favoriteButtonState
+                )
+            }
+            item {
+                DetailsComponent(
+                    uiState.mealDetailsOption,
+                    onToggleMealDetailsOption,
+                    uiState.quantifiedIngredients
+                )
+            }
+            item {
+                PreparationComponent(uiState.detailedMeal?.strInstructions.orEmpty())
+            }
         }
-    }
+        TopAppBar2(TopBarContent(MealDetailsScreen.Details.route.substringBefore("?"),
+            listOf(TopBarArgument("mealName",detailedMeal.strMealName.orEmpty()),TopBarArgument("isFavorite",detailedMeal.isFavorite))
+        ),uiState.isTopBarVisible,onPopBackStack = onPopBackStack)
+//        val firstVisibleItemIndex = listState.firstVisibleItemIndex
+//        if (firstVisibleItemIndex != -1 && listState.firstVisibleItemScrollOffset > 0) {
+//            val firstVisibleItemScrollOffset = listState.calculateScrollOffsetForListItem(firstVisibleItemIndex)
+            if (listState.firstVisibleItemIndex >= 1) {
+                onToggleTopBarVisibility(true)
+                Log.d("testListState",listState.firstVisibleItemIndex.toString())
+            } else {
+                onToggleTopBarVisibility(false)
+                Log.d("testListState",listState.firstVisibleItemIndex.toString())
+            }
+        }
 }
 
 @Composable
@@ -835,19 +924,55 @@ fun HeroComponent(
             .fillMaxWidth()
             .clip(RoundedCornerShape(0.dp))
             .heightIn(min = 405.dp)
-            .clickable {
-                       onShowMealDetailsVideo(MealDetailsUiEvent.OnShowMealDetailsVideo(detailedMealVideoUrl))
-            }
             ,
     ){
             Image(
                 painter = painter,
                 contentDescription = "Meal image",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(.3f))
+            ){
+
+            }
+
+        Log.d("testMThumb",detailedMealVideoUrl)
+        if(detailedMealVideoUrl.isNotBlank()){
 
             Box(
+                modifier = Modifier
+                    .padding(bottom = 40.dp)
+                    .size(80.dp)
+                    .align(Alignment.Center)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = .4f))
+                    .shadow(60.dp, CircleShape)
+                    .border(5.dp, Color.White, CircleShape)
+                    .clickable {
+                        onShowMealDetailsVideo(
+                            MealDetailsUiEvent.OnShowMealDetailsVideo(
+                                detailedMealVideoUrl
+                            )
+                        )
+                    }
+                ,
+            ){
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Play video",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(50.dp),
+                )
+            }
+        }
+
+        Box(
                 modifier = Modifier
                     .fillMaxWidth(1f)
                     .height(40.dp)
@@ -959,7 +1084,7 @@ fun defaultPreview(){
         measures = listOf("3 tablespoons", "1", "2 cloves", "1", "2 1/4 cups", "1 teaspoon", "3", "1 tablespoon", "2 sticks", "", "", "", "", "", "", "", "", "", "", ""),
         isFavorite = false
     )
-    PreparationComponent(mockMeal?.strInstructions.orEmpty())
+    HeroComponent(detailedMealThumb = mockMeal.strMealThumb.orEmpty(), detailedMealVideoUrl = "", onShowMealDetailsVideo = {})
 //    DetailsComponent(MealDetailsOption.UTENSILS,{}, listOf(
 //        MealDetailsUiState.Companion.QuantifiedIngredient(
 //            "Carrots",
