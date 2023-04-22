@@ -73,7 +73,7 @@ fun FavScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Cart.route, emptyList()),true,{}) }
+        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Favorites.route, emptyList()),true,{}) }
     ) { paddingValues ->
 
         Column(
@@ -477,6 +477,6 @@ fun TopCardComponent(){
 
 @Composable
 @Preview(showBackground = true)
-fun DefaultPreview(){
+private fun DefaultPreview(){
     FavScreen({},{}, viewModel(),{},{})
 }

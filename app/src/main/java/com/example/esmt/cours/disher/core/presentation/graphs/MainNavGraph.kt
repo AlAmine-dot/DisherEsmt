@@ -6,20 +6,18 @@ import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import com.example.esmt.cours.disher.feature_meals.presentation.Mainsearch.main_screen.MainSearchScreen
@@ -30,13 +28,13 @@ import com.example.esmt.cours.disher.feature_meals.presentation.search.category_
 import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.SearchScreen
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.youtube_viewer_screen.YtViewerScreen
-import com.example.esmt.cours.disher.ui.TestScreen
-import com.example.esmt.cours.disher.ui.TestScreen2
+import com.example.esmt.cours.disher.feature_meals.presentation.search.CartScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 //import androidx.navigation.compose.composable
 import com.google.accompanist.navigation.animation.composable
 
-    val fadeDuration = 800
+val fadeDuration = 800
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> Unit) {
@@ -86,7 +84,7 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
             )
         }
 
-        composable(route = BottomBarScreen.Cart.route,
+        composable(route = BottomBarScreen.Favorites.route,
             enterTransition = {
                 fadeIn(animationSpec = tween(durationMillis = fadeDuration))
             },
@@ -108,6 +106,44 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
             }
             ){
             FavScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                },onShowMealDetailsScreen = { uiEvent ->
+                    val id = uiEvent.id
+                    Log.d("argsmealid", "step-out 1: $id")
+                    navController.navigate(MealDetailsScreen.Details.passMealId(id))
+                }
+            )
+        }
+
+        composable(route = BottomBarScreen.Cart.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            exitTransition = {
+                when(targetState.destination.route?.substringBefore("?")){
+                    MealDetailsScreen.Details.route.substringBefore("?") ->{
+                        fadeOut(animationSpec = tween(durationMillis = 5000))
+                    }
+                    else -> {
+                        fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+                    }
+                }
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+            }
+        ){
+            CartScreen(
                 onNavigate = {
                     navController.navigate(it.route)
                 },
@@ -340,10 +376,16 @@ sealed class BottomBarScreen(
         icon = Icons.Default.Search
     )
 
-    object Cart : BottomBarScreen(
+    object Favorites : BottomBarScreen(
         route = "FAVORITES",
         title = "Favorites",
         icon = Icons.Default.Favorite
+    )
+
+    object Cart : BottomBarScreen(
+        route = "CART",
+        title = "Cart",
+        icon = Icons.Default.ShoppingCart
     )
 }
 

@@ -7,7 +7,6 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,10 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,18 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.MealDetailsScreen
-import com.example.esmt.cours.disher.core.presentation.graphs.SearchScreen
 import com.example.esmt.cours.disher.ui.theme.LightTurquoise
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import java.util.Locale
-import java.util.Timer
-import kotlin.concurrent.schedule
 
 @Composable
 fun TopAppBar2(
@@ -218,6 +209,42 @@ fun TopAppBar2(
                                 )
                             }
                         }
+                        BottomBarScreen.Favorites.route -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.Center),
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = currentRoute
+                                            .toUpperCase(Locale.ROOT),
+                                        color = MeltyGreen,
+                                        style = MaterialTheme.typography.h3,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 30.sp,
+                                        modifier = Modifier
+                                            .padding(start = 10.dp)
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Outlined.AccountCircle,
+                                    contentDescription = "",
+                                    tint = LightTurquoise,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .align(Alignment.CenterEnd)
+                                        .padding(end = 5.dp)
+                                )
+                            }
+                        }
                         BottomBarScreen.Cart.route -> {
                             Box(
                                 modifier = Modifier
@@ -255,7 +282,6 @@ fun TopAppBar2(
                             }
                         }
                     }
-
 
                 }
             }

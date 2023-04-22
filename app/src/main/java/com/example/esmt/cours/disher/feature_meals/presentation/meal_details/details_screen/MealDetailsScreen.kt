@@ -901,7 +901,8 @@ fun AboutComponent(
                 onClick = { onClickCartButton() },
                 border = BorderStroke(3.dp, MeltyGreen),
                 modifier = Modifier
-                    .width(335.dp),
+                    .width(335.dp)
+                    .height(65.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize(),
@@ -926,7 +927,7 @@ fun AboutComponent(
                         fontSize = 20.sp,
                         color = DarkTurquoise,
                                 modifier = Modifier
-                                .padding(horizontal = 8.dp, vertical = 10.dp)
+                                .padding(horizontal = 8.dp, vertical = 0.dp)
                         )
                     }
                 }
