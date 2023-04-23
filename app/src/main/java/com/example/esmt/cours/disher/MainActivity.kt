@@ -3,24 +3,40 @@ package com.example.esmt.cours.disher
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.esmt.cours.disher.core.presentation.graphs.RootNavigationGraph
+import com.example.esmt.cours.disher.core.presentation.onboarding.SplashViewModel
 //import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
 import com.example.esmt.cours.disher.ui.theme.DisherTheme
+import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@ExperimentalAnimationApi
+@ExperimentalPagerApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var splashViewModel: SplashViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen().setKeepOnScreenCondition {
+            !splashViewModel.isLoading.value
+        }
+
         setContent {
             DisherTheme {
-//                        HomeScreen()
-                RootNavigationGraph(navController = rememberNavController())
+                val screen by splashViewModel.startDestination
+                val navController = rememberNavController()
+                RootNavigationGraph(navController = navController, startDestination = screen)
             }
 
         }

@@ -1,21 +1,28 @@
 package com.example.esmt.cours.disher.core.presentation.graphs
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.esmt.cours.disher.core.presentation.main_screen.MainScreen
+import com.example.esmt.cours.disher.core.presentation.onboarding.OnBoardingContent
+import com.google.accompanist.pager.ExperimentalPagerApi
 
+@ExperimentalAnimationApi
+@ExperimentalPagerApi
 @Composable
-fun RootNavigationGraph(navController: NavHostController) {
+fun RootNavigationGraph(
+    navController: NavHostController,
+    startDestination: String) {
     NavHost(
         navController = navController,
-        route = Graph.ROOT.route,
-        startDestination = Graph.ONBOARDING.route
+        startDestination = startDestination
     ) {
-        onBoardNavGraph(navController = navController, onClick = {
-            navController.navigate(Graph.HOME.route)
-        })
+        composable(route = Graph.ONBOARDING.route){
+            OnBoardingContent(navController = navController)
+
+        }
         composable(route = Graph.HOME.route){
             MainScreen()
 //            HomeScreen()

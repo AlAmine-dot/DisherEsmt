@@ -72,7 +72,7 @@ fun MainNavGraph(navController: NavHostController,snackbarHostState: SnackbarHos
                     defaultValue = -1
                 }
             )
-            ){
+        ){
             Log.d("argsmealId", "composable level" + it.arguments?.getInt("mealId").toString())
             val mealId = it.arguments?.getInt("mealId") ?: -1
             MealDetailsScreen(

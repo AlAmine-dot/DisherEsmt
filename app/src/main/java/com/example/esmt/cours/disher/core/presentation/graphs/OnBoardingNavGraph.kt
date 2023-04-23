@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.esmt.cours.disher.core.presentation.onboarding.OnBoardingContent
-
+/*
 fun NavGraphBuilder.onBoardNavGraph(navController: NavHostController, onClick: () -> Unit){
     navigation(
         route = Graph.ONBOARDING.route,
@@ -19,4 +19,4 @@ fun NavGraphBuilder.onBoardNavGraph(navController: NavHostController, onClick: (
 
 sealed class OnBoardingScreen(val route: String) {
     object Welcome : OnBoardingScreen(route = "WELCOME")
-}
+}*/
