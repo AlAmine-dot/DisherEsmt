@@ -1,5 +1,6 @@
 package com.example.esmt.cours.disher.core.presentation.onboarding
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
@@ -33,7 +34,7 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 
-@ExperimentalAnimationApi
+//@ExperimentalAnimationApi
 @ExperimentalPagerApi
 @Composable
 fun OnBoardingContent(
@@ -69,6 +70,7 @@ fun OnBoardingContent(
             welcomeViewModel.saveOnBoardingState(completed = true)
             navController.popBackStack()
             navController.navigate(Graph.HOME.route)
+            Log.d("testonb",welcomeViewModel.toString())
         }
     }
 }
@@ -109,7 +111,7 @@ fun PagerScreen(onBoardingPage: OnBoardingPage) {
     }
 }
 
-@ExperimentalAnimationApi
+//@ExperimentalAnimationApi
 @ExperimentalPagerApi
 @Composable
 fun FinishButton(

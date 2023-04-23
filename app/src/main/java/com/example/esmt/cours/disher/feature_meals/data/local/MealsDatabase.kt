@@ -14,7 +14,7 @@ import com.example.esmt.cours.disher.feature_meals.data.local.entities.CategoryE
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.FavoriteMealItemEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.MealEntity
 
-@Database(entities = [FavoriteMealItemEntity::class, MealEntity::class, CategoryEntity::class, CartItemEntity::class], version = 6)
+@Database(entities = [FavoriteMealItemEntity::class, MealEntity::class, CategoryEntity::class, CartItemEntity::class], version = 7)
 @TypeConverters(ListConverter::class)
 abstract class MealsDatabase: RoomDatabase() {
 

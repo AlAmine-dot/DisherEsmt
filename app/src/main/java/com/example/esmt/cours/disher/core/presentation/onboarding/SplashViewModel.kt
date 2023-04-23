@@ -1,5 +1,6 @@
 package com.example.esmt.cours.disher.core.presentation.onboarding
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +26,10 @@ class SplashViewModel @Inject constructor(
             repository.readOnBoardingState().collect { completed ->
                 if (completed) {
                     _startDestination.value = Graph.HOME.route
+                    Log.d("testSVM", "New value for sD :" + _startDestination.value)
                 } else {
                     _startDestination.value = Graph.ONBOARDING.route
+                    Log.d("testSVM", "New value for sD :" + _startDestination.value)
                 }
             }
             _isLoading.value = false

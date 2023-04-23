@@ -1,34 +1,28 @@
 package com.example.esmt.cours.disher.core.presentation.graphs
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.ExperimentalAnimationApi
+//import androidx.navigation.compose.composable
+//import androidx.compose.animation.ExperimentalAnimationApi
+import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
+//import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import com.google.accompanist.navigation.animation.composable
-//import androidx.navigation.compose.composable
+import androidx.navigation.compose.composable
 import com.example.esmt.cours.disher.core.presentation.main_screen.MainScreen
-import com.example.esmt.cours.disher.ui.TestScreen
-import com.example.esmt.cours.disher.ui.TestScreen2
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.navigation
 import com.example.esmt.cours.disher.core.presentation.onboarding.OnBoardingContent
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+//import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
 
-@ExperimentalAnimationApi
+//@ExperimentalAnimationApi
 @ExperimentalPagerApi
-@OptIn(ExperimentalAnimationApi::class)
+//@OptIn(ExperimentalAnimationApi::class)
 @Composable
 
 fun RootNavigationGraph(navController: NavHostController,
                         startDestination: String) {
-    AnimatedNavHost(
+    Log.d("startDestInRoot", startDestination)
+    NavHost(
         navController = navController,
         startDestination = startDestination
     ) {

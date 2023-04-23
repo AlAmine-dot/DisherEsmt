@@ -1,5 +1,6 @@
 package com.example.esmt.cours.disher.core.presentation.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.feature_meals.data.local.DataStoreRepository
@@ -16,6 +17,7 @@ class OnBoardingViewModel @Inject constructor(
     fun saveOnBoardingState(completed: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveOnBoardingState(completed = completed)
+            Log.d("testVMOnB",repository.toString())
         }
     }
 
