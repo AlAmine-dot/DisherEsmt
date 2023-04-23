@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,241 +51,243 @@ fun TopAppBar2(
     Log.d("testTBState", isVisible.toString())
     val currentRoute = topBarContent.route
 
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = slideInVertically(
-                // Enters by sliding down from offset -fullHeight to 0.
-                initialOffsetY = { fullHeight -> -fullHeight },
-                animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
-            ),
-            exit = slideOutVertically(
-                // Exits by sliding up from offset 0 to -fullHeight.
-                targetOffsetY = { fullHeight -> -fullHeight },
-                animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
-            )
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically(
+            // Enters by sliding down from offset -fullHeight to 0.
+            initialOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+        ),
+        exit = slideOutVertically(
+            // Exits by sliding up from offset 0 to -fullHeight.
+            targetOffsetY = { fullHeight -> -fullHeight },
+            animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
+        )
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp),
+            elevation = 10.dp,
+            color = if(currentRoute == MealDetailsScreen.Details.route.substringBefore("?")) {
+                MeltyGreen
+            }else{
+                Color.White
+            }
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp),
-                elevation = 10.dp,
-                color = if(currentRoute == MealDetailsScreen.Details.route.substringBefore("?")) {
+            TopAppBar(
+                elevation = 16.dp,
+                backgroundColor = if(currentRoute == MealDetailsScreen.Details.route.substringBefore("?")) {
                     MeltyGreen
                 }else{
                     Color.White
                 }
             ) {
-                TopAppBar(
-                    elevation = 16.dp,
-                    backgroundColor = if(currentRoute == MealDetailsScreen.Details.route.substringBefore("?")) {
-                        MeltyGreen
-                    }else{
-                        Color.White
-                    }
-                ) {
-                    when (currentRoute) {
-                        MealDetailsScreen.Details.route.substringBefore("?") -> {
-                            val mealName = topBarContent.getArgByKey("mealName")?.value.toString()
-                            val isMealFavorite = topBarContent.getArgByKey("isFavorite")?.value as Boolean
+                when (currentRoute) {
+                    MealDetailsScreen.Details.route.substringBefore("?") -> {
+                        val mealName = topBarContent.getArgByKey("mealName")?.value.toString()
+                        val isMealFavorite = topBarContent.getArgByKey("isFavorite")?.value as Boolean
 
-                            Box(
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth().padding(vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Go back",
+                                tint = Color.White,
                                 modifier = Modifier
-                                    .fillMaxWidth().padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBack,
-                                    contentDescription = "Go back",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterStart)
-                                        .padding(start = 5.dp)
-                                        .clickable { onPopBackStack() }
-                                )
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .align(Alignment.Center),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Text(
-                                        text = mealName,
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.h3,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 20.sp
-                                    )
-
-                                }
-                                Icon(
-                                    imageVector = if(isMealFavorite) {
-                                        Icons.Default.Favorite
-                                    }else{
-                                         Icons.Outlined.FavoriteBorder
-                                    },
-                                    contentDescription = "Favorite meal button",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .padding(end = 5.dp)
-                                )
-                            }
-                        }
-                        BottomBarScreen.Home.route -> {
-                            Box(
+                                    .size(30.dp)
+                                    .align(Alignment.CenterStart)
+                                    .padding(start = 5.dp)
+                                    .clickable { onPopBackStack() }
+                            )
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth(.7f)
+                                    .align(Alignment.Center),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
 
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .align(Alignment.Center),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painterResource(id = R.drawable.ic_disher_white),
-                                        contentDescription = "",
-                                        tint = Color.Unspecified,
-                                        modifier = Modifier.size(60.dp)
-                                    )
-                                    Text(
-                                        text = "Disher",
-                                        color = MeltyGreen,
-                                        style = MaterialTheme.typography.h3,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 30.sp
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.Outlined.AccountCircle,
-                                    contentDescription = "",
-                                    tint = LightTurquoise,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .padding(end = 5.dp)
+                                Text(
+                                    text = mealName,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.h3,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp
                                 )
-                            }
-                        }
-                        BottomBarScreen.Search.route -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
 
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .align(Alignment.Center),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = currentRoute
-                                            .toUpperCase(Locale.ROOT),
-                                        color = MeltyGreen,
-                                        style = MaterialTheme.typography.h3,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 30.sp,
-                                        modifier = Modifier
-                                            .padding(start = 10.dp)
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.Outlined.AccountCircle,
-                                    contentDescription = "",
-                                    tint = LightTurquoise,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .padding(end = 5.dp)
-                                )
                             }
-                        }
-                        BottomBarScreen.Favorites.route -> {
-                            Box(
+                            Icon(
+                                imageVector = if(isMealFavorite) {
+                                    Icons.Default.Favorite
+                                }else{
+                                    Icons.Outlined.FavoriteBorder
+                                },
+                                contentDescription = "Favorite meal button",
+                                tint = Color.White,
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .align(Alignment.Center),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = currentRoute
-                                            .toUpperCase(Locale.ROOT),
-                                        color = MeltyGreen,
-                                        style = MaterialTheme.typography.h3,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 30.sp,
-                                        modifier = Modifier
-                                            .padding(start = 10.dp)
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.Outlined.AccountCircle,
-                                    contentDescription = "",
-                                    tint = LightTurquoise,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .padding(end = 5.dp)
-                                )
-                            }
-                        }
-                        BottomBarScreen.Cart.route -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .align(Alignment.Center),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = currentRoute
-                                            .toUpperCase(Locale.ROOT),
-                                        color = MeltyGreen,
-                                        style = MaterialTheme.typography.h3,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 30.sp,
-                                        modifier = Modifier
-                                            .padding(start = 10.dp)
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.Outlined.AccountCircle,
-                                    contentDescription = "",
-                                    tint = LightTurquoise,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .padding(end = 5.dp)
-                                )
-                            }
+                                    .size(30.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 5.dp)
+                            )
                         }
                     }
+                    BottomBarScreen.Home.route -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
 
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.Center),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_disher_white),
+                                    contentDescription = "",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(60.dp)
+                                )
+                                Text(
+                                    text = "Disher",
+                                    color = MeltyGreen,
+                                    style = MaterialTheme.typography.h3,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 30.sp
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Outlined.AccountCircle,
+                                contentDescription = "",
+                                tint = LightTurquoise,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 5.dp)
+                            )
+                        }
+                    }
+                    BottomBarScreen.Search.route -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.Center),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = currentRoute
+                                        .toUpperCase(Locale.ROOT),
+                                    color = MeltyGreen,
+                                    style = MaterialTheme.typography.h3,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 30.sp,
+                                    modifier = Modifier
+                                        .padding(start = 10.dp)
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Outlined.AccountCircle,
+                                contentDescription = "",
+                                tint = LightTurquoise,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 5.dp)
+                            )
+                        }
+                    }
+                    BottomBarScreen.Favorites.route -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.Center),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = currentRoute
+                                        .toUpperCase(Locale.ROOT),
+                                    color = MeltyGreen,
+                                    style = MaterialTheme.typography.h3,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 30.sp,
+                                    modifier = Modifier
+                                        .padding(start = 10.dp)
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Outlined.AccountCircle,
+                                contentDescription = "",
+                                tint = LightTurquoise,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 5.dp)
+                            )
+                        }
+                    }
+                    BottomBarScreen.Cart.route -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.Center),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = currentRoute
+                                        .toUpperCase(Locale.ROOT),
+                                    color = MeltyGreen,
+                                    style = MaterialTheme.typography.h3,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 30.sp,
+                                    modifier = Modifier
+                                        .padding(start = 10.dp)
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Outlined.AccountCircle,
+                                contentDescription = "",
+                                tint = LightTurquoise,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 5.dp)
+                            )
+                        }
+                    }
                 }
+
             }
+        }
     }
 }
 
