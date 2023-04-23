@@ -9,6 +9,7 @@ sealed class CartUiEvent {
     data class Navigate(val route: String): CartUiEvent()
     data class ShowMealDetails(val id: Int): CartUiEvent()
     data class RemoveMealFromCart(val cartItem: CartItem): CartUiEvent()
+    data class UpdateCartItemQuantity(val cartItem: CartItem, val isIncrement: Boolean): CartUiEvent()
     data class ShowSnackbar(
         val message: String,
         val action: String? = null

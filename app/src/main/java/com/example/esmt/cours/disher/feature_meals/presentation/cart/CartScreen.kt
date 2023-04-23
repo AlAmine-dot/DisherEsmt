@@ -20,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,10 +58,10 @@ fun CartScreen(
     cartViewModel: CartViewModel = hiltViewModel(),
     sendMainUiEvent: (UiEvent) -> Unit,
     onShowMealDetailsScreen: (CartUiEvent.ShowMealDetails) -> Unit,
-    ){
+){
 
     val cartUiState by cartViewModel.uiState.collectAsState()
-    val cartItems = cartUiState.cartItemList
+//    val cartItems = cartUiState.cartItemList
 
     LaunchedEffect(key1 = true) {
 
@@ -71,7 +74,8 @@ fun CartScreen(
                 is CartUiEvent.Navigate -> {
 
                 }
-                else -> Unit
+                else -> {
+                }
             }
         }
     }
@@ -80,7 +84,7 @@ fun CartScreen(
         topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Cart.route, emptyList()),true,{}) }
     ) { paddingValues ->
 
-        Log.d("testCartView", cartItems.toString())
+        Log.d("testCartView", cartUiState.cartItemList.toString())
 
         Box(
             modifier = Modifier
@@ -99,7 +103,7 @@ fun CartScreen(
                     Spacer(modifier = Modifier.height(25.dp))
 
                     CartComponent(
-                        cartItems = cartItems,
+                        cartItems = cartUiState.cartItemList,
                         onNavigate = onNavigate,
                         onMealClicked = { mealId ->
                             Log.d("argsmealId", "Reached level 1")
@@ -107,6 +111,11 @@ fun CartScreen(
                         },
                         onDeleteClicked = { cartItem ->
                             cartViewModel.onEvent(CartUiEvent.RemoveMealFromCart(cartItem))
+                        },
+                        onUpdateQuantity = { cartItem, isIncrement ->
+                            cartViewModel.onEvent(CartUiEvent.UpdateCartItemQuantity(cartItem,isIncrement))
+//                            Log.d("testStateVue", cartUiState.cartItemList.toString())
+
                         }
                     )
 
@@ -147,8 +156,11 @@ fun CartComponent(
     cartItems: List<CartItem>,
     onNavigate: (CartUiEvent.Navigate) -> Unit,
     onMealClicked : (mealId: Int) -> Unit,
-    onDeleteClicked: (cartItem: CartItem) -> Unit
+    onDeleteClicked: (cartItem: CartItem) -> Unit,
+    onUpdateQuantity: (cartItem: CartItem, isIncrement: Boolean) -> Unit
 ){
+
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -204,9 +216,36 @@ fun CartComponent(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
 
             ) {
-                cartItems.forEach { cartItem ->
-                    CartItemCard(cart = cartItem, onMealClicked, onDeleteClicked)
+//                cartItems.forEach { cartItem ->
+//                    CartItemCard(
+//                        cart = cartItem,
+//                        onMealClicked,
+//                        onDeleteClicked,
+//                        onUpdateQuantity = onUpdateQuantity
+//                    )
+//                }
+                for (cartItem in cartItems) {
+                    key(cartItem.cartItemQuantity) {
+                        CartItemCard(
+                            cart = cartItem,
+                            onMealClicked,
+                            onDeleteClicked,
+                            onUpdateQuantity = onUpdateQuantity,
+                            key = cartItem.cartItemId // Utiliser un ID unique pour chaque élément
+                        )
+                    }
                 }
+//                cartItems.forEach { cartItem ->
+//                    Box() {
+//                        CartItemCard(
+//                            cart = cartItem,
+//                            onMealClicked,
+//                            onDeleteClicked,
+//                            onUpdateQuantity = onUpdateQuantity,
+//                            key = cartItem.cartItemId // Utiliser un ID unique pour chaque élément
+//                        )
+//                    }
+//                }
             }
 
         }
@@ -218,175 +257,193 @@ fun CartComponent(
 fun CartItemCard(
     cart: CartItem,
     onMealClicked: (mealId: Int) -> Unit,
-    onDeleteClicked: (cartItem: CartItem) -> Unit
+    onDeleteClicked: (cartItem: CartItem) -> Unit,
+    onUpdateQuantity: (cartItem: CartItem, isIncrement: Boolean) -> Unit,
+    key : Int
 ){
-
     val meal = cart.cartItemMeal
-        Card(
-            elevation = 3.dp,
+
+    // Un problème très particulier s'est posé ici :
+    // Mes cartItem sont dans un forEach, or cette structure ne recompose pas les items
+    // lorsque la liste change d'état contrairement à une LazyColumn
+    // Et vu que tout le contenu est déjà dans une lazyColumn, je ne pouvais pas en utiliser
+    // un autre à l'intérieur. J'ai essayé d'utiliser keys() mais ça n'a pas marché non plus.
+    // Je me suis donc retrouvé obligé de stocker la quantité d'item en local dans la vue
+    // pour le modifier en parallèle à chaque fois qu'on appelle l'évènement.
+    // Ce n'est probablement pas une bonne pratique mais je garde ça, le temps manque, nous reviendrons sur ça.
+
+    val cartItemQuantity = remember { mutableStateOf(cart.cartItemQuantity) }
+
+    Card(
+        elevation = 3.dp,
+        modifier = Modifier
+            .width(350.dp)
+            .height(170.dp)
+            .clickable {
+                onMealClicked(meal.id)
+            }
+    ){
+        Row(
             modifier = Modifier
-                .width(350.dp)
-                .height(170.dp)
-                .clickable {
-                    onMealClicked(meal.id)
-                }
-        ){
-            Row(
+                .fillMaxSize(.9f),
+        ) {
+            Column(
                 modifier = Modifier
-                    .fillMaxSize(.9f),
+                    .weight(.5f)
+                    .fillMaxHeight()
+                    .padding(5.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(.5f)
-                        .fillMaxHeight()
-                        .padding(5.dp)
+                Box(
+                    Modifier.clip(RoundedCornerShape(12.dp))
                 ) {
+                    val painter = rememberImagePainter(
+                        data = meal.strMealThumb,
+                        builder = {
+                            crossfade(durationMillis = 1200)
+                            placeholder(R.drawable.ic_placeholder)
+                            error(R.drawable.ic_placeholder)
+                        }
+                    )
+                    Image(
+                        painter = painter,
+                        contentDescription = "Image ${meal.strMealName}",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .weight(.5f)
+                    .fillMaxHeight()
+            ) {
+                Box(
+                    Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = meal.strMealName.orEmpty(),
+                        color = DarkTurquoise,
+                        style = MaterialTheme.typography.body1,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier
+                            .fillMaxWidth(.7f)
+                            .align(Alignment.TopStart)
+                            .padding(top = 8.dp, start = 3.dp)
+                    )
                     Box(
-                        Modifier.clip(RoundedCornerShape(12.dp))
-                    ) {
-                        val painter = rememberImagePainter(
-                            data = meal.strMealThumb,
-                            builder = {
-                                crossfade(durationMillis = 1200)
-                                placeholder(R.drawable.ic_placeholder)
-                                error(R.drawable.ic_placeholder)
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(53.dp)
+                            .padding(10.dp)
+                            .clip(CircleShape)
+                            .background(MeltyGreen)
+                            .align(Alignment.TopEnd)
+                            .clickable {
+                                onDeleteClicked(cart)
                             }
-                        )
-                        Image(
-                            painter = painter,
-                            contentDescription = "Image ${meal.strMealName}",
-                            contentScale = ContentScale.Crop,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "Delete meal from favorites",
+                            tint = Color.White,
                             modifier = Modifier
-                                .fillMaxSize()
+                                .size(20.dp)
+                                .padding(0.dp)
                         )
                     }
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(.5f)
-                        .fillMaxHeight()
-                ) {
-                    Box(
-                        Modifier.fillMaxSize()
-                    ) {
-                        Text(
-                            text = meal.strMealName.orEmpty(),
-                            color = DarkTurquoise,
-                            style = MaterialTheme.typography.body1,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.ExtraBold,
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(.9f)
+                            .height(50.dp)
+                            .padding(bottom = 10.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                1.dp,
+                                LightTurquoise.copy(alpha = .4f),
+                                RoundedCornerShape(10.dp)
+                            )
+                            .align(Alignment.BottomCenter)
+                    ){
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth(.7f)
-                                .align(Alignment.TopStart)
-                                .padding(top = 8.dp, start = 3.dp)
-                        )
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(53.dp)
-                                .padding(10.dp)
-                                .clip(CircleShape)
-                                .background(MeltyGreen)
-                                .align(Alignment.TopEnd)
+                                .fillMaxHeight()
+                                .weight(1f)
                                 .clickable {
-                                    onDeleteClicked(cart)
+                                    onUpdateQuantity(cart, false)
+                                    if(cartItemQuantity.value > 1){
+                                        cartItemQuantity.value = cartItemQuantity.value - 1
+                                    }
+
                                 }
+                            ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Delete meal from favorites",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .padding(0.dp)
+                            Text(
+                                text = "—",
+                                style = MaterialTheme.typography.h5,
+                                fontSize = 28.sp,
+                                color = DarkTurquoise,
                             )
                         }
-                        Row(
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth(.9f)
-                                .height(50.dp)
-                                .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .border(
-                                    1.dp,
-                                    LightTurquoise.copy(alpha = .4f),
-                                    RoundedCornerShape(10.dp)
-                                )
-                                .align(Alignment.BottomCenter)
-                        ){
-                            Column(
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .border(width = 1.dp, LightTurquoise.copy(alpha = .3f))
+                            ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f)
-                                    .clickable {
-
-                                    }
+                                    .fillMaxWidth(.8f)
                                 ,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Location",
+                                    tint = MeltyGreen,
+                                    modifier = Modifier.size(20.dp),
+                                )
                                 Text(
-                                    text = "—",
-                                    style = MaterialTheme.typography.h5,
-                                    fontSize = 28.sp,
-                                    color = DarkTurquoise,
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f)
-                                    .border(width = 1.dp, LightTurquoise.copy(alpha = .3f))
-                                ,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Row(
+                                    text= cartItemQuantity.value.toString(),
+                                    style = MaterialTheme.typography.h6,
+                                    fontSize = 17.sp,
+                                    color = MeltyGreen,
                                     modifier = Modifier
-                                        .fillMaxWidth(.8f)
-                                    ,
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ){
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = "Location",
-                                        tint = MeltyGreen,
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                    Text(
-                                        text= cart.cartItemQuantity.toString(),
-                                        style = MaterialTheme.typography.h6,
-                                        fontSize = 17.sp,
-                                        color = MeltyGreen,
-                                        modifier = Modifier
-                                            .padding(bottom = 1.dp),
-                                    )
-                                }
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f)
-                                    .clickable {
-
-                                    }
-                                ,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = "+",
-                                    style = MaterialTheme.typography.h5,
-                                    fontSize = 22.sp,
-                                    color = DarkTurquoise
+                                        .padding(bottom = 1.dp),
                                 )
                             }
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .clickable {
+                                    onUpdateQuantity(cart, true)
+                                    cartItemQuantity.value = 1 + cartItemQuantity.value
+                                }
+                            ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "+",
+                                style = MaterialTheme.typography.h5,
+                                fontSize = 22.sp,
+                                color = DarkTurquoise
+                            )
                         }
                     }
                 }
             }
         }
+    }
 
 }
 
@@ -414,7 +471,7 @@ private fun DefaultPreview(){
     )
     val mockCartItem = CartItem(1,mockMeal,2)
 //    CartItemCard(cart = mockCartItem, {},{})
-    CartComponent(cartItems = listOf(mockCartItem,mockCartItem), {},{},{})
+    CartComponent(cartItems = listOf(mockCartItem,mockCartItem), {},{},{},{cartItem, isIncrement ->  })
 }
 
 //@Composable

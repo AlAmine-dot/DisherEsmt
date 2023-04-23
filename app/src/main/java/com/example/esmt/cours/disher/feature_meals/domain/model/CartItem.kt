@@ -9,10 +9,20 @@ data class CartItem (
     val cartItemMeal: Meal,
     var cartItemQuantity: Int,
 
-) {
+    ) {
 
     fun updateCartItemQuantity(newValue: Int){
         this.cartItemQuantity = newValue
+    }
+
+    fun incrementQuantity(){
+        this.cartItemQuantity = cartItemQuantity + 1
+    }
+
+    fun decrementQuantity(){
+        if(cartItemQuantity > 1){
+            this.cartItemQuantity = cartItemQuantity - 1
+        }
     }
 
     fun toCartItemEntity() : CartItemEntity {
@@ -22,4 +32,9 @@ data class CartItem (
             cartMealItemQuantity = cartItemQuantity,
         )
     }
+
+    override fun toString(): String {
+        return "CartItem(cartItemId=$cartItemId, cartItemMeal=$cartItemMeal, cartItemQuantity=$cartItemQuantity)"
+    }
+
 }

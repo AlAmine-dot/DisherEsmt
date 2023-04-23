@@ -7,6 +7,7 @@ import com.example.esmt.cours.disher.core.common.Resource
 import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCartItems
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.RemoveMealFromCart
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.UpdateCartItemQuantity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val provideCartItems: ProvideCartItems,
-    private val removeMealFromCart: RemoveMealFromCart
+    private val removeMealFromCart: RemoveMealFromCart,
+    private val updateCartItemQuantity: UpdateCartItemQuantity,
 ): ViewModel() {
 
     private val _uiState : MutableStateFlow<CartUiState> =  MutableStateFlow(
@@ -34,39 +36,39 @@ class CartViewModel @Inject constructor(
 
     private fun getCartItems(){
 
-            provideCartItems().onEach { result ->
-                when (result){
-                    is Resource.Success -> {
-                        val cartItems = result.data
-                        val updatedState = _uiState.value.copy(
-                            isLoading = false,
-                            cartItemList = cartItems.orEmpty()
+        provideCartItems().onEach { result ->
+            when (result){
+                is Resource.Success -> {
+                    val cartItems = result.data
+                    val updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        cartItemList = cartItems.orEmpty()
 
-                        )
+                    )
 
-                        _uiState.value = updatedState
-                        Log.d("testCartViewModel", _uiState.value.toString())
+                    _uiState.value = updatedState
+                    Log.d("testCartViewModel", _uiState.value.toString())
 
-                    }
-                    is Resource.Loading -> {
-                        var updatedState = _uiState.value.copy(
-                            isLoading = true
-                        )
-                        _uiState.value = updatedState
-                        Log.d("testCartViewModel", _uiState.value.toString())
-
-                    }
-                    is Resource.Error -> {
-                        var updatedState = _uiState.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "Oops, an unexpected error occured"
-                        )
-                        _uiState.value = updatedState
-                        Log.d("testCartViewModel", _uiState.value.toString())
-
-                    }
                 }
-            }.launchIn(viewModelScope)
+                is Resource.Loading -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = true
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testCartViewModel", _uiState.value.toString())
+
+                }
+                is Resource.Error -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Oops, an unexpected error occured"
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testCartViewModel", _uiState.value.toString())
+
+                }
+            }
+        }.launchIn(viewModelScope)
 
     }
 
@@ -78,29 +80,71 @@ class CartViewModel @Inject constructor(
                 event.cartItem.cartItemMeal.toggleIsIntoCart()
 //
                 removeMealFromCart(event.cartItem.cartItemMeal).onEach { result ->
-                        when (result) {
-                            is Resource.Success -> {
-                                val newCartItemsList = _uiState.value.cartItemList.toMutableList()
-                                newCartItemsList.remove(event.cartItem)
-                                _uiState.value = _uiState.value.copy(cartItemList = newCartItemsList)
-                                sendUiEvent(CartUiEvent.ShowSnackbar("Removed recipe from cart successfully !"))
-                            }
-                            is Resource.Loading -> {
-                                _uiState.value = _uiState.value.copy(
-                                        isLoading = true
-                                    )
-                            }
-                            is Resource.Error -> {
-                                _uiState.value = _uiState.value.copy(
-                                    error = result.message ?: "An unexpected error occurred"
-                                )
-                            }
+                    when (result) {
+                        is Resource.Success -> {
+                            val newCartItemsList = _uiState.value.cartItemList.toMutableList()
+                            newCartItemsList.remove(event.cartItem)
+                            _uiState.value = _uiState.value.copy(cartItemList = newCartItemsList)
+                            sendUiEvent(CartUiEvent.ShowSnackbar("Removed recipe from cart successfully !"))
                         }
-                    }.launchIn(viewModelScope)
-                }
-                else -> Unit
+                        is Resource.Loading -> {
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = true
+                            )
+                        }
+                        is Resource.Error -> {
+                            _uiState.value = _uiState.value.copy(
+                                error = result.message ?: "An unexpected error occurred"
+                            )
+                        }
+                    }
+                }.launchIn(viewModelScope)
             }
+            is CartUiEvent.UpdateCartItemQuantity -> {
+
+                if(event.isIncrement){
+                    event.cartItem.incrementQuantity()
+                    Log.d("incremented", event.cartItem.cartItemQuantity.toString())
+                }else{
+                    if(event.cartItem.cartItemQuantity == 1){
+                        return
+                    }else{
+                        event.cartItem.decrementQuantity()
+                        Log.d("decremented", event.cartItem.cartItemQuantity.toString())
+                    }
+                }
+                Log.d("newStateTHEN", _uiState.value.toString())
+                updateCartItemQuantity(event.cartItem,event.cartItem.cartItemQuantity).onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            val newCartItemsList = _uiState.value.cartItemList.map { cartItem ->
+                                if (cartItem.cartItemId == event.cartItem.cartItemId) {
+                                    event.cartItem
+                                } else {
+                                    cartItem
+                                }
+                            }
+                            _uiState.value = _uiState.value.copy(cartItemList = newCartItemsList)
+//                            sendUiEvent(CartUiEvent.ShowSnackbar("Removed recipe from cart successfully !"))
+                        }
+                        is Resource.Loading -> {
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = true
+                            )
+                        }
+                        is Resource.Error -> {
+                            _uiState.value = _uiState.value.copy(
+                                error = result.message ?: "An unexpected error occurred"
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }.launchIn(viewModelScope)
+            }
+            else -> Unit
         }
+    }
 
 
     private fun sendUiEvent(event: CartUiEvent){
