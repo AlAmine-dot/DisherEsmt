@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.navigation.NavHostController
@@ -17,20 +18,25 @@ import com.example.esmt.cours.disher.ui.TestScreen
 import com.example.esmt.cours.disher.ui.TestScreen2
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.navigation
+import com.example.esmt.cours.disher.core.presentation.onboarding.OnBoardingContent
+import com.google.accompanist.pager.ExperimentalPagerApi
 
+@ExperimentalAnimationApi
+@ExperimentalPagerApi
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun RootNavigationGraph(navController: NavHostController) {
+
+fun RootNavigationGraph(navController: NavHostController,
+                        startDestination: String) {
     AnimatedNavHost(
         navController = navController,
-        route = Graph.ROOT.route,
-        startDestination = Graph.ONBOARDING.route
+        startDestination = startDestination
     ) {
-        onBoardNavGraph(navController = navController, onClick = {
-            navController.navigate(Graph.HOME.route)
-        })
-        composable(route = Graph.HOME.route
-        ){
+        composable(route = Graph.ONBOARDING.route){
+            OnBoardingContent(navController = navController)
+
+        }
+        composable(route = Graph.HOME.route){
             MainScreen()
 //            TestScreen2()
 //            HomeScreen()

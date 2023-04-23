@@ -3,7 +3,6 @@ package com.example.esmt.cours.disher.feature_meals.data.local.dao
 import androidx.room.*
 import com.example.esmt.cours.disher.core.util.Constants
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.FavoriteMealItemEntity
-import com.example.esmt.cours.disher.feature_meals.data.local.entities.MealEntity
 
 @Dao
 interface FavoriteMealsDao {

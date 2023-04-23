@@ -1,8 +1,6 @@
 package com.example.esmt.cours.disher.feature_meals.domain.model
 
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.CategoryEntity
-import com.example.esmt.cours.disher.feature_meals.data.local.entities.MealEntity
-import kotlinx.serialization.SerialName
 
 data class Category(
 
