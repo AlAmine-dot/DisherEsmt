@@ -1,6 +1,7 @@
-package com.example.esmt.cours.disher.feature_meals.di
+package com.example.esmt.cours.disher.di
 
 import android.content.Context
+import com.example.esmt.cours.disher.core.common.NetworkConnectivityObserver
 import com.example.esmt.cours.disher.feature_meals.data.local.DataStoreRepository
 import dagger.Module
 import dagger.Provides
@@ -13,6 +14,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object MainModule {
 
+    @Provides
+    @Singleton
+    fun provideConnectivityObserver(@ApplicationContext appContext: Context): NetworkConnectivityObserver {
+        return NetworkConnectivityObserver(appContext)
+    }
     @Provides
     @Singleton
     fun provideDataStoreRepository(

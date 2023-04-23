@@ -1,7 +1,12 @@
 package com.example.esmt.cours.disher.core.presentation.main_screen
 
+import android.net.ConnectivityManager
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -10,6 +15,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,6 +25,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.esmt.cours.disher.core.common.ConnectivityObserver
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.MainNavGraph
 import com.example.esmt.cours.disher.ui.customized_items.NavBar2
@@ -33,6 +41,7 @@ fun MainScreen(
     navController: NavHostController = rememberAnimatedNavController()
 ) {
 
+
     val snackbarHostState = remember {
         SnackbarHostState()
     }
@@ -41,6 +50,9 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val mainUiState by viewModel.uiState.collectAsState()
 
+    val status by mainUiState.connectivityObserver.observe().collectAsState(
+        initial = ConnectivityObserver.Status.Available
+    )
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -61,11 +73,11 @@ fun MainScreen(
     }
 
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) },
+        bottomBar = { BottomBar(navController = navController, status = status) },
         snackbarHost = {snackbarHostState},
         topBar = {
 //            TopBar(navController = navController,mainUiState.isBottomBarVisible,{ bool -> viewModel.toggleBottomBarVisibility(bool)})
-                 },
+        },
         modifier = Modifier.padding(top = 0.dp)
     ) { paddingValues -> Log.d("args", paddingValues.toString())
 
@@ -116,7 +128,7 @@ fun MainScreen(
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(navController: NavHostController,status: ConnectivityObserver.Status) {
     val screens = listOf(
         BottomBarScreen.Home,
         BottomBarScreen.Search,
@@ -127,7 +139,42 @@ fun BottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavBar2(screens = screens, navController = navController)
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        NavBar2(screens = screens, navController = navController)
+
+
+        androidx.compose.animation.AnimatedVisibility(
+            visible = status != ConnectivityObserver.Status.Available ,
+            enter = slideInVertically { 22 },
+            exit = slideOutVertically { 22 },
+//        modifier = Modifier.
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(22.dp)
+                    .background(MeltyGreen),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = when (status) {
+                        ConnectivityObserver.Status.Available -> "Available"
+                        ConnectivityObserver.Status.Losing -> "Losing network connection..."
+                        else -> {
+                            "Connection lost, please check your network."
+                        }
+                    },
+                    color = Color.White,
+                    style = MaterialTheme.typography.body1,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
 
 }
 
