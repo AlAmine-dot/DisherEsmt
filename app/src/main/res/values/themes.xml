@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+<!--    Je trouve la New Splash API vraiment limitée, impossible de cur le bail..-->
+<!--    je laisse ce commentaire pour me rappeler de chercher une méthode plus scalable la prochaine fois-->
+
     <style name="Theme.Disher" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
+        <item name="android:statusBarColor">@color/meltyGreen</item>
     </style>
 
     <style name="Theme.CustomSplashScreenTheme" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        <item name="windowSplashScreenBackground">@color/meltyGreen</item>
+        <item name="windowSplashScreenAnimatedIcon">
+            @drawable/disher_white_favicon
+        </item>
         <item name="windowSplashScreenAnimationDuration">600</item>
         <item name="postSplashScreenTheme">@style/Theme.Disher</item>
+        <item name="android:windowDisablePreview">true</item>
     </style>
 </resources>

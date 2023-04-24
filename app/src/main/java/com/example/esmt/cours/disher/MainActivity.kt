@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.esmt.cours.disher.core.presentation.graphs.Graph
 import com.example.esmt.cours.disher.core.presentation.graphs.RootNavigationGraph
@@ -17,6 +18,8 @@ import com.example.esmt.cours.disher.ui.theme.DisherTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ExperimentalAnimationApi
@@ -39,7 +42,7 @@ class MainActivity : ComponentActivity() {
             DisherTheme {
                 val screen = splashViewModel.startDestination.value
                 Log.d("testmain",screen)
-                val navController = rememberAnimatedNavController()
+                val navController = rememberNavController()
                 RootNavigationGraph(navController = navController, startDestination = screen)
             }
 

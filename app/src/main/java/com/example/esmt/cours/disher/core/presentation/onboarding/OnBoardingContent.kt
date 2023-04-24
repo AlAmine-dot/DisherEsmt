@@ -1,6 +1,8 @@
 package com.example.esmt.cours.disher.core.presentation.onboarding
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +43,11 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
+import com.google.accompanist.pager.PagerState
 
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 //@ExperimentalAnimationApi
 @ExperimentalPagerApi
@@ -57,94 +63,152 @@ fun OnBoardingContent(
 ) {
     val pagerState = rememberPagerState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                elevation = 16.dp,
-                backgroundColor = Color.White,
-                content = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                elevation = 16.dp,
+//                backgroundColor = Color.White,
+//                content = {
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxWidth(),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//
+//                        Row(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .align(Alignment.Center),
+//                            horizontalArrangement = Arrangement.Center,
+//                            verticalAlignment = Alignment.CenterVertically
+//                        ) {
+//                            Icon(
+//                                painterResource(id = R.drawable.ic_disher_white),
+//                                contentDescription = "",
+//                                tint = Color.Unspecified,
+//                                modifier = Modifier.size(60.dp)
+//                            )
+//                            Text(
+//                                text = applicationName,
+//                                color = MeltyGreen,
+//                                style = MaterialTheme.typography.h3,
+//                                fontWeight = FontWeight.SemiBold,
+//                                fontSize = 30.sp
+//                            )
+//                        }
+//
+//                    }
+//                }
+//            )
+//        },
+//        bottomBar = {
+//            BottomAppBar(
+//                // elevation = 16.dp,
+//                backgroundColor = Color.White,
+//                modifier = Modifier
+//                    .height(80.dp)
+//                    .fillMaxWidth(),
+//                content = {
+//                    Column(
+//                        modifier = Modifier.fillMaxSize()
+//                    ) {
+//                        if (pagerState.currentPage == pages.lastIndex) {
+//                            FinishButton(
+//                                modifier = Modifier
+//                                    .align(Alignment.CenterHorizontally)
+//                                    .weight(1f),
+//                                //pagerState = viewPagerState
+//                            ) {
+//                                welcomeViewModel.saveOnBoardingState(completed = true)
+//                                navController.popBackStack()
+//                                navController.navigate(Graph.HOME.route)
+//                            }
+//                        }
+//                        HorizontalPagerIndicator(
+//                            activeColor = MeltyGreen,
+//                            pagerState = pagerState,
+//                            modifier = Modifier
+//                                .align(Alignment.CenterHorizontally)
+//                                .weight(1f),
+//                        )
+//                    }
+//                }
+//            )
+//        },
+////        content = {
+//            Column(modifier = Modifier.fillMaxSize()) {
+//                HorizontalPager(state = pagerState, count = pages.size) { page ->
+//                    PagerScreen(onBoardingPage = pages[page])
+//                }
+//                HorizontalPagerIndicator(
+//                    activeColor = MeltyGreen,
+//                    pagerState = pagerState,
+//                    modifier = Modifier
+//                        .align(Alignment.CenterHorizontally)
+//                        .weight(1f),
+//                )
+//                FinishButton(
+//                    modifier = Modifier
+//                        .align(Alignment.CenterHorizontally)
+//                        .weight(1f),
+//                    pagerState = pagerState
+//                ) {
+//                    welcomeViewModel.saveOnBoardingState(completed = true)
+//                    navController.popBackStack()
+//                    navController.navigate(Graph.HOME.route)
+//                }
+//            }
+////        },
+////    )
+//}
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.Center),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painterResource(id = R.drawable.ic_disher_white),
-                                contentDescription = "",
-                                tint = Color.Unspecified,
-                                modifier = Modifier.size(60.dp)
-                            )
-                            Text(
-                                text = applicationName,
-                                color = MeltyGreen,
-                                style = MaterialTheme.typography.h3,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 30.sp
-                            )
-                        }
-
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                // elevation = 16.dp,
-                backgroundColor = Color.White,
-                modifier = Modifier
-                    .height(80.dp)
-                    .fillMaxWidth(),
-                content = {
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        if (pagerState.currentPage == pages.lastIndex) {
-                            FinishButton(
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .weight(1f),
-                                //pagerState = viewPagerState
-                            ) {
-                                welcomeViewModel.saveOnBoardingState(completed = true)
-                                navController.popBackStack()
-                                navController.navigate(Graph.HOME.route)
-                            }
-                        }
-                        HorizontalPagerIndicator(
-                            activeColor = MeltyGreen,
-                            pagerState = pagerState,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .weight(1f),
-                        )
-                    }
-                }
-            )
-        },
-        content = {
-            Column(modifier = Modifier.fillMaxSize()) {
-                HorizontalPager(state = pagerState, count = pages.size) { page ->
-                    PagerScreen(onBoardingPage = pages[page])
-                }
-            }
-        },
+    val pages = listOf(
+        OnBoardingPage.First,
+        OnBoardingPage.Second,
+        OnBoardingPage.Third
     )
+
+    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+
+        HorizontalPager(
+            modifier = Modifier.weight(10f).background(Color.White),
+            count = 3,
+            state = pagerState,
+            verticalAlignment = Alignment.Top
+        ) { position ->
+            PagerScreen(onBoardingPage = pages[position])
+        }
+        HorizontalPagerIndicator(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .weight(1f),
+            activeColor = MeltyGreen,
+            pagerState = pagerState
+        )
+        FinishButton(
+            modifier = Modifier.weight(1f),
+            pagerState = pagerState
+        ) {
+            welcomeViewModel.saveOnBoardingState(completed = true)
+            navController.popBackStack()
+            navController.navigate(Graph.HOME.route)
+        }
+    }
 }
 
 @Composable
 fun PagerScreen(onBoardingPage: OnBoardingPage) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        Image(
+            painterResource(id = R.drawable.disher_branding_white),
+            contentDescription = "Disher branding",
+            modifier = Modifier.width(230.dp)
+        )
+
         Text(
             text = onBoardingPage.title,
             modifier = Modifier
@@ -180,8 +244,10 @@ fun PagerScreen(onBoardingPage: OnBoardingPage) {
 //@ExperimentalAnimationApi
 @ExperimentalPagerApi
 @Composable
+@ExperimentalAnimationApi
 fun FinishButton(
     modifier: Modifier,
+    pagerState: PagerState,
     onClick: () -> Unit
 ) {
     Row(
@@ -190,15 +256,24 @@ fun FinishButton(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Center
     ) {
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(MeltyGreen)
+        AnimatedVisibility(
+            modifier = Modifier.fillMaxWidth(),
+            visible = pagerState.currentPage == 2
         ) {
-            Text(text = "Finish", color = Color.White)
+            Button(
+                onClick = onClick,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MeltyGreen
+                )
+            ) {
+                Text(
+                    text = "Finish",
+                    color = Color.White
+                )
+            }
         }
     }
 }
-
 @Composable
 @Preview(showBackground = true)
 fun FirstOnBoardingScreenPreview() {
