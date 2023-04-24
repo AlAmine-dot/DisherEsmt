@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -119,7 +120,7 @@ fun MealsListComponent(
             verticalAlignment = Alignment.CenterVertically
         ){
             Text(
-                text =  "${mealItems.size} recipes",
+                text =  "${mealItems.size} ${if (mealItems.size == 1) "recipe" else "recipes"}",
                 style = MaterialTheme.typography.h5,
                 color = LightTurquoise,
                 fontWeight = FontWeight.Bold
@@ -151,17 +152,40 @@ fun MealsListComponent(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ){
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(start = 7.5.dp, end = 7.5.dp, bottom = 100.dp),
-                modifier = Modifier.fillMaxHeight(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(mealItems.size) {
-                    MealItem(meal = mealItems[it], onMealClicked, onDeleteClicked)
+            if(mealItems.size > 0){
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(start = 7.5.dp, end = 7.5.dp, bottom = 100.dp),
+                    modifier = Modifier.fillMaxHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(mealItems.size) {
+                        MealItem(meal = mealItems[it], onMealClicked, onDeleteClicked)
+                    }
+                }
+            }else{
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(400.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ){
+                    Image(
+                        painterResource(id = R.drawable.ph_favempty),
+                        contentDescription = "Empty placeholder"
+                    )
+                    Text(
+                        "You don't have any favorite recipes yet.",
+                        style = MaterialTheme.typography.body1,
+                        fontSize = 16.sp,
+                        color = DarkTurquoise
+                    )
                 }
             }
+
         }
     }
 
@@ -342,7 +366,7 @@ fun TopCardComponent(){
                     ){
                         Icon(
                             imageVector = Icons.Default.Person,
-                            contentDescription = "Location",
+                            contentDescription = "Person icon",
                             tint = MeltyGreen,
                             modifier = Modifier.size(20.dp),
                         )
@@ -386,9 +410,9 @@ fun TopCardComponent(){
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Check,
-                        contentDescription = "Location",
+                        contentDescription = "Taste check icon",
                         tint = MeltyGreen,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
             }
@@ -420,10 +444,10 @@ fun TopCardComponent(){
                         .background(Color.White)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Location",
+                        painterResource(id = R.drawable.ic_diet),
+                        contentDescription = "Weight monitor icon",
                         tint = MeltyGreen,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
             }
@@ -455,15 +479,15 @@ fun TopCardComponent(){
                         .background(Color.White)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Build,
-                        contentDescription = "Location",
+                        painterResource(id = R.drawable.ic_ustensils),
+                        contentDescription = "Ustensils icon",
                         tint = MeltyGreen,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
             }
             Text(
-                text = "Equipment",
+                text = "Ustensils",
                 style = MaterialTheme.typography.body1,
                 fontSize = 16.sp
             )

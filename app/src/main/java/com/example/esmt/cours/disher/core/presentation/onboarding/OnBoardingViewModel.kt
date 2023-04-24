@@ -3,7 +3,7 @@ package com.example.esmt.cours.disher.core.presentation.onboarding
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.esmt.cours.disher.feature_meals.data.local.DataStoreRepository
+import com.example.esmt.cours.disher.core.data.local.repository.DataStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

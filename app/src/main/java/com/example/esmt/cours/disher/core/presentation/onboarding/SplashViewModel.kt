@@ -6,8 +6,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.esmt.cours.disher.core.data.local.repository.DataStoreRepository
 import com.example.esmt.cours.disher.core.presentation.graphs.Graph
-import com.example.esmt.cours.disher.feature_meals.data.local.DataStoreRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

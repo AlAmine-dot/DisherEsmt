@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -175,7 +176,7 @@ fun CartComponent(
             verticalAlignment = Alignment.CenterVertically
         ){
             Text(
-                text =  "${cartItems.size} recipes",
+                text =  "${cartItems.size} ${if (cartItems.size == 1) "recipe" else "recipes"}",
                 style = MaterialTheme.typography.h5,
                 color = LightTurquoise,
                 fontWeight = FontWeight.Bold
@@ -207,47 +208,49 @@ fun CartComponent(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ){
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 7.5.dp, end = 7.5.dp, bottom = 100.dp)
-                ,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+            if(cartItems.isNotEmpty())
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 7.5.dp, end = 7.5.dp, bottom = 100.dp)
+                    ,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
 
-            ) {
-//                cartItems.forEach { cartItem ->
-//                    CartItemCard(
-//                        cart = cartItem,
-//                        onMealClicked,
-//                        onDeleteClicked,
-//                        onUpdateQuantity = onUpdateQuantity
-//                    )
-//                }
-                for (cartItem in cartItems) {
-                    key(cartItem.cartItemQuantity) {
-                        CartItemCard(
-                            cart = cartItem,
-                            onMealClicked,
-                            onDeleteClicked,
-                            onUpdateQuantity = onUpdateQuantity,
-                            key = cartItem.cartItemId // Utiliser un ID unique pour chaque élément
-                        )
+                ) {
+                    for (cartItem in cartItems) {
+                        key(cartItem.cartItemQuantity) {
+                            CartItemCard(
+                                cart = cartItem,
+                                onMealClicked,
+                                onDeleteClicked,
+                                onUpdateQuantity = onUpdateQuantity,
+                                key = cartItem.cartItemId // Utiliser un ID unique pour chaque élément
+                            )
+                        }
                     }
                 }
-//                cartItems.forEach { cartItem ->
-//                    Box() {
-//                        CartItemCard(
-//                            cart = cartItem,
-//                            onMealClicked,
-//                            onDeleteClicked,
-//                            onUpdateQuantity = onUpdateQuantity,
-//                            key = cartItem.cartItemId // Utiliser un ID unique pour chaque élément
-//                        )
-//                    }
-//                }
+            else{
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(450.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                Image(
+                    painterResource(id = R.drawable.ph_emptycart),
+                    contentDescription = "Empty placeholder",
+                    modifier = Modifier.size(270.dp).padding(bottom = 10.dp)
+                )
+                Text(
+                    "Your cart is empty for now !",
+                    style = MaterialTheme.typography.body1,
+                    fontSize = 16.sp,
+                    color = DarkTurquoise
+                )
             }
-
+        }
         }
     }
 

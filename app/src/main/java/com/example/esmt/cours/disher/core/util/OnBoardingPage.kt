@@ -11,19 +11,19 @@ sealed class OnBoardingPage(
 ) {
     object First : OnBoardingPage(
         image = R.drawable.image1,
-        title = "Bienvenue",
-        description = "Bienvenue dans Disher ! Avec notre application, vous pourrez accéder à des milliers de délicieuses recettes de cuisine."
+        title = "Loads of ideas",
+        description = "Welcome, fellow disher ! Find what you're looking for with over 76,000 recipes to satisfy any craving (and your fridge's too)."
     )
 
     object Second : OnBoardingPage(
         image = R.drawable.image2,
-        title = "Découverte",
-        description = "Découvrez notre application de recette de cuisine ! Avec des milliers de recettes pour tous les goûts et tous les niveaux de compétences culinaires, vous êtes sûr de trouver quelque chose qui vous convient."
+        title = "Discovery",
+        description = "Here, there is something for everyone! With thousands of recipes for all tastes and skill levels, you are sure to find something that suits you."
     )
 
     object Third : OnBoardingPage(
         image = R.drawable.image3,
-        title = "Apprendre",
-        description = "Apprenez de nouvelles compétences culinaires avec Disher ! Nous sommes là pour vous aider à améliorer vos compétences culinaires et à découvrir de nouveaux ingrédients."
+        title = "Learn",
+        description = "Learn new cooking skills with Disher ! We're here to help you improve your cooking skills and discover new ingredients."
     )
 }

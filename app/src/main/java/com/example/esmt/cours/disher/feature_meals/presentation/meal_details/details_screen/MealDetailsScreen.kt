@@ -263,6 +263,7 @@ fun PreparationComponent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(bottom = 15.dp)
             ,
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -280,7 +281,7 @@ fun PreparationComponent(
                     color = MeltyGreen,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 15.dp)
+                        .padding(vertical = 25.dp)
                     ,
                     textAlign = TextAlign.Center
                 )
@@ -527,7 +528,9 @@ fun DetailsComponent(
                         strokeWidth = (0.4.dp).toPx()
                     )
                 }
-                .padding(vertical = 15.dp, horizontal = 10.dp),
+                .padding(vertical = 15.dp, horizontal = 10.dp)
+                .padding(top = 10.dp)
+            ,
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -536,22 +539,22 @@ fun DetailsComponent(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Icon(
-                    imageVector = Icons.Default.DateRange,
+                    painterResource(id = R.drawable.ic_time),
                     contentDescription = "Recipe's duration",
-                    tint = DarkTurquoise,
+                    tint = DarkTurquoise.copy(alpha = .9f),
                     modifier = Modifier
                         .size(30.dp)
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "55 min",
-                    color = DarkTurquoise,
+                    color = DarkTurquoise.copy(alpha = .9f),
                     style = MaterialTheme.typography.body1,
                 )
             }
             Text(
                 "•",
-                color = DarkTurquoise,
+                color = DarkTurquoise.copy(alpha = .9f),
                 style = MaterialTheme.typography.body1,
             )
             Row(
@@ -559,22 +562,22 @@ fun DetailsComponent(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Icon(
-                    imageVector = Icons.Default.ThumbUp,
+                    painterResource(id = R.drawable.ic_money),
                     contentDescription = "Cost",
-                    tint = DarkTurquoise,
+                    tint = DarkTurquoise.copy(alpha = .9f),
                     modifier = Modifier
                         .size(30.dp)
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "Expensive",
-                    color = DarkTurquoise,
+                    color = DarkTurquoise.copy(alpha = .9f),
                     style = MaterialTheme.typography.body1,
                 )
             }
             Text(
                 "•",
-                color = DarkTurquoise,
+                color = DarkTurquoise.copy(alpha = .9f),
                 style = MaterialTheme.typography.body1,
             )
             Row(
@@ -582,16 +585,16 @@ fun DetailsComponent(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Recipe's duration",
-                    tint = DarkTurquoise,
+                    painterResource(id = R.drawable.ic_healthy),
+                    contentDescription = "Recipe's health level",
+                    tint = DarkTurquoise.copy(alpha = .9f),
                     modifier = Modifier
                         .size(30.dp)
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
-                    text = "55 min",
-                    color = DarkTurquoise,
+                    text = "Healthy",
+                    color = DarkTurquoise.copy(alpha = .9f),
                     style = MaterialTheme.typography.body1,
                 )
             }

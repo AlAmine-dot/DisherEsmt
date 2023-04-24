@@ -2,7 +2,7 @@ package com.example.esmt.cours.disher.di
 
 import android.content.Context
 import com.example.esmt.cours.disher.core.common.NetworkConnectivityObserver
-import com.example.esmt.cours.disher.feature_meals.data.local.DataStoreRepository
+import com.example.esmt.cours.disher.core.data.local.repository.DataStoreRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
