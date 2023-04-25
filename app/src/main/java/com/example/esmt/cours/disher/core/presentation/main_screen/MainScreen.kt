@@ -54,7 +54,9 @@ fun MainScreen(
         initial = ConnectivityObserver.Status.Available
     )
 
+
     LaunchedEffect(key1 = true) {
+
         viewModel.uiEvent.collect { event ->
             when(event) {
                 is UiEvent.ShowSnackbar -> {

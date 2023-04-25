@@ -1,10 +1,12 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.meal_details.youtube_viewer_screen
 
+import com.example.esmt.cours.disher.core.common.ConnectivityObserver
 import java.util.regex.Pattern
 
 data class YtViewerUiState(
     val isLoading: Boolean = false,
     val mealVideoUrl: String = "",
+    val connectivityObserver: ConnectivityObserver,
     val error: String = "",
 
     ){

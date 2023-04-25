@@ -137,12 +137,12 @@ fun CartScreen(
                     .heightIn(130.dp)
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 80.dp),
-                onClick = { onNavigate(CartUiEvent.Navigate(BottomBarScreen.Home.route)) },
+                onClick = {  },
                 shape = RoundedCornerShape(70.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
             ) {
                 Text(
-                    text = "Commander",
+                    text = "Place order",
                     style = MaterialTheme.typography.h6,
                     color = Color.White,
 

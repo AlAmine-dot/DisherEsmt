@@ -2,17 +2,24 @@ package com.example.esmt.cours.disher.feature_meals.presentation.meal_details.yo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.esmt.cours.disher.core.common.NetworkConnectivityObserver
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen.MealDetailsUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class YtViewerViewModel (): ViewModel() {
+@HiltViewModel
+class YtViewerViewModel @Inject constructor(
+    private val connectivityObserver: NetworkConnectivityObserver
+): ViewModel() {
 
 
     private val _uiState : MutableStateFlow<YtViewerUiState> =  MutableStateFlow(
-        YtViewerUiState()
+        YtViewerUiState(
+            connectivityObserver = connectivityObserver
+        )
     )
     val uiState: StateFlow<YtViewerUiState> = _uiState.asStateFlow()
 

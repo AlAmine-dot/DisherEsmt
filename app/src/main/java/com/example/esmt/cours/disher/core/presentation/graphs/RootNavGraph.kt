@@ -37,13 +37,13 @@ fun RootNavigationGraph(navController: NavHostController,
         }
         composable(route = Graph.AWAIT.route){
 
-//            if(startDestination == Graph.ONBOARDING.route){
-//                OnBoardingContent(navController = navController)
-//            }else{
+            if(startDestination == Graph.ONBOARDING.route){
+                OnBoardingContent(navController = navController)
+            }else{
                 AwaitScreen({ route ->
                     navController.navigate(route)
                 },startDestination)
-//            }
+            }
         }
     }
 }

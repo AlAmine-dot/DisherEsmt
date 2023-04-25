@@ -44,12 +44,15 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.esmt.cours.disher.ui.theme.DarkTurquoise
 import com.google.accompanist.pager.PagerState
 
 @OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-//@ExperimentalAnimationApi
 @ExperimentalPagerApi
 @Composable
 fun OnBoardingContent(
@@ -63,112 +66,13 @@ fun OnBoardingContent(
 ) {
     val pagerState = rememberPagerState()
 
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                elevation = 16.dp,
-//                backgroundColor = Color.White,
-//                content = {
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth(),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .align(Alignment.Center),
-//                            horizontalArrangement = Arrangement.Center,
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Icon(
-//                                painterResource(id = R.drawable.ic_disher_white),
-//                                contentDescription = "",
-//                                tint = Color.Unspecified,
-//                                modifier = Modifier.size(60.dp)
-//                            )
-//                            Text(
-//                                text = applicationName,
-//                                color = MeltyGreen,
-//                                style = MaterialTheme.typography.h3,
-//                                fontWeight = FontWeight.SemiBold,
-//                                fontSize = 30.sp
-//                            )
-//                        }
-//
-//                    }
-//                }
-//            )
-//        },
-//        bottomBar = {
-//            BottomAppBar(
-//                // elevation = 16.dp,
-//                backgroundColor = Color.White,
-//                modifier = Modifier
-//                    .height(80.dp)
-//                    .fillMaxWidth(),
-//                content = {
-//                    Column(
-//                        modifier = Modifier.fillMaxSize()
-//                    ) {
-//                        if (pagerState.currentPage == pages.lastIndex) {
-//                            FinishButton(
-//                                modifier = Modifier
-//                                    .align(Alignment.CenterHorizontally)
-//                                    .weight(1f),
-//                                //pagerState = viewPagerState
-//                            ) {
-//                                welcomeViewModel.saveOnBoardingState(completed = true)
-//                                navController.popBackStack()
-//                                navController.navigate(Graph.HOME.route)
-//                            }
-//                        }
-//                        HorizontalPagerIndicator(
-//                            activeColor = MeltyGreen,
-//                            pagerState = pagerState,
-//                            modifier = Modifier
-//                                .align(Alignment.CenterHorizontally)
-//                                .weight(1f),
-//                        )
-//                    }
-//                }
-//            )
-//        },
-////        content = {
-//            Column(modifier = Modifier.fillMaxSize()) {
-//                HorizontalPager(state = pagerState, count = pages.size) { page ->
-//                    PagerScreen(onBoardingPage = pages[page])
-//                }
-//                HorizontalPagerIndicator(
-//                    activeColor = MeltyGreen,
-//                    pagerState = pagerState,
-//                    modifier = Modifier
-//                        .align(Alignment.CenterHorizontally)
-//                        .weight(1f),
-//                )
-//                FinishButton(
-//                    modifier = Modifier
-//                        .align(Alignment.CenterHorizontally)
-//                        .weight(1f),
-//                    pagerState = pagerState
-//                ) {
-//                    welcomeViewModel.saveOnBoardingState(completed = true)
-//                    navController.popBackStack()
-//                    navController.navigate(Graph.HOME.route)
-//                }
-//            }
-////        },
-////    )
-//}
-
     val pages = listOf(
         OnBoardingPage.First,
         OnBoardingPage.Second,
         OnBoardingPage.Third
     )
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+    Column(modifier = Modifier.fillMaxSize().background(Color.White).padding(bottom = 30.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
 
         HorizontalPager(
             modifier = Modifier.weight(10f).background(Color.White),
@@ -214,7 +118,8 @@ fun PagerScreen(onBoardingPage: OnBoardingPage) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 40.dp),
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.h4,
+            color = DarkTurquoise,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
@@ -261,13 +166,17 @@ fun FinishButton(
             visible = pagerState.currentPage == 2
         ) {
             Button(
+                modifier = Modifier
+                    .widthIn(240.dp)
+                    .heightIn(100.dp)
+                    .padding(bottom = 5.dp),
                 onClick = onClick,
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MeltyGreen
-                )
+                shape = RoundedCornerShape(70.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
             ) {
                 Text(
-                    text = "Finish",
+                    text = "Let's dish !",
+                    style = MaterialTheme.typography.h6,
                     color = Color.White
                 )
             }

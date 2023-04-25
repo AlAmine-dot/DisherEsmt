@@ -35,7 +35,7 @@ class DataStoreRepository(context: Context) {
                 Log.d("testRepoDataStore", "la clé n'a pas été créée")
             }
             Log.d("testRepoDataStore2nd", preferences.toString())
-//            preferences[PreferencesKey.onBoardingKey] = completed
+            preferences[PreferencesKey.onBoardingKey] = completed
         }
     }
 
