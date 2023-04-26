@@ -1,6 +1,11 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
 import android.util.Log
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,16 +23,24 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,10 +53,17 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen.MealDetailsOption
 import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.rememberPagerState
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun HomeScreen(
     onNavigate: (HomeUiEvent.Navigate) -> Unit,
@@ -55,65 +75,417 @@ fun HomeScreen(
 
         val homeUiState by homeViewModel.uiState.collectAsState()
         val categoryFeatures = homeUiState.getCategoryFeatures()
+        val swiperContent = homeUiState.swiperContent
 
         val trigger by remember { mutableStateOf(homeUiState.feedModeOption == FeedMode.DISCOVERY) }
+        val pagerState = rememberPagerState()
+        val loadedCategories = mutableListOf<CategoryFeature>()
+        val shimmerCount = 5 - categoryFeatures.size.coerceAtMost(5) // calculer le nombre de CategoryShimmer() à afficher
+        val shimmers = List(shimmerCount) { CategoryShimmer() } // créer une liste de CategoryShimmer()
 
-        Scaffold(
+        loadedCategories.addAll(categoryFeatures) // ajouter les catégories chargées à la liste
+
+    Scaffold(
             topBar = {TopAppBar2(TopBarContent(BottomBarScreen.Home.route, emptyList()),true,{})}
         ) {paddingValues ->
-
-            LazyColumn(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .background(TextWhite)
-                    .fillMaxSize()
-                    .padding(start = 0.dp, bottom = 39.dp),
-                verticalArrangement = Arrangement.spacedBy(25.dp)
-            ) {
-                item {
-                    Spacer(modifier = Modifier.height(25.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        RadioToggler(
-                            item1 = "Discovery mode",
-                            item2 = "Custom mode",
-                            trigger = homeUiState.feedModeOption == FeedMode.DISCOVERY,
-                            onClickItem1 = {
-                                homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.DISCOVERY))
-                            },
-                            onClickItem2 = {
-                                homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.CUSTOM))
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .background(TextWhite)
+                        .fillMaxSize()
+                        .padding(start = 0.dp, bottom = 39.dp),
+                    verticalArrangement = Arrangement.spacedBy(30.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(25.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            RadioToggler(
+                                item1 = "Discovery mode",
+                                item2 = "Custom mode",
+                                trigger = homeUiState.feedModeOption == FeedMode.DISCOVERY,
+                                onClickItem1 = {
+                                    homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.DISCOVERY))
+                                },
+                                onClickItem2 = {
+                                    homeViewModel.onEvent(HomeUiEvent.OnToggleFeedMode(FeedMode.CUSTOM))
+                                }
+                            )
+                        }
+                    }
+                    if(homeUiState.feedModeOption == FeedMode.DISCOVERY) {
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 0.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                AskCardComponent(onNavigate)
                             }
+                        }
+                        item {
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 0.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                            if (swiperContent == null){
+                                SwiperShimmer()
+                            }else {
+                                    SwiperComponent(
+                                        swiperContent,
+                                        onMealClicked = { mealId ->
+                                            Log.d("argsmealId", "Reached level 1")
+                                            onShowMealDetailsScreen(
+                                                HomeUiEvent.ShowMealDetails(
+                                                    mealId
+                                                )
+                                            )
+                                        },
+                                        pagerState
+                                    )
+                                }
+                            }
+                        }
+                        item{
+                            for (item in loadedCategories + shimmers) {
+                                Spacer(modifier =  Modifier.height(10.dp))
+                                when (item) {
+                                    is CategoryFeature -> {
+                                        // Si c'est une CategoryFeature, afficher la CategoryFeature correspondante
+                                        item.category?.let { Log.d("testcategory", it.categoryName) }
+                                        CategoryFeature(item, onMealClicked = { mealId ->
+                                            Log.d("argsmealId", "Reached level 1")
+                                            onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
+                                        })
+                                    }
+                                    else -> {
+                                        // Si c'est un CategoryShimmer, afficher le CategoryShimmer correspondant
+                                        CategoryShimmer()
+                                    }
+                                }
+                                Spacer(modifier =  Modifier.height(10.dp))
+
+                            }
+                        }
+
+//                        items(count = 5) { index ->
+//                            val feature = categoryFeatures.getOrNull(index) // récupérer la catégorie à l'index donné
+//                            if (feature != null) {
+//                                // Si la catégorie est chargée, afficher la CategoryFeature correspondante
+//                                feature.category?.let { Log.d("testcategory", it.categoryName) }
+//                                CategoryFeature(feature, onMealClicked = { mealId ->
+//                                    Log.d("argsmealId", "Reached level 1")
+//                                    onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
+//                                })
+//                                loadedCount++
+//                            } else if (loadedCount < index) {
+//                                // Si la catégorie n'est pas encore chargée mais qu'il y a des catégories chargées avant, afficher une CategoryShimmer()
+//                                CategoryShimmer()
+//                            }
+//                        }
+
+
+                        item {
+                            Text(homeUiState.error)
+                        }
+                    }else {
+                        item {
+                            Text("Hello custom :)")
+                        }
+                    }
+                }
+        }
+
+}
+
+@Composable
+fun SwiperShimmer(){
+    Column(
+    ) {
+        Box(
+            modifier = Modifier
+                .height(330.dp)
+                .width(360.dp)
+                .padding(10.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .shimmerEffect()
+            ,
+
+        ){
+            
+        }
+        Row(
+            modifier = Modifier
+                .width(360.dp)
+                .padding(horizontal = 15.dp)
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween
+
+        ){
+            Column(
+                modifier = Modifier
+                    .width(130.dp)
+                    .height(26.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .shimmerEffect()
+            ){
+
+            }
+            Column(
+                modifier = Modifier
+                    .width(25.dp)
+                    .height(26.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .shimmerEffect()
+            ){
+
+            }
+        }
+        Row(
+            modifier = Modifier
+                .width(360.dp)
+                .height(20.dp)
+                .padding(horizontal = 15.dp)
+            ,
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(10.dp)
+                    .width(10.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            ){
+
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(10.dp)
+                    .width(10.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            ){
+
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(10.dp)
+                    .width(10.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            ){
+
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(10.dp)
+                    .width(10.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            ){
+
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(10.dp)
+                    .width(10.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            ){
+
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .height(10.dp)
+                    .width(10.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            ){
+
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun SwiperComponent(
+    feature: CategoryFeature, onMealClicked: (id: Int) -> Unit, pagerState: PagerState
+){
+    Column(
+        modifier = Modifier.background(TextWhite)
+    ) {
+        HorizontalPager(
+            modifier = Modifier.background(TextWhite),
+            count = feature.featuredMeals.size,
+            state = pagerState,
+            verticalAlignment = Alignment.Top
+        ) { position ->
+            SwiperMealCard(meal = feature.featuredMeals[position], onClick = { id ->
+            Log.d("argsmealId", "Reached level 2")
+            onMealClicked(id)})
+        }
+        HorizontalPagerIndicator(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            activeColor = MeltyGreen,
+            pagerState = pagerState
+        )
+    }
+}
+
+@Composable
+fun SwiperMealCard(
+    meal: Meal,
+    onClick: (id: Int) -> Unit
+){
+    Column(
+        modifier = Modifier
+            .height(320.dp)
+            .width(350.dp)
+        ,
+
+        ){
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(.89f)
+                .clickable {
+                    Log.d("argsmealId", "Reached level 3")
+                    onClick(meal.id)
+                },
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = Color.White,
+            elevation = 10.dp
+        ) {
+            val painter = rememberImagePainter(
+                data = meal.strMealThumb,
+                builder = {
+                    crossfade(durationMillis = 1200)
+                    placeholder(R.drawable.ic_placeholder)
+                    error(R.drawable.ic_placeholder)
+                }
+            )
+            Image(
+                painter = painter,
+                contentDescription = "Image ${meal.strMealName}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black
+                        ),
+                        startY = 200f
+                    )
+                )
+            ){
+
+                if(meal.strYoutube?.isNotBlank() == true){
+
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .align(Alignment.Center)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = .4f))
+                            .shadow(100.dp, CircleShape)
+                            .border(3.dp, Color.White, CircleShape)
+                        ,
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "Play video",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(30.dp),
                         )
                     }
                 }
-                item {
-                    Row(
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = meal.strArea.orEmpty(),
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 0.dp)
-                        ,
-                        horizontalArrangement = Arrangement.Center
-                    ){
-                        AskCardComponent(onNavigate)
-                    }
+                            .align(Alignment.CenterStart)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MeltyGreen)
+                            .padding(vertical = 4.dp, horizontal = 14.dp)
+                            .alpha(0.7f),
+
+                        )
+
+
                 }
-                items(categoryFeatures) {feature ->
-                    CategoryFeature(feature, onMealClicked = { mealId ->
-                        Log.d("argsmealId", "Reached level 1")
-                        onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
-                    })
-                }
-                item{
-                    Text(homeUiState.error)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 5.dp)
+                        .align(Alignment.BottomStart)
+                    ,
+                    contentAlignment = Alignment.CenterStart
+                ){
+                    Text(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        text= meal.strMealName.orEmpty(),
+                        color = TextWhite,
+                    )
                 }
             }
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            Row(
+                modifier = Modifier.padding(start = 3.dp),
+            ){
+                Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
+                Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
+                Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
+                Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
+                Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
+            }
 
+            Text(
+                modifier = Modifier.padding(end = 10.dp),
+                text="4.6/5",
+                color = LightTurquoise,
+            )
+        }
+    }
 }
 
 @Composable
@@ -133,8 +505,6 @@ fun AskCardComponent(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-//            horizontalArrangement = Arrangement.Center,
-//            verticalAlignment = Alignment.CenterVertically
         ){
             Column(
                 modifier = Modifier
@@ -212,6 +582,152 @@ fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) 
         }
         item {
             Spacer(modifier = Modifier.width(0.dp))
+        }
+    }
+
+}
+
+@Composable
+fun CategoryShimmer(){
+
+    Column(
+    ){
+        Row(
+            modifier = Modifier
+                .height(30.dp)
+                .width(250.dp)
+                .padding(start = 15.dp, bottom = 7.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .shimmerEffect()
+        ){
+
+        }
+
+        Row(
+            modifier = Modifier
+                .height(230.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(15.dp)
+        ){
+            Spacer(modifier = Modifier.width(0.dp))
+
+            Column(){
+
+                Column(modifier = Modifier
+                    .fillMaxHeight(.9f)
+                    .width(200.dp)
+                    .padding(vertical = 7.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .shimmerEffect()) {
+                }
+                Row(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .padding(horizontal = 3.dp)
+                        .height(17.dp)
+//                        .shimmerEffect()
+                ){
+                    Row(
+                        modifier = Modifier
+                            .width(210.dp)
+                            .height(20.dp)
+                            .padding(start = 3.dp, end = 3.dp)
+                        ,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Column(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(20.dp)
+                                .clip(RoundedCornerShape(5.dp))
+
+                                .shimmerEffect()
+                        ){
+
+                        }
+                        Column(
+                            modifier = Modifier
+                                .width(20.dp)
+                                .height(20.dp)
+                                .clip(RoundedCornerShape(5.dp))
+                                .shimmerEffect()
+                        ){
+
+                        }
+//                        StarBox(modifier = Modifier.shimmerEffect())
+//                        Icon(imageVector = Icons.Outlined.Star, contentDescription = null, modifier = Modifier.shimmerEffect())
+                    }
+                }
+//                Row(
+//                    modifier = Modifier
+//                        .width(20.dp)
+//                        .padding(vertical = 15.dp)
+//                        .shimmerEffect()
+//                    ,
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.SpaceBetween
+//                ){
+//                    Row(
+//                        modifier = Modifier
+//                            .padding(start = 3.dp)
+//                            .shimmerEffect()
+//                        ,
+//                    ){
+////                        Icon(imageVector = Icons.Outlined.Star, tint = LightBrown, contentDescription = null)
+//                    }
+//
+//
+//                    Row(
+//                        modifier = Modifier
+//                            .height(20.dp)
+//                            .width(23.dp)
+//                            .padding(start = 15.dp,bottom = 7.dp)
+//                            .shimmerEffect()
+//                    ){
+//
+//                    }
+//                }
+            }
+
+            Column(){
+
+                Column(modifier = Modifier
+                    .fillMaxHeight(.9f)
+                    .width(200.dp)
+                    .padding(vertical = 7.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp))
+                    .shimmerEffect()) {
+                }
+                Row(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .padding(horizontal = 3.dp)
+                        .height(20.dp)
+//                        .shimmerEffect()
+                ){
+                    Row(
+                        modifier = Modifier
+                            .width(200.dp)
+                            .height(16.dp)
+                            .padding(start = 3.dp, end = 3.dp)
+                        ,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Column(
+                            modifier = Modifier
+                                .width(120.dp)
+                                .height(20.dp)
+                                .clip(RoundedCornerShape(5.dp))
+                                .shimmerEffect()
+                        ){
+
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -381,5 +897,36 @@ fun DefaultPreview(){
         isFavorite = false,
         isIntoCart = false
     )
-    MealCard(mockMeal,{})
+//    MealCard(mockMeal,{})
+//    CategoryShimmer()
+    SwiperShimmer()
+}
+
+fun Modifier.shimmerEffect(): Modifier = composed {
+    var size by remember {
+        mutableStateOf(IntSize.Zero)
+    }
+    val transition = rememberInfiniteTransition()
+    val startOffsetX by transition.animateFloat(
+        initialValue = -2 * size.width.toFloat(),
+        targetValue = 2 * size.width.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000)
+        )
+    )
+
+    background(
+        brush = Brush.linearGradient(
+            colors = listOf(
+                Color(0xFFB8B5B5).copy(alpha = .4f),
+                Color(0xFF8F8B8B).copy(alpha = .4f),
+                Color(0xFFB8B5B5).copy(alpha = .4f),
+            ),
+            start = Offset(startOffsetX, 0f),
+            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+        )
+    )
+        .onGloballyPositioned {
+            size = it.size
+        }
 }

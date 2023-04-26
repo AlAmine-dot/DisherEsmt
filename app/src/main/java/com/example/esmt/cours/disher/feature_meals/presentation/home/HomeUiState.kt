@@ -7,6 +7,7 @@ data class HomeUiState(
 
     private var categoryFeatures: List<CategoryFeature> = emptyList(),
     val feedModeOption: FeedMode = FeedMode.DISCOVERY,
+    val swiperContent: CategoryFeature? = null,
     val error: String = "",
 
     ){

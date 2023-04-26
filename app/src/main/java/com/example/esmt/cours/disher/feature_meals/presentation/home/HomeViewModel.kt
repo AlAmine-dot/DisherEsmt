@@ -22,6 +22,7 @@ class HomeViewModel @Inject constructor(
 
 
     init {
+        getSwiperContent()
         getMeals()
     }
 
@@ -37,6 +38,55 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun getSwiperContent(){
+        provideFeatures(
+            categoryManager.getCategoryByName("Side"),
+            1,
+            HomeUiState.MEALS_PAGE_SIZE
+        )
+            .onEach { result ->
+                when (result){
+                    is Resource.Success -> {
+                        val categoryFeature = result.data
+                        val updatedState = _uiState.value.copy(
+                            isLoading = false,
+                            swiperContent = categoryFeature
+                        )
+//                            .apply {
+//                                if (categoryFeature != null && !this.getCategoryFeatures().contains(categoryFeature)) {
+//                                    addCategoryFeature(categoryFeature)
+//                                }
+//                            }
+
+                        _uiState.value = updatedState
+                        Log.d("testSwiperContent", _uiState.value.toString())
+
+                    }
+                    is Resource.Loading -> {
+                        var updatedState = _uiState.value.copy(
+                            isLoading = true
+                        )
+                        _uiState.value = updatedState
+                        Log.d("testViewModel", _uiState.value.toString())
+
+                    }
+                    is Resource.Error -> {
+                        val categoryFeature = result.data
+                        var updatedState = _uiState.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "Oops, an unexpected error occured"
+                        )
+                        // Est-ce qu'on a besoin d'update le contenu en cas d'erreur ?
+//                        if (categoryFeature != null) {
+//                            updatedState.addCategoryFeature(categoryFeature)
+//                        }
+                        _uiState.value = updatedState
+                        Log.d("testViewModel", _uiState.value.toString())
+
+                    }
+                }
+            }.launchIn(viewModelScope)
+    }
     private fun getMeals(){
 
         var categories = listOf(
@@ -48,7 +98,12 @@ class HomeViewModel @Inject constructor(
         )
         categories.forEach { singleCategory ->
 
-        provideFeatures(singleCategory,1,HomeUiState.MEALS_PAGE_SIZE).onEach { result ->
+//            if(categories.indexOf(singleCategory) == 0){
+//                provideFeatures(singleCategory,2,HomeUiState.MEALS_PAGE_SIZE)
+//            }else {
+                provideFeatures(singleCategory,1,HomeUiState.MEALS_PAGE_SIZE)
+//            }
+            .onEach { result ->
                 when (result){
                     is Resource.Success -> {
                         val categoryFeature = result.data
