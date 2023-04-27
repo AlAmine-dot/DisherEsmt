@@ -32,16 +32,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
@@ -52,6 +56,7 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.core.util.EmojiView
 import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartUiEvent
 import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
@@ -99,8 +104,10 @@ fun HomeScreen(
                     sendMainUiEvent(UiEvent.HideSnackbar)
                     sendMainUiEvent(UiEvent.ShowSnackbar(event.message, event.action))
                 }
-                else -> {
+                is HomeUiEvent.Navigate -> {
+                    onNavigate(event)
                 }
+                else -> {}
             }
         }
     }
@@ -179,7 +186,6 @@ fun HomeScreen(
                         }
                         item{
                             for (item in loadedCategories + shimmers) {
-                                Spacer(modifier =  Modifier.height(10.dp))
                                 when (item) {
                                     is CategoryFeature -> {
                                         // Si c'est une CategoryFeature, afficher la CategoryFeature correspondante
@@ -199,26 +205,9 @@ fun HomeScreen(
                                         CategoryShimmer()
                                     }
                                 }
-                                Spacer(modifier =  Modifier.height(10.dp))
-
+                                Spacer(modifier =  Modifier.height(25.dp))
                             }
                         }
-
-//                        items(count = 5) { index ->
-//                            val feature = categoryFeatures.getOrNull(index) // récupérer la catégorie à l'index donné
-//                            if (feature != null) {
-//                                // Si la catégorie est chargée, afficher la CategoryFeature correspondante
-//                                feature.category?.let { Log.d("testcategory", it.categoryName) }
-//                                CategoryFeature(feature, onMealClicked = { mealId ->
-//                                    Log.d("argsmealId", "Reached level 1")
-//                                    onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
-//                                })
-//                                loadedCount++
-//                            } else if (loadedCount < index) {
-//                                // Si la catégorie n'est pas encore chargée mais qu'il y a des catégories chargées avant, afficher une CategoryShimmer()
-//                                CategoryShimmer()
-//                            }
-//                        }
                     }else {
                         item {
                             Row(
@@ -227,7 +216,12 @@ fun HomeScreen(
                                     .padding(vertical = 0.dp),
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                CartCardComponent(homeUiState.userCart,onNavigate)
+                                CartCardComponent(
+                                    homeUiState.userCart,
+                                    onNavigate
+                                ) { nbOfMeals ->
+                                    homeViewModel.onEvent(HomeUiEvent.GenerateRandomMenu(nbOfMeals))
+                                }
                             }
                         }
                         item {
@@ -245,7 +239,7 @@ fun HomeScreen(
                             }else{
                                 CategoryShimmer()
                             }
-                            Spacer(modifier =  Modifier.height(10.dp))
+                            Spacer(modifier =  Modifier.height(25.dp))
 
                         }
 
@@ -258,7 +252,8 @@ fun HomeScreen(
 @Composable
 fun CartCardComponent(
     cartItems: List<CartItem>,
-    onNavigate: (HomeUiEvent.Navigate) -> Unit
+    onNavigate: (HomeUiEvent.Navigate) -> Unit,
+    onGenerateMenu: (nbOfMeals: Int) -> Unit
 ){
     val cartItemQuantity = remember { mutableStateOf(1) }
 
@@ -553,7 +548,9 @@ fun CartCardComponent(
                         modifier = Modifier
                             .widthIn(80.dp)
                             .heightIn(40.dp),
-                        onClick = {  },
+                        onClick = {
+                                  onGenerateMenu(cartItemQuantity.value)
+                        },
                         shape = RoundedCornerShape(70.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
                     ) {
@@ -962,10 +959,36 @@ fun CategoryFeature(
 ) {
 
     Text(
-        text= feature.featureTitle,
-        color= DarkTurquoise,
-        style = MaterialTheme.typography.h1,
-        modifier = Modifier.padding(bottom = 15.dp, start = 18.dp)
+        text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    baselineShift = BaselineShift(-0.3f),
+                    color = DarkTurquoise,
+                )
+            ) {
+                append(
+                    feature.featureTitle,
+                )
+            }
+            if(feature.emojis.isNotEmpty()){
+                withStyle(
+                    style = SpanStyle(
+                        color = DarkTurquoise,
+                        baselineShift = BaselineShift(-.2f),
+                        )
+                ) {
+                    append(
+                       " " + feature.emojis.first(),
+                    )
+                }
+            }
+
+        },
+        color = DarkTurquoise,
+        style = MaterialTheme.typography.h5,
+        fontWeight = FontWeight.W500,
+        modifier = Modifier
+            .padding(bottom = 15.dp, start = 18.dp)
     )
 
     LazyRow(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(15.dp)) {

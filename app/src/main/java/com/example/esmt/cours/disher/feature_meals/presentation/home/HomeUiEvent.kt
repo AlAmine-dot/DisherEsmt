@@ -9,6 +9,8 @@ sealed class HomeUiEvent{
     object RefreshCart: HomeUiEvent()
     data class AddMealToCart(val meal: Meal): HomeUiEvent()
 
+    data class GenerateRandomMenu(val n: Int): HomeUiEvent()
+
     data class ShowSnackbar(
         val message: String,
         val action: String? = null

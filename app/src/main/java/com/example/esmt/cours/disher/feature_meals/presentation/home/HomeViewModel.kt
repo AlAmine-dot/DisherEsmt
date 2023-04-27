@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
+import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
+import com.example.esmt.cours.disher.core.util.EmojiView
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.IsMealIntoCart
@@ -12,6 +14,7 @@ import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCatego
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideRandomMealsCollection
 import com.example.esmt.cours.disher.feature_meals.domain.utils.CategoryManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -44,6 +47,9 @@ class HomeViewModel @Inject constructor(
 
     fun onEvent(event: HomeUiEvent) {
         when (event) {
+            is HomeUiEvent.GenerateRandomMenu -> {
+                generateRandomMenus(event.n)
+            }
             is HomeUiEvent.OnToggleFeedMode -> {
                 getCartItems()
                 _uiState.value = _uiState.value.copy(
@@ -61,6 +67,37 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun generateRandomMenus(nbOfMeals: Int){
+        provideRandomMealsCollection(nbOfMeals,"Random menu",
+            emptyList()
+        ).onEach { result ->
+            when (result){
+                is Resource.Success -> {
+                    val categoryFeature = result.data
+                    categoryFeature?.featuredMeals?.forEach {meal ->
+                        addMealToCart(meal).launchIn(viewModelScope)
+                    }
+                    sendUiEvent(HomeUiEvent.Navigate(BottomBarScreen.Cart.route))
+                }
+                is Resource.Loading -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = true
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testViewModel", _uiState.value.toString())
+
+                }
+                is Resource.Error -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Oops, an unexpected error occured"
+                    )
+                    _uiState.value = updatedState
+                    sendUiEvent(HomeUiEvent.ShowSnackbar(result.message ?: "Oops, an unexpected error occured"))
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
     private fun addMealCart(meal: Meal){
             Log.d("testVM","super there :/ $isMealIntoCart")
         isMealIntoCart(meal)
@@ -78,6 +115,7 @@ class HomeViewModel @Inject constructor(
                                 is Resource.Success -> {
 //                                )
                                     sendUiEvent(HomeUiEvent.ShowSnackbar("Added recipe to cart successfully !"))
+                                    getCartItems()
                                 }
                                 is Resource.Loading -> {
                                     _uiState.value = _uiState.value.copy(
@@ -243,7 +281,9 @@ class HomeViewModel @Inject constructor(
 
         }
 
-        provideRandomMealsCollection(HomeUiState.MEALS_PAGE_SIZE,"Just 4 U").onEach { result ->
+        provideRandomMealsCollection(HomeUiState.MEALS_PAGE_SIZE,"Just 4 U",
+            listOf("\uD83D\uDE0C")
+        ).onEach { result ->
             when (result){
                 is Resource.Success -> {
                     val categoryFeature = result.data

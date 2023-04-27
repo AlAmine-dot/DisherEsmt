@@ -16,7 +16,7 @@ class ProvideRandomMealsCollection @Inject constructor(
 ) {
 
     // C'est juste pour qu'on puisse appeler la classe comme si c'était une fonction
-    operator fun invoke(pageSize: Int,collectionName: String): Flow<Resource<CategoryFeature>> = flow {
+    operator fun invoke(pageSize: Int,collectionName: String, emojis: List<String>): Flow<Resource<CategoryFeature>> = flow {
 
         val featureTitle = collectionName
 
@@ -28,7 +28,7 @@ class ProvideRandomMealsCollection @Inject constructor(
         if(localMeals.isEmpty()){
             emit(Resource.Error("No meals found !", null))
         }else{
-            emit(Resource.Success(CategoryFeature(featureTitle,null,localMeals)))
+            emit(Resource.Success(CategoryFeature(featureTitle, emojis = emojis, category = null, featuredMeals = localMeals)))
         }
 
         // On met ensuite à jour le cache, si l'utilisateur est connecté à internet :

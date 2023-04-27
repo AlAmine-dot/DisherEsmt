@@ -45,6 +45,28 @@ class ProvideCategoryFeatures @Inject constructor(
             }
         }
 
+        val featureEmojis = when(category?.categoryName){
+            "Miscellaneous" -> {
+                "\uD83D\uDD25"
+            }
+            "Breakfast" -> {
+                "\uD83C\uDF73"
+            }
+            "Dessert" -> {
+                "\uD83C\uDF70"
+            }
+            "Beef" -> {
+                "\uD83E\uDD69"
+            }
+            "Vegetarian" -> {
+                "\uD83E\uDD57"
+            }
+            else -> {
+                ""
+            }
+        }
+
+
         // On signale le chargement des données...
         val localResponse = repository.getAllMealsByCategoryFromLocalSource(category)
         Log.d("testProvideForCategoryD","LR : " + localResponse.toString())
@@ -57,7 +79,7 @@ class ProvideCategoryFeatures @Inject constructor(
         if(localMeals.isEmpty()){
             emit(Resource.Loading(null))
         }else{
-            emit(Resource.Success(CategoryFeature(featureTitle,category,localMeals)))
+            emit(Resource.Success(CategoryFeature(featureTitle,category,localMeals,listOf(featureEmojis))))
             if (category != null) {
                 Log.d("buildAndGet",category.categoryName)
             }
@@ -79,7 +101,7 @@ class ProvideCategoryFeatures @Inject constructor(
             // Et enfin on récupère les données les plus récentes :
             val finalResponse = repository.getAllMealsByCategoryFromLocalSource(category)
             val finalMeals = getTruncatedResponse(finalResponse,startingIndex, pageSize)
-            emit(Resource.Success(CategoryFeature(featureTitle,category,finalMeals)))
+            emit(Resource.Success(CategoryFeature(featureTitle,category,finalMeals, listOf(featureEmojis))))
         }
 
     }
