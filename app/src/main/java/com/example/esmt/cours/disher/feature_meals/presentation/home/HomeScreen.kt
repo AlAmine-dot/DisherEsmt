@@ -1,6 +1,7 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -32,11 +33,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
@@ -45,7 +45,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
@@ -56,9 +55,8 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
-import com.example.esmt.cours.disher.core.util.EmojiView
 import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
-import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartUiEvent
+import com.example.esmt.cours.disher.feature_meals.presentation.home.util.AlertDialogState
 import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
@@ -87,6 +85,7 @@ fun HomeScreen(
         val loadedCategories = mutableListOf<CategoryFeature>()
         val shimmerCount = 5 - categoryFeatures.size.coerceAtMost(5) // calculer le nombre de CategoryShimmer() à afficher
         val shimmers = List(shimmerCount) { CategoryShimmer() } // créer une liste de CategoryShimmer()
+        val openDiscardDialog = remember { mutableStateOf(true) }
 
         loadedCategories.addAll(categoryFeatures) // ajouter les catégories chargées à la liste
 
@@ -218,10 +217,24 @@ fun HomeScreen(
                             ) {
                                 CartCardComponent(
                                     homeUiState.userCart,
-                                    onNavigate
-                                ) { nbOfMeals ->
-                                    homeViewModel.onEvent(HomeUiEvent.GenerateRandomMenu(nbOfMeals))
-                                }
+                                    onNavigate,
+                                    { nbOfMeals ->
+                                        homeViewModel.onEvent(HomeUiEvent.GenerateRandomMenu(nbOfMeals))
+                                    },
+                                    onOpenDiscardDialog = {
+                                        val newDialogState = AlertDialogState(
+                                            true,
+                                            "Cart",
+                                            "Are you sure you want to discard your cart ?",
+                                            "OK",
+                                            "Operating...",
+                                            HomeUiEvent.OnDiscardCart,
+                                            "CANCEL",
+                                            "Canceled",
+                                        )
+                                        homeViewModel.onEvent(HomeUiEvent.OnShowAlertDialog(newDialogState))
+                                    }
+                                )
                             }
                         }
                         item {
@@ -247,13 +260,18 @@ fun HomeScreen(
                 }
         }
 
+    AlertDialog(alertDialogState = homeUiState.alertDialogState, onHideAlertDialog = {
+        homeViewModel.onEvent(HomeUiEvent.OnHideAlertDialog)
+    })
+
 }
 
 @Composable
 fun CartCardComponent(
     cartItems: List<CartItem>,
     onNavigate: (HomeUiEvent.Navigate) -> Unit,
-    onGenerateMenu: (nbOfMeals: Int) -> Unit
+    onGenerateMenu: (nbOfMeals: Int) -> Unit,
+    onOpenDiscardDialog: () -> Unit
 ){
     val cartItemQuantity = remember { mutableStateOf(1) }
 
@@ -428,7 +446,9 @@ fun CartCardComponent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedButton(
-                            onClick = { },
+                            onClick = {
+                                  onOpenDiscardDialog()
+                            },
                             border = BorderStroke(2.dp, MeltyGreen),
                             modifier = Modifier
                                 .fillMaxWidth(1f)
@@ -1012,6 +1032,59 @@ fun CategoryFeature(
 }
 
 @Composable
+fun AlertDialog(
+    alertDialogState: AlertDialogState,
+    onHideAlertDialog: () -> Unit,
+){
+    val context = LocalContext.current
+
+    if (alertDialogState.isVisible)
+    {
+        AlertDialog(
+            onDismissRequest = { onHideAlertDialog() },
+            title = { Text(
+                text = alertDialogState.title,
+                color = DarkTurquoise,
+                style = MaterialTheme.typography.h6
+            )
+            },
+            text = { Text(text = alertDialogState.bodyText, color = DarkTurquoise, fontSize = 17.sp) },
+
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+                        onHideAlertDialog()
+                        Toast.makeText(context, alertDialogState.confirmToastText, Toast.LENGTH_SHORT).show()
+                    }) {
+                    Text(
+                        text = alertDialogState.confirmButtonText,
+                        color = MeltyGreen,
+                        style = MaterialTheme.typography.h6
+                    )
+                }
+
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onHideAlertDialog()
+                        Toast.makeText(context, alertDialogState.dismissToastText, Toast.LENGTH_SHORT).show()
+                    }) {
+                    Text(
+                        text = alertDialogState.dismissButtonText,
+                        color = DarkTurquoise,
+                        style = MaterialTheme.typography.h6
+                    )
+                }
+            },
+            backgroundColor = Color.White,
+            contentColor = DarkTurquoise
+        )
+    }
+}
+
+@Composable
 fun CategoryShimmer(){
 
     Column(
@@ -1318,6 +1391,9 @@ fun MealCard(
         }
     }
 }
+
+
+
 
 
 

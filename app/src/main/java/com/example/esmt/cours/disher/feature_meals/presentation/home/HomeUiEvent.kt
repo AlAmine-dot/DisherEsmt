@@ -1,14 +1,16 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen.MealDetailsUiEvent
+import com.example.esmt.cours.disher.feature_meals.presentation.home.util.AlertDialogState
 
 sealed class HomeUiEvent{
 
     object PopBackStack: HomeUiEvent()
     object RefreshCart: HomeUiEvent()
+    object OnHideAlertDialog: HomeUiEvent()
+    object OnDiscardCart: HomeUiEvent()
     data class AddMealToCart(val meal: Meal): HomeUiEvent()
-
+    data class OnShowAlertDialog(val newAlertDialog: AlertDialogState): HomeUiEvent()
     data class GenerateRandomMenu(val n: Int): HomeUiEvent()
 
     data class ShowSnackbar(

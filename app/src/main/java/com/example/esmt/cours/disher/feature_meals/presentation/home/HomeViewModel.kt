@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
-import com.example.esmt.cours.disher.core.util.EmojiView
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.IsMealIntoCart
@@ -13,8 +12,8 @@ import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCartIt
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCategoryFeatures
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideRandomMealsCollection
 import com.example.esmt.cours.disher.feature_meals.domain.utils.CategoryManager
+import com.example.esmt.cours.disher.feature_meals.presentation.home.util.AlertDialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -62,7 +61,21 @@ class HomeViewModel @Inject constructor(
             is HomeUiEvent.AddMealToCart -> {
                 addMealCart(event.meal)
             }
-
+            is HomeUiEvent.OnHideAlertDialog -> {
+                _uiState.value = _uiState.value.copy(
+                    alertDialogState = AlertDialogState(
+                        isVisible = false
+                    )
+                )
+            }
+            is HomeUiEvent.OnDiscardCart -> {
+                sendUiEvent(HomeUiEvent.ShowSnackbar("Test dude ! "))
+            }
+            is HomeUiEvent.OnShowAlertDialog -> {
+                _uiState.value = _uiState.value.copy(
+                    alertDialogState = event.newAlertDialog
+                )
+            }
             else -> {}
         }
     }
