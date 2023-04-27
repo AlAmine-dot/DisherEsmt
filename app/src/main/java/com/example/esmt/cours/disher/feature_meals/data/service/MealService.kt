@@ -41,6 +41,8 @@ class MealService @Inject constructor(
         }
     }
 
+
+
     suspend fun getMealsByCategoryFromLocalSource(str: String): List<Meal>{
         val response = mealsDao.getAllMealsByCategory(str).map {
             it.toMeal()
@@ -162,6 +164,12 @@ class MealService @Inject constructor(
 
     suspend fun updateCartItemQuantity(mealEntity: MealEntity, newValue: Int){
         cartDao.updateQuantity(mealEntity.mealId, newValue)
+    }
+
+    // GET RANDOM MEALS :
+
+    suspend fun getRandomMealsFromLocalSource(n: Int): List<Meal>{
+        return mealsDao.getRandomMeals(n).map { it.toMeal() }
     }
 
 }

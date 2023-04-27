@@ -9,6 +9,7 @@ import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.IsMealIntoCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCartItems
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCategoryFeatures
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideRandomMealsCollection
 import com.example.esmt.cours.disher.feature_meals.domain.utils.CategoryManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -23,6 +24,7 @@ class HomeViewModel @Inject constructor(
     private val provideCartItems: ProvideCartItems,
     private val addMealToCart: AddMealToCart,
     private val isMealIntoCart: IsMealIntoCart,
+    private val provideRandomMealsCollection: ProvideRandomMealsCollection
     ): ViewModel() {
 
 
@@ -156,11 +158,6 @@ class HomeViewModel @Inject constructor(
                             isLoading = false,
                             swiperContent = categoryFeature
                         )
-//                            .apply {
-//                                if (categoryFeature != null && !this.getCategoryFeatures().contains(categoryFeature)) {
-//                                    addCategoryFeature(categoryFeature)
-//                                }
-//                            }
 
                         _uiState.value = updatedState
                         Log.d("testSwiperContent", _uiState.value.toString())
@@ -175,7 +172,6 @@ class HomeViewModel @Inject constructor(
 
                     }
                     is Resource.Error -> {
-                        val categoryFeature = result.data
                         var updatedState = _uiState.value.copy(
                             isLoading = false,
                             error = result.message ?: "Oops, an unexpected error occured"
@@ -247,6 +243,42 @@ class HomeViewModel @Inject constructor(
 
         }
 
+        provideRandomMealsCollection(HomeUiState.MEALS_PAGE_SIZE,"Just 4 U").onEach { result ->
+            when (result){
+                is Resource.Success -> {
+                    val categoryFeature = result.data
+                    val updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        forYouMeals = categoryFeature
+                    )
+
+                    _uiState.value = updatedState
+                    Log.d("testSwiperContent", _uiState.value.toString())
+
+                }
+                is Resource.Loading -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = true
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testViewModel", _uiState.value.toString())
+
+                }
+                is Resource.Error -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Oops, an unexpected error occured"
+                    )
+                    // Est-ce qu'on a besoin d'update le contenu en cas d'erreur ?
+//                        if (categoryFeature != null) {
+//                            updatedState.addCategoryFeature(categoryFeature)
+//                        }
+                    _uiState.value = updatedState
+                    Log.d("testViewModel", _uiState.value.toString())
+
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     private fun sendUiEvent(event: HomeUiEvent){

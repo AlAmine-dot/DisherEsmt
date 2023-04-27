@@ -219,11 +219,6 @@ fun HomeScreen(
 //                                CategoryShimmer()
 //                            }
 //                        }
-
-
-                        item {
-                            Text(homeUiState.error)
-                        }
                     }else {
                         item {
                             Row(
@@ -234,6 +229,24 @@ fun HomeScreen(
                             ) {
                                 CartCardComponent(homeUiState.userCart,onNavigate)
                             }
+                        }
+                        item {
+                            val forYouMeals = homeUiState.forYouMeals
+                            if(forYouMeals != null){
+                                CategoryFeature(
+                                    feature = forYouMeals,
+                                    onMealClicked = { mealId ->
+                                        onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
+                                    },
+                                    onAddMealToCart = { meal ->
+                                        homeViewModel.onEvent(HomeUiEvent.AddMealToCart(meal))
+                                    }
+                                )
+                            }else{
+                                CategoryShimmer()
+                            }
+                            Spacer(modifier =  Modifier.height(10.dp))
+
                         }
 
                     }
@@ -472,7 +485,7 @@ fun CartCardComponent(
                                 .fillMaxHeight()
                                 .weight(1f)
                                 .clickable {
-                                    if(cartItemQuantity.value > 1){
+                                    if (cartItemQuantity.value > 1) {
                                         cartItemQuantity.value = cartItemQuantity.value - 1
                                     }
                                 }
@@ -520,7 +533,7 @@ fun CartCardComponent(
                                 .weight(1f)
                                 .clickable {
 //                                    onUpdateQuantity(cart, true)
-                                    if(cartItemQuantity.value < 7){
+                                    if (cartItemQuantity.value < 7) {
                                         cartItemQuantity.value = 1 + cartItemQuantity.value
                                     }
                                 }

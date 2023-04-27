@@ -37,5 +37,10 @@ interface MealsDao {
     @Query("SELECT * FROM ${Constants.MEALS_TABLE} WHERE strMeal LIKE '%' || :name || '%'")
     suspend fun searchMealByName(name: String): List<MealEntity>
 
+    @Transaction
+    @Query("SELECT * FROM ${Constants.MEALS_TABLE} ORDER BY RANDOM() LIMIT :limit")
+    suspend fun getRandomMeals(limit: Int): List<MealEntity>
+
+
 }
 

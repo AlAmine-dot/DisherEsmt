@@ -38,4 +38,6 @@ interface MealRepository {
 
     suspend fun isMealIntoCart(meal: Meal): Boolean
 
+    suspend fun getRandomMealsFromLocalSource(n: Int): List<Meal>
+
 }

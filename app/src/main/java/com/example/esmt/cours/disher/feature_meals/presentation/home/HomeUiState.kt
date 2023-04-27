@@ -8,6 +8,7 @@ data class HomeUiState(
 
     private var categoryFeatures: List<CategoryFeature> = emptyList(),
     val userCart: List<CartItem> = emptyList(),
+    val forYouMeals: CategoryFeature? = null,
     val feedModeOption: FeedMode = FeedMode.DISCOVERY,
     val swiperContent: CategoryFeature? = null,
     val error: String = "",

@@ -13,4 +13,7 @@ interface TheMealApi {
     suspend fun getDetailedMealById(id: Int): DetailedMealsDTO
 
     suspend fun searchMealByName(name: String): DetailedMealsDTO
+
+    // Need patreon to implement this with TheMealDB
+//    suspend fun getRandomMeal(): DetailedMealsDTO
 }

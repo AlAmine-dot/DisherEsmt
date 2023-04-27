@@ -106,6 +106,10 @@ class MealRepositoryImpl @Inject constructor(
         return mealService.isMealIntoCart(meal.toMealEntity())
     }
 
+    override suspend fun getRandomMealsFromLocalSource(n: Int): List<Meal> {
+        return mealService.getRandomMealsFromLocalSource(n)
+    }
+
 
     // TESTED
     override suspend fun deleteAllMealsFromLocalSource() {
