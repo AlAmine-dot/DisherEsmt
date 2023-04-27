@@ -72,9 +72,7 @@ fun CartScreen(
                     sendMainUiEvent(UiEvent.HideSnackbar)
                     sendMainUiEvent(UiEvent.ShowSnackbar(event.message, event.action))
                 }
-                is CartUiEvent.Navigate -> {
 
-                }
                 else -> {
                 }
             }
@@ -142,7 +140,7 @@ fun CartScreen(
                 colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
             ) {
                 Text(
-                    text = "Place order",
+                    text = if(cartUiState.cartItemList.isEmpty()){"See random menus"}else{"Place order"},
                     style = MaterialTheme.typography.h6,
                     color = Color.White,
 

@@ -36,4 +36,6 @@ interface MealRepository {
 
     suspend fun updateCartItemQuantity(cartItem: CartItem, newQuantity: Int)
 
+    suspend fun isMealIntoCart(meal: Meal): Boolean
+
 }

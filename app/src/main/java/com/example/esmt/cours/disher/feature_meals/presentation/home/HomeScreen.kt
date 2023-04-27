@@ -5,7 +5,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,21 +31,19 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import coil.compose.rememberImagePainter
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
@@ -53,7 +52,8 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
-import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen.MealDetailsOption
+import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
+import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartUiEvent
 import com.example.esmt.cours.disher.ui.customized_items.RadioToggler
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
@@ -84,6 +84,26 @@ fun HomeScreen(
         val shimmers = List(shimmerCount) { CategoryShimmer() } // créer une liste de CategoryShimmer()
 
         loadedCategories.addAll(categoryFeatures) // ajouter les catégories chargées à la liste
+
+        LaunchedEffect(Unit){
+            if(homeUiState.feedModeOption == FeedMode.CUSTOM){
+                homeViewModel.onEvent(HomeUiEvent.RefreshCart)
+            }
+        }
+
+    LaunchedEffect(key1 = true) {
+
+        homeViewModel.uiEvent.collect { event ->
+            when (event) {
+                is HomeUiEvent.ShowSnackbar -> {
+                    sendMainUiEvent(UiEvent.HideSnackbar)
+                    sendMainUiEvent(UiEvent.ShowSnackbar(event.message, event.action))
+                }
+                else -> {
+                }
+            }
+        }
+    }
 
     Scaffold(
             topBar = {TopAppBar2(TopBarContent(BottomBarScreen.Home.route, emptyList()),true,{})}
@@ -149,7 +169,10 @@ fun HomeScreen(
                                                 )
                                             )
                                         },
-                                        pagerState
+                                        pagerState,
+                                        onAddMealToCart = { meal ->
+                                            homeViewModel.onEvent(HomeUiEvent.AddMealToCart(meal))
+                                        }
                                     )
                                 }
                             }
@@ -161,10 +184,15 @@ fun HomeScreen(
                                     is CategoryFeature -> {
                                         // Si c'est une CategoryFeature, afficher la CategoryFeature correspondante
                                         item.category?.let { Log.d("testcategory", it.categoryName) }
-                                        CategoryFeature(item, onMealClicked = { mealId ->
-                                            Log.d("argsmealId", "Reached level 1")
+                                        CategoryFeature(
+                                            item,
+                                            onMealClicked = { mealId ->
                                             onShowMealDetailsScreen(HomeUiEvent.ShowMealDetails(mealId))
-                                        })
+                                             },
+                                            onAddMealToCart = { meal ->
+                                                homeViewModel.onEvent(HomeUiEvent.AddMealToCart(meal))
+                                            }
+                                        )
                                     }
                                     else -> {
                                         // Si c'est un CategoryShimmer, afficher le CategoryShimmer correspondant
@@ -198,12 +226,337 @@ fun HomeScreen(
                         }
                     }else {
                         item {
-                            Text("Hello custom :)")
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 0.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CartCardComponent(homeUiState.userCart,onNavigate)
+                            }
                         }
+
                     }
                 }
         }
 
+}
+
+@Composable
+fun CartCardComponent(
+    cartItems: List<CartItem>,
+    onNavigate: (HomeUiEvent.Navigate) -> Unit
+){
+    val cartItemQuantity = remember { mutableStateOf(1) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(.90f)
+            .width(300.dp)
+//            .height(350.dp)
+        ,
+        elevation = 13.dp,
+        shape = RoundedCornerShape(18.dp),
+        backgroundColor = MeltyGreenVLO
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 15.dp)
+            ,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(30.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = DarkTurquoise,
+                            )
+                        ) {
+                            append(
+                                "Hello, ",
+                            )
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = MeltyGreen,
+                            )
+                        ) {
+                            append(
+                                "fellow disher !",
+                            )
+                        }
+                    },
+                    style = MaterialTheme.typography.h5,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            if(!cartItems.isEmpty()) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = DarkTurquoise,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp
+                                )
+                            ) {
+                                append(
+                                    "${cartItems.size} recipes \n",
+                                )
+                            }
+                            withStyle(
+                                style = SpanStyle(
+                                    color = DarkTurquoise,
+                                    fontSize = 18.sp
+
+                                )
+                            ) {
+                                append(
+                                    "in your cart",
+                                )
+                            }
+                        },
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(70.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier,
+                        horizontalArrangement = Arrangement.spacedBy((-35).dp)
+                    ) {
+                        cartItems.take(3).onEach { cartItem ->
+                            Box(
+                                modifier = Modifier
+                                    .size(70.dp)
+                                    .clip(CircleShape)
+                                    .border(3.dp, MeltyGreen, CircleShape),
+                            ) {
+                                val painter = rememberImagePainter(
+                                    data = cartItem.cartItemMeal.strMealThumb,
+                                    builder = {
+                                        crossfade(durationMillis = 1200)
+                                        placeholder(R.drawable.ic_placeholder)
+                                        error(R.drawable.ic_placeholder)
+                                    }
+                                )
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image ${cartItem.cartItemMeal.strMealName}",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                if (cartItems.size > 3 && cartItems.indexOf(cartItem) == 2) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Black.copy(alpha = .4f))
+                                            .padding(3.dp)
+                                    ) {
+                                        Text(
+                                            text = "+${cartItems.size - 3}",
+                                            color = Color.White,
+                                            fontSize = 24.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
+                                }
+
+
+                            }
+                        }
+
+                    }
+                }
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(13.dp)
+
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .heightIn(50.dp),
+                            onClick = { onNavigate(HomeUiEvent.Navigate(BottomBarScreen.Cart.route)) },
+                            shape = RoundedCornerShape(70.dp),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
+                        ) {
+                            Text(
+                                text = "See cart",
+                                style = MaterialTheme.typography.h6,
+                                color = Color.White,
+                                fontSize = 17.sp
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = { },
+                            border = BorderStroke(2.dp, MeltyGreen),
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .height(47.dp),
+                            shape = RoundedCornerShape(70.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Discard",
+                                    fontSize = 17.sp,
+                                    color = DarkTurquoise,
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp, vertical = 0.dp)
+                                )
+                            }
+                        }
+
+                    }
+                }
+            }else{
+
+                Row(
+                ){
+                    Text("Your cart is empty for now, how many meals would you like to plan ?")
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Row(
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(35.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                1.dp,
+                                LightTurquoise.copy(alpha = .4f),
+                                RoundedCornerShape(10.dp)
+                            )
+                    ){
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .clickable {
+                                    if(cartItemQuantity.value > 1){
+                                        cartItemQuantity.value = cartItemQuantity.value - 1
+                                    }
+                                }
+                            ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "—",
+                                style = MaterialTheme.typography.h5,
+                                fontSize = 28.sp,
+                                color = DarkTurquoise,
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .border(width = 1.dp, LightTurquoise.copy(alpha = .3f))
+                            ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(.8f)
+                                ,
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text= cartItemQuantity.value.toString(),
+//                                    text = "1",
+                                    style = MaterialTheme.typography.h6,
+                                    fontSize = 17.sp,
+                                    color = MeltyGreen,
+                                    modifier = Modifier
+                                        .padding(bottom = 1.dp),
+                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .clickable {
+//                                    onUpdateQuantity(cart, true)
+                                    if(cartItemQuantity.value < 7){
+                                        cartItemQuantity.value = 1 + cartItemQuantity.value
+                                    }
+                                }
+                            ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "+",
+                                style = MaterialTheme.typography.h5,
+                                fontSize = 22.sp,
+                                color = DarkTurquoise
+                            )
+                        }
+                    }
+                    Button(
+                        modifier = Modifier
+                            .widthIn(80.dp)
+                            .heightIn(40.dp),
+                        onClick = {  },
+                        shape = RoundedCornerShape(70.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
+                    ) {
+                        Text(
+                            text = "Generate menu",
+                            style = MaterialTheme.typography.h6,
+                            fontSize = 17.sp,
+                            color = Color.White,
+                            )
+                    }
+                }
+            }
+        }
+
+
+    }
 }
 
 @Composable
@@ -212,7 +565,7 @@ fun SwiperShimmer(){
     ) {
         Box(
             modifier = Modifier
-                .height(330.dp)
+                .height(290.dp)
                 .width(360.dp)
                 .padding(10.dp)
                 .clip(RoundedCornerShape(16.dp))
@@ -325,7 +678,11 @@ fun SwiperShimmer(){
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun SwiperComponent(
-    feature: CategoryFeature, onMealClicked: (id: Int) -> Unit, pagerState: PagerState
+    feature: CategoryFeature,
+    onMealClicked: (id: Int) -> Unit,
+    pagerState: PagerState,
+    onAddMealToCart: (meal: Meal) -> Unit
+
 ){
     Column(
         modifier = Modifier.background(TextWhite)
@@ -338,7 +695,9 @@ fun SwiperComponent(
         ) { position ->
             SwiperMealCard(meal = feature.featuredMeals[position], onClick = { id ->
             Log.d("argsmealId", "Reached level 2")
-            onMealClicked(id)})
+            onMealClicked(id)},
+                onAddMealToCart = onAddMealToCart
+            )
         }
         HorizontalPagerIndicator(
             modifier = Modifier
@@ -352,11 +711,12 @@ fun SwiperComponent(
 @Composable
 fun SwiperMealCard(
     meal: Meal,
-    onClick: (id: Int) -> Unit
+    onClick: (id: Int) -> Unit,
+    onAddMealToCart: (meal: Meal) -> Unit
 ){
     Column(
         modifier = Modifier
-            .height(320.dp)
+            .height(290.dp)
             .width(350.dp)
         ,
 
@@ -442,8 +802,28 @@ fun SwiperMealCard(
                             .padding(vertical = 4.dp, horizontal = 14.dp)
                             .alpha(0.7f),
 
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .align(Alignment.CenterEnd)
+                            .clip(CircleShape)
+                            .background(MeltyGreen)
+                            .shadow(100.dp, CircleShape)
+                            .clickable {
+                                onAddMealToCart(meal)
+                            }
+                        ,
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = "Add meal to cart",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(16.dp),
                         )
-
+                    }
 
                 }
                 Box(
@@ -562,7 +942,11 @@ fun AskCardComponent(
 }
 
 @Composable
-fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) {
+fun CategoryFeature(
+    feature: CategoryFeature,
+    onMealClicked: (id: Int) -> Unit,
+    onAddMealToCart: (meal: Meal) -> Unit
+) {
 
     Text(
         text= feature.featureTitle,
@@ -576,9 +960,13 @@ fun CategoryFeature(feature: CategoryFeature, onMealClicked: (id: Int) -> Unit) 
             Spacer(modifier = Modifier.width(0.dp))
         }
         items(feature.featuredMeals) { item ->
-            MealCard(meal = item, onClick = { id ->
+            MealCard(
+                meal = item,
+                onClick = { id ->
                 Log.d("argsmealId", "Reached level 2")
-                onMealClicked(id)})
+                onMealClicked(id)},
+                onAddMealToCart = onAddMealToCart
+            )
         }
         item {
             Spacer(modifier = Modifier.width(0.dp))
@@ -736,7 +1124,8 @@ fun CategoryShimmer(){
 @Composable
 fun MealCard(
     meal: Meal,
-    onClick: (id: Int) -> Unit
+    onClick: (id: Int) -> Unit,
+    onAddMealToCart: (meal: Meal) -> Unit
 ){
     Column(
         modifier = Modifier
@@ -786,6 +1175,8 @@ fun MealCard(
                     )
                 ){
 
+
+
                     if(meal.strYoutube?.isNotBlank() == true){
 
                         Box(
@@ -827,7 +1218,27 @@ fun MealCard(
                                 .alpha(0.7f),
 
                         )
-
+                        Box(
+                            modifier = Modifier
+                                .size(26.dp)
+                                .align(Alignment.CenterEnd)
+                                .clip(CircleShape)
+                                .background(MeltyGreen)
+                                .shadow(100.dp, CircleShape)
+                                .clickable {
+                                    onAddMealToCart(meal)
+                                }
+                            ,
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Add meal to cart",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(16.dp),
+                            )
+                        }
 
                     }
                 Box(
@@ -897,9 +1308,19 @@ fun DefaultPreview(){
         isFavorite = false,
         isIntoCart = false
     )
-//    MealCard(mockMeal,{})
+    val mockCartItem1 = CartItem(1 ,mockMeal,2)
+    val mockCartItem2 = CartItem(2 ,mockMeal,1)
+    val mockCartItem3 = CartItem(3 ,mockMeal,12)
+    val mockCartItem4 = CartItem(4 ,mockMeal,6)
+
+    MealCard(mockMeal,{},{})
 //    CategoryShimmer()
-    SwiperShimmer()
+//    SwiperShimmer()
+//    CartCardComponent(
+////            listOf(mockCartItem1,mockCartItem2,mockCartItem3,mockCartItem4),
+//        emptyList(),
+//        {}
+//    )
 }
 
 fun Modifier.shimmerEffect(): Modifier = composed {

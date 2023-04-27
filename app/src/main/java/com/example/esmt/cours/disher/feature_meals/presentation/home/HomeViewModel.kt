@@ -4,38 +4,142 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
+import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToCart
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.IsMealIntoCart
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCartItems
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCategoryFeatures
 import com.example.esmt.cours.disher.feature_meals.domain.utils.CategoryManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val categoryManager: CategoryManager,
-    private val provideFeatures: ProvideCategoryFeatures
-): ViewModel() {
+    private val provideFeatures: ProvideCategoryFeatures,
+    private val provideCartItems: ProvideCartItems,
+    private val addMealToCart: AddMealToCart,
+    private val isMealIntoCart: IsMealIntoCart,
+    ): ViewModel() {
 
 
     private val _uiState : MutableStateFlow<HomeUiState> =  MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _uiEvent = Channel<HomeUiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
 
     init {
         getSwiperContent()
         getMeals()
+
     }
+
 
     fun onEvent(event: HomeUiEvent) {
         when (event) {
             is HomeUiEvent.OnToggleFeedMode -> {
+                getCartItems()
                 _uiState.value = _uiState.value.copy(
                     feedModeOption = event.newFeedMode
                 )
             }
+            is HomeUiEvent.RefreshCart -> {
+                getCartItems()
+            }
+            is HomeUiEvent.AddMealToCart -> {
+                addMealCart(event.meal)
+            }
 
             else -> {}
         }
+    }
+
+    private fun addMealCart(meal: Meal){
+            Log.d("testVM","super there :/ $isMealIntoCart")
+        isMealIntoCart(meal)
+            .onEach { result ->
+            when (result) {
+
+                        is Resource.Success -> {
+                    val isMealIntoCart = result.data ?: false
+
+                    if(!isMealIntoCart){
+                        meal.toggleIsIntoCart()
+                        val mealToAdd = meal
+                        addMealToCart(mealToAdd).onEach { result ->
+                            when (result) {
+                                is Resource.Success -> {
+//                                )
+                                    sendUiEvent(HomeUiEvent.ShowSnackbar("Added recipe to cart successfully !"))
+                                }
+                                is Resource.Loading -> {
+                                    _uiState.value = _uiState.value.copy(
+                                        isLoading = true
+                                    )
+                                }
+                                is Resource.Error -> {
+                                    _uiState.value = _uiState.value.copy(
+                                        error = result.message ?: "An unexpected error occurred"
+                                    )
+                                }
+                            }
+                        }.launchIn(viewModelScope)
+                    }else {
+                        sendUiEvent(HomeUiEvent.ShowSnackbar("This recipe is already into your cart."))
+                    }
+                }
+                else -> {
+                    _uiState.value = _uiState.value.copy(
+                        error = result.message ?: "An unexpected error occurred"
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+
+    }
+    private fun getCartItems(){
+
+        provideCartItems().onEach { result ->
+            when (result){
+                is Resource.Success -> {
+                    val cartItems = result.data
+                    val updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        userCart = cartItems.orEmpty()
+
+                    )
+
+                    _uiState.value = updatedState
+                    Log.d("testHomeViewModelCart", _uiState.value.userCart.toString())
+
+                }
+                is Resource.Loading -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = true
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testHomeViewModelCart", _uiState.value.toString())
+
+                }
+                is Resource.Error -> {
+                    val cartItems = result.data
+                    var updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        userCart = cartItems.orEmpty(),
+                        error = result.message ?: "Oops, an unexpected error occured"
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testHomeViewModelCart", _uiState.value.toString())
+
+                }
+            }
+        }.launchIn(viewModelScope)
+
     }
 
     private fun getSwiperContent(){
@@ -98,11 +202,7 @@ class HomeViewModel @Inject constructor(
         )
         categories.forEach { singleCategory ->
 
-//            if(categories.indexOf(singleCategory) == 0){
-//                provideFeatures(singleCategory,2,HomeUiState.MEALS_PAGE_SIZE)
-//            }else {
                 provideFeatures(singleCategory,1,HomeUiState.MEALS_PAGE_SIZE)
-//            }
             .onEach { result ->
                 when (result){
                     is Resource.Success -> {
@@ -148,5 +248,12 @@ class HomeViewModel @Inject constructor(
         }
 
     }
+
+    private fun sendUiEvent(event: HomeUiEvent){
+        viewModelScope.launch {
+            _uiEvent.send(event)
+        }
+    }
+
 
 }

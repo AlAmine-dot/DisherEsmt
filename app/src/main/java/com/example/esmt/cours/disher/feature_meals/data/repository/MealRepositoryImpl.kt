@@ -102,6 +102,10 @@ class MealRepositoryImpl @Inject constructor(
         mealService.updateCartItemQuantity(cartItem.cartItemMeal.toMealEntity(),newQuantity)
     }
 
+    override suspend fun isMealIntoCart(meal: Meal): Boolean {
+        return mealService.isMealIntoCart(meal.toMealEntity())
+    }
+
 
     // TESTED
     override suspend fun deleteAllMealsFromLocalSource() {

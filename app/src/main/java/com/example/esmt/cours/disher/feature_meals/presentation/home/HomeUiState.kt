@@ -1,11 +1,13 @@
 package com.example.esmt.cours.disher.feature_meals.presentation.home
 
+import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 
 data class HomeUiState(
     val isLoading: Boolean = false,
 
     private var categoryFeatures: List<CategoryFeature> = emptyList(),
+    val userCart: List<CartItem> = emptyList(),
     val feedModeOption: FeedMode = FeedMode.DISCOVERY,
     val swiperContent: CategoryFeature? = null,
     val error: String = "",
