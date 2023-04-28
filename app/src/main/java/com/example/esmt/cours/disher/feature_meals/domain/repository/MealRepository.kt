@@ -40,4 +40,6 @@ interface MealRepository {
 
     suspend fun getRandomMealsFromLocalSource(n: Int): List<Meal>
 
+    suspend fun clearCart()
+
 }

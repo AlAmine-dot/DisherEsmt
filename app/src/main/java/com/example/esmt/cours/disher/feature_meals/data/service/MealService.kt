@@ -162,6 +162,10 @@ class MealService @Inject constructor(
         return cartDao.getAllCartsMeal().map { it.toCartItem() }
     }
 
+    suspend fun clearCart(){
+        cartDao.clearCart()
+    }
+
     suspend fun updateCartItemQuantity(mealEntity: MealEntity, newValue: Int){
         cartDao.updateQuantity(mealEntity.mealId, newValue)
     }

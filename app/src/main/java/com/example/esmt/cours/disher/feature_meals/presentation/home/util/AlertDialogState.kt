@@ -4,7 +4,7 @@ import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
 
 // Cette classe représente le state du pop-up alert dialog
 data class AlertDialogState(
-    var isVisible: Boolean = true,
+    var isVisible: Boolean = false,
     val title: String = "",
     val bodyText: String = "",
     val confirmButtonText: String = "",

@@ -262,6 +262,8 @@ fun HomeScreen(
 
     AlertDialog(alertDialogState = homeUiState.alertDialogState, onHideAlertDialog = {
         homeViewModel.onEvent(HomeUiEvent.OnHideAlertDialog)
+    }, onEvent = { event ->
+        homeViewModel.onEvent(event)
     })
 
 }
@@ -1035,6 +1037,7 @@ fun CategoryFeature(
 fun AlertDialog(
     alertDialogState: AlertDialogState,
     onHideAlertDialog: () -> Unit,
+    onEvent: (HomeUiEvent) -> Unit
 ){
     val context = LocalContext.current
 
@@ -1056,6 +1059,7 @@ fun AlertDialog(
                     onClick = {
                         onHideAlertDialog()
                         Toast.makeText(context, alertDialogState.confirmToastText, Toast.LENGTH_SHORT).show()
+                        onEvent(alertDialogState.onConfirmEvent)
                     }) {
                     Text(
                         text = alertDialogState.confirmButtonText,
@@ -1069,6 +1073,7 @@ fun AlertDialog(
                 TextButton(
                     onClick = {
                         onHideAlertDialog()
+                        onEvent(alertDialogState.onDismissEvent)
                         Toast.makeText(context, alertDialogState.dismissToastText, Toast.LENGTH_SHORT).show()
                     }) {
                     Text(

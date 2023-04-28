@@ -7,6 +7,7 @@ import com.example.esmt.cours.disher.core.common.Resource
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.AddMealToCart
+import com.example.esmt.cours.disher.feature_meals.domain.use_case.ClearCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.IsMealIntoCart
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCartItems
 import com.example.esmt.cours.disher.feature_meals.domain.use_case.ProvideCategoryFeatures
@@ -26,7 +27,8 @@ class HomeViewModel @Inject constructor(
     private val provideCartItems: ProvideCartItems,
     private val addMealToCart: AddMealToCart,
     private val isMealIntoCart: IsMealIntoCart,
-    private val provideRandomMealsCollection: ProvideRandomMealsCollection
+    private val provideRandomMealsCollection: ProvideRandomMealsCollection,
+    private val onClearCart: ClearCart
     ): ViewModel() {
 
 
@@ -69,7 +71,7 @@ class HomeViewModel @Inject constructor(
                 )
             }
             is HomeUiEvent.OnDiscardCart -> {
-                sendUiEvent(HomeUiEvent.ShowSnackbar("Test dude ! "))
+                clearCart()
             }
             is HomeUiEvent.OnShowAlertDialog -> {
                 _uiState.value = _uiState.value.copy(
@@ -80,6 +82,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun clearCart(){
+        onClearCart().onEach {result ->
+            when (result){
+                is Resource.Success -> {
+                    sendUiEvent(HomeUiEvent.ShowSnackbar("Cart succesfully cleared"))
+                    getCartItems()
+
+                }
+                is Resource.Loading -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = true
+                    )
+                    _uiState.value = updatedState
+                    Log.d("testViewModel", _uiState.value.toString())
+
+                }
+                is Resource.Error -> {
+                    var updatedState = _uiState.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Oops, an unexpected error occured"
+                    )
+                    _uiState.value = updatedState
+                    sendUiEvent(HomeUiEvent.ShowSnackbar(result.message ?: "Oops, an unexpected error occured"))
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
     private fun generateRandomMenus(nbOfMeals: Int){
         provideRandomMealsCollection(nbOfMeals,"Random menu",
             emptyList()

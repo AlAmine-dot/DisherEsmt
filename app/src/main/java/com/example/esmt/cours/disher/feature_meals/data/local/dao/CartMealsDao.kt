@@ -24,5 +24,8 @@ interface CartMealsDao {
     @Query("UPDATE ${Constants.CART_MEALS_TABLE} SET CartMealItemQuantity = :newQuantity WHERE mealId = :mealId")
     suspend fun updateQuantity(mealId: Int, newQuantity: Int)
 
+    @Query("DELETE FROM ${Constants.CART_MEALS_TABLE}")
+    suspend fun clearCart()
+
 
 }

@@ -126,4 +126,8 @@ class MealRepositoryImpl @Inject constructor(
         mealService.removeMealFromFavorite(meal.toMealEntity())
     }
 
+    override suspend fun clearCart(){
+        mealService.clearCart()
+    }
+
 }
