@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
@@ -44,7 +46,9 @@ import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FavScreen(
     onNavigate: (FavUiEvent.Navigate) -> Unit,
@@ -73,30 +77,125 @@ fun FavScreen(
         }
     }
 
+//    Scaffold(
+//        modifier = Modifier.zIndex(1f),
+//        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Favorites.route, emptyList()),true,{}) }
+//    ) { paddingValues ->
+//
+//        val sheetState = rememberBottomSheetState(
+//            initialValue = BottomSheetValue.Collapsed
+//        )
+//        val scaffoldSheetState = rememberBottomSheetScaffoldState(
+//            bottomSheetState = sheetState
+//        )
+//        val scope = rememberCoroutineScope()
+//
+//        BottomSheetScaffold(
+//            modifier = Modifier.zIndex(1f),
+//            scaffoldState = scaffoldSheetState,
+//            sheetContent = {
+//            Box(
+//                modifier = Modifier
+//                    .zIndex(1f)
+//                    .fillMaxWidth()
+//                    .height(300.dp)
+//            ){
+//                Text("Hello sheet !", style = MaterialTheme.typography.h5)
+//            }
+//        },
+//            backgroundColor = Color.White,
+//            sheetElevation = 16.dp,
+//            sheetPeekHeight = 0.dp,
+//            sheetShape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)
+//        ) {
+//
+//        Column(
+//            modifier = Modifier
+//                .padding(paddingValues)
+//                .fillMaxSize()
+//                .padding(top = 7.dp),
+//        ) {
+//            TopCardComponent()
+//            MealsListComponent(
+//                mealItems = favoriteMeals,
+//                onNavigate = onNavigate,
+//                onMealClicked = { mealId ->
+//                    Log.d("argsmealId", "Reached level 1")
+//                    onShowMealDetailsScreen(FavUiEvent.ShowMealDetails(mealId))
+//                },
+//                onDeleteClicked = { meal ->
+//                    favViewModel.onEvent(FavUiEvent.RemoveMealFromFavorites(meal))
+//                },
+//                onToggleBottomSheet = {
+//                    scope.launch {
+//                        if (sheetState.isCollapsed) {
+//                            sheetState.expand()
+//                        } else {
+//                            sheetState.collapse()
+//                        }
+//                    }
+//                }
+//            )
+//        }
+//        }
+//
+//    }
+        val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+        val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Favorites.route, emptyList()),true,{}) }
     ) { paddingValues ->
 
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(top = 7.dp),
-        ) {
-            TopCardComponent()
-            MealsListComponent(
-                mealItems = favoriteMeals,
-                onNavigate = onNavigate,
-                onMealClicked = { mealId ->
-                    Log.d("argsmealId", "Reached level 1")
-                    onShowMealDetailsScreen(FavUiEvent.ShowMealDetails(mealId))
-                },
-                onDeleteClicked = { meal ->
-                    favViewModel.onEvent(FavUiEvent.RemoveMealFromFavorites(meal))
-                }
-            )
+
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(top = 7.dp),
+            ) {
+                TopCardComponent()
+                MealsListComponent(
+                    mealItems = favoriteMeals,
+                    onNavigate = onNavigate,
+                    onMealClicked = { mealId ->
+                        Log.d("argsmealId", "Reached level 1")
+                        onShowMealDetailsScreen(FavUiEvent.ShowMealDetails(mealId))
+                    },
+                    onDeleteClicked = { meal ->
+                        favViewModel.onEvent(FavUiEvent.RemoveMealFromFavorites(meal))
+                    },
+                    onToggleBottomSheet = {
+                        scope.launch {
+                            if (sheetState.isVisible) {
+                                sheetState.hide()
+                            } else {
+                                sheetState.show()
+                            }
+                        }
+                    }
+                )
+            }
         }
-    }
+        ModalBottomSheetLayout(
+            sheetState = sheetState,
+            sheetContent = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                ){
+                    Text("Hello sheet !", style = MaterialTheme.typography.h5)
+                }
+            },
+            sheetShape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
+            sheetElevation = 16.dp,
+            sheetBackgroundColor = Color.White,
+            scrimColor = Color.Black.copy(alpha = 0.4f),
+            sheetContentColor = MaterialTheme.colors.onSurface,
+    //            sheetContentAlpha = 1f,
+    //            sheetContentAnimations = BottomSheetDefaults.AnimationSpec
+        ){}
 }
 
 @Composable
@@ -104,7 +203,8 @@ fun MealsListComponent(
     mealItems: List<Meal>,
     onNavigate: (FavUiEvent.Navigate) -> Unit,
     onMealClicked : (mealId: Int) -> Unit,
-    onDeleteClicked: (meal: Meal) -> Unit
+    onDeleteClicked: (meal: Meal) -> Unit,
+    onToggleBottomSheet: () -> Unit
 ){
     Column(
         modifier = Modifier
@@ -129,7 +229,10 @@ fun MealsListComponent(
             Button(
                 modifier = Modifier
                     .widthIn(180.dp),
-                onClick = { onNavigate(FavUiEvent.Navigate(BottomBarScreen.Home.route)) },
+                onClick = {
+//                    onNavigate(FavUiEvent.Navigate(BottomBarScreen.Home.route))
+                          onToggleBottomSheet()
+                          },
                 shape = RoundedCornerShape(70.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MeltyGreen),
             ) {
@@ -276,7 +379,9 @@ fun MealItem(
                         imageVector = Icons.Outlined.Delete,
                         contentDescription = "Delete meal from favorites",
                         tint = Color.White,
-                        modifier = Modifier.size(20.dp).padding(0.dp)
+                        modifier = Modifier
+                            .size(20.dp)
+                            .padding(0.dp)
                     )
                 }
 //                Spacer(Modifier.weight(9f))

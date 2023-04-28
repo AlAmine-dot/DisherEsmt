@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.core.util.pagination
+package com.example.esmt.cours.disher.core.common.util.pagination
 
 class DefaultPaginator<Key, Item>(
     private val initialKey: Key,

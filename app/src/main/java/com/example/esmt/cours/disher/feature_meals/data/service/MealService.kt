@@ -1,19 +1,17 @@
 package com.example.esmt.cours.disher.feature_meals.data.service
 
-import com.example.esmt.cours.disher.feature_meals.data.local.MealsDatabase
+import com.example.esmt.cours.disher.core.data.local.DisherDatabase
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.CartItemEntity
-import com.example.esmt.cours.disher.feature_meals.data.local.entities.CategoryEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.FavoriteMealItemEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.MealEntity
 import com.example.esmt.cours.disher.feature_meals.data.remote.api.TheMealApi
-import com.example.esmt.cours.disher.feature_meals.data.remote.dto.CategoriesDTO
 import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import javax.inject.Inject
 
 class MealService @Inject constructor(
     private val api: TheMealApi,
-    private val db: MealsDatabase
+    private val db: DisherDatabase
 ) {
 
     private val mealsDao = db.mealsDao()

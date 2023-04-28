@@ -36,7 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.Graph
-import com.example.esmt.cours.disher.core.util.OnBoardingPage
+import com.example.esmt.cours.disher.core.common.util.OnBoardingPage
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager

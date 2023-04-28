@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.core.util
+package com.example.esmt.cours.disher.core.common.util
 
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView

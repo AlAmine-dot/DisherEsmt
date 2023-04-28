@@ -1,7 +1,7 @@
 package com.example.esmt.cours.disher.feature_meals.data.local.dao
 
 import androidx.room.*
-import com.example.esmt.cours.disher.core.util.Constants
+import com.example.esmt.cours.disher.core.common.util.Constants
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.CategoryEntity
 
 @Dao

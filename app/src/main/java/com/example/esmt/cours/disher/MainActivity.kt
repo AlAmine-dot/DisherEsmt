@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.esmt.cours.disher.core.presentation.graphs.Graph
 import com.example.esmt.cours.disher.core.presentation.graphs.RootNavigationGraph
 import com.example.esmt.cours.disher.core.presentation.onboarding.SplashViewModel
+import com.example.esmt.cours.disher.feature_chatbox.presentation.chatbox.ChatboxScreen
 import com.example.esmt.cours.disher.ui.theme.DisherTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
                 val screen = splashViewModel.startDestination.value
                 Log.d("testmain",screen)
                 val navController = rememberNavController()
-                RootNavigationGraph(navController = navController, startDestination = screen)
+//                RootNavigationGraph(navController = navController, startDestination = screen)
+                    ChatboxScreen()
             }
 
         }

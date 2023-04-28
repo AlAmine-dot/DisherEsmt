@@ -4,7 +4,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.example.esmt.cours.disher.feature_meals.data.local.MealsDatabase
+import com.example.esmt.cours.disher.core.data.local.DisherDatabase
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.CartItemEntity
 import com.example.esmt.cours.disher.feature_meals.data.local.entities.MealEntity
 import com.google.common.truth.Truth.assertThat
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class CartDaoTest {
 
-    private lateinit var database: MealsDatabase
+    private lateinit var database: DisherDatabase
     private lateinit var dao: CartMealsDao
 
     private val meal1 = MealEntity(
@@ -63,7 +63,7 @@ class CartDaoTest {
     fun setup(){
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            MealsDatabase::class.java
+            DisherDatabase::class.java
         ).allowMainThreadQueries().build()
         dao = database.cartMealsDao()
     }

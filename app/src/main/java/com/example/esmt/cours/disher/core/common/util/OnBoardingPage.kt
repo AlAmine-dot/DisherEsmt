@@ -1,4 +1,4 @@
-package com.example.esmt.cours.disher.core.util
+package com.example.esmt.cours.disher.core.common.util
 
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.text.AnnotatedString

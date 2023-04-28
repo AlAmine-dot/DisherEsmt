@@ -14,7 +14,7 @@
 //import androidx.compose.ui.Modifier
 //import androidx.compose.ui.tooling.preview.Preview
 //import androidx.lifecycle.lifecycleScope
-//import com.example.esmt.cours.disher.feature_meals.data.local.MealsDatabase
+//import com.example.esmt.cours.disher.core.data.local.MealsDatabase
 //import com.example.esmt.cours.disher.feature_meals.data.remote.api.TheMealApiImpl
 //import com.example.esmt.cours.disher.feature_meals.data.repository.MealRepositoryImpl
 //import com.example.esmt.cours.disher.feature_meals.data.service.MealService

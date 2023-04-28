@@ -3,7 +3,7 @@ package com.example.esmt.cours.disher.feature_meals.data.local.entities
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.esmt.cours.disher.core.util.Constants
+import com.example.esmt.cours.disher.core.common.util.Constants
 import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 
 @Entity(tableName = Constants.CART_MEALS_TABLE)
