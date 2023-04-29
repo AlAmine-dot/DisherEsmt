@@ -2,16 +2,30 @@ package com.example.esmt.cours.disher.feature_chatbox.presentation.chatbox
 
 import com.example.esmt.cours.disher.feature_chatbox.data.local.entities.Chat
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
+import com.example.esmt.cours.disher.feature_meals.presentation.home.util.CategoryFeature
 
 data class ChatboxUiState (
 
     val isLoading: Boolean = false,
-    val chatMessages: List<Chat> = emptyList(),
+    val isTyping: Boolean = false,
+    private var chatMessages: List<Chat> = emptyList(),
     val error: String = "",
 
     ){
 
-    override fun toString(): String {
-        return "ChatboxUiState(isLoading=$isLoading, chatMessages=$chatMessages, error='$error')"
+    fun addChatMessage(chat: Chat) {
+        val newList = chatMessages.toMutableList()
+        newList.add(chat)
+        chatMessages = newList.toList()
     }
+
+    fun getChatMessages(): List<Chat> {
+        return chatMessages
+    }
+
+    override fun toString(): String {
+        return "ChatboxUiState(isLoading=$isLoading, isTyping=$isTyping, chatMessages=$chatMessages, error='$error')"
+    }
+
+
 }

@@ -44,8 +44,7 @@ class MainActivity : ComponentActivity() {
                 val screen = splashViewModel.startDestination.value
                 Log.d("testmain",screen)
                 val navController = rememberNavController()
-//                RootNavigationGraph(navController = navController, startDestination = screen)
-                    ChatboxScreen()
+                RootNavigationGraph(navController = navController, startDestination = screen)
             }
 
         }

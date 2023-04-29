@@ -1,5 +1,6 @@
 package com.example.esmt.cours.disher.feature_chatbox.data.repository
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.example.esmt.cours.disher.core.data.local.DisherDatabase
 import com.example.esmt.cours.disher.feature_chatbox.data.local.entities.Chat
@@ -39,11 +40,13 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertChat(chat: Chat) {
+        Log.d("testRepo", chat.toString())
         chatsDao.insertChat(chat)
+        Log.d("testRepo", chatsDao.toString())
     }
 
     override suspend fun getLastSixChat(convoName: String): List<Chat> {
-        return chatsDao.getLastSixChats(convoName)
+        return chatsDao.getRecentChats()
     }
 
     override suspend fun deleteChat(chat: Chat) {

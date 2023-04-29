@@ -6,12 +6,15 @@ import java.util.*
 import android.graphics.*
 import android.icu.text.SimpleDateFormat
 
-val timeFormatter: SimpleDateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-val dateFormatter: SimpleDateFormat = SimpleDateFormat("MM.dd.yy", Locale.getDefault())
+//val timeFormatter: SimpleDateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+//val dateFormatter: SimpleDateFormat = SimpleDateFormat("MM.dd.yy", Locale.getDefault())
+
+val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd.yy")
 
 
 object SenderLabel {
-    var HUMAN_SENDER_LABEL = ""
+    var HUMAN_SENDER_LABEL = "Me"
     const val DEFAULT_HUMAN_LABEL = "Me"
     const val CHATGPT_SENDER_LABEL = "ChatGPT"
 }
@@ -20,6 +23,8 @@ object SenderLabel {
 object ChatConfig {
     const val GPT_3_5_TURBO = "gpt-3.5-turbo"
     const val GPT_4 = "gpt-4"
+
+    const val DEFAULT_CONVO_NAME = "Default"
 
     const val SCROLL_ANIMATION_DELAY = 1500L
 

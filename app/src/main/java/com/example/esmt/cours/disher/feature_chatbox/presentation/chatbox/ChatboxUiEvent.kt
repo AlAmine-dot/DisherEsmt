@@ -6,8 +6,8 @@ sealed class ChatboxUiEvent {
 
     object PopBackStack: ChatboxUiEvent()
     data class Navigate(val route: String): ChatboxUiEvent()
-    data class ShowMealDetails(val id: Int): ChatboxUiEvent()
-    data class RemoveMealFromFavorites(val meal: Meal): ChatboxUiEvent()
+    data class PromptChatAssistant(val prompt: String): ChatboxUiEvent()
+//    data class RemoveMealFromFavorites(val meal: Meal): ChatboxUiEvent()
     data class ShowSnackbar(
         val message: String,
         val action: String? = null

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,6 +28,7 @@ import com.example.esmt.cours.disher.feature_meals.presentation.search.FavScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.category_details_screen.CategoryScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.overview_screen.SearchScreen
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.feature_chatbox.presentation.chatbox.ChatboxScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.youtube_viewer_screen.YtViewerScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.search.CartScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -44,6 +46,41 @@ fun MainNavGraph(navController: NavHostController,sendMainUiEvent: (UiEvent) -> 
         route = Graph.HOME.route,
         startDestination = BottomBarScreen.Home.route
     ) {
+        composable(route = TopBarScreen.Chatbox.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            exitTransition = {
+                Log.d("testIS",targetState.destination.route.orEmpty())
+                when(targetState.destination.route?.substringBefore("?")){
+                    MealDetailsScreen.Details.route.substringBefore("?") ->{
+                        fadeOut(animationSpec = tween(durationMillis = fadeDuration + 5000))
+                    }
+                    else -> {
+                        fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+                    }
+                }
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = fadeDuration))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = fadeDuration))
+            }
+        ){
+            ChatboxScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+
+                sendMainUiEvent = { uiEvent ->
+                    sendMainUiEvent(uiEvent)
+                }
+            )
+        }
         composable(route = BottomBarScreen.Home.route,
             enterTransition = {
                 fadeIn(animationSpec = tween(durationMillis = fadeDuration))
@@ -358,6 +395,17 @@ sealed class SearchScreen(val route: String) {
     }
 }
 
+sealed class TopBarScreen(
+    val route: String,
+    val title: String,
+    val icon: ImageVector
+) {
+    object Chatbox : TopBarScreen(
+        route = "CHATBOX",
+        title = "Chatbox",
+        icon = Icons.Default.Send
+    )
+}
 
 sealed class BottomBarScreen(
     val route: String,

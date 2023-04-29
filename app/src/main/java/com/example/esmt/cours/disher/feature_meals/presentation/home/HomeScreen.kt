@@ -112,7 +112,12 @@ fun HomeScreen(
     }
 
     Scaffold(
-            topBar = {TopAppBar2(TopBarContent(BottomBarScreen.Home.route, emptyList()),true,{})}
+            topBar = {TopAppBar2(
+                TopBarContent(BottomBarScreen.Home.route, emptyList()),
+                true,
+                {},
+                onNavigate = { onNavigate(HomeUiEvent.Navigate(it)) }
+            )}
         ) {paddingValues ->
                 LazyColumn(
                     modifier = Modifier

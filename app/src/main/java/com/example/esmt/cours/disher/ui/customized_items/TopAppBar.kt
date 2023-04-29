@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.MealDetailsScreen
+import com.example.esmt.cours.disher.core.presentation.graphs.TopBarScreen
 import com.example.esmt.cours.disher.ui.theme.LightTurquoise
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import java.util.Locale
@@ -47,6 +48,7 @@ fun TopAppBar2(
     topBarContent: TopBarContent,
     isVisible: Boolean,
     onPopBackStack: () -> Unit = {},
+    onNavigate: (route: String) -> Unit = {}
 ){
     Log.d("testTBState", isVisible.toString())
     val currentRoute = topBarContent.route
@@ -166,13 +168,16 @@ fun TopAppBar2(
                                 )
                             }
                             Icon(
-                                imageVector = Icons.Outlined.AccountCircle,
-                                contentDescription = "",
+                                imageVector = TopBarScreen.Chatbox.icon,
+                                contentDescription = TopBarScreen.Chatbox.title,
                                 tint = LightTurquoise,
                                 modifier = Modifier
                                     .size(30.dp)
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 5.dp)
+                                    .clickable {
+                                        onNavigate(TopBarScreen.Chatbox.route)
+                                    }
                             )
                         }
                     }
