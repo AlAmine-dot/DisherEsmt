@@ -24,15 +24,23 @@ class GenerateChatResponse @Inject constructor(
     operator fun invoke(userChatRequest: Chat): Flow<Resource<Chat>> = flow {
         val userPrompt = userChatRequest.text
         // On émet le chargement
-        emit(Resource.Loading())
+        val assistantFakeResponse = Chat(
+            id = 0,
+            text = "...",
+            senderLabel = SenderLabel.CHATGPT_SENDER_LABEL,
+            dateSent = LocalDateTime.now().format(dateFormatter),
+            timeSent = LocalDateTime.now().format(timeFormatter),
+            conversationName = ChatConfig.DEFAULT_CONVO_NAME
+        )
+        emit(Resource.Loading(assistantFakeResponse))
 
         // On ajoute le nouveau chat de l'utilisateur au cache :
         repository.insertChat(userChatRequest)
-        // Pour le moment je met des valeurs empty mais tu devra récupérer proprement
-        // les last six chat et le state syst
+        // Je récupère l'historique :
+        val chatHistory = repository.getLastSixChat(ChatConfig.DEFAULT_CONVO_NAME)
 
         Log.d("testchat", userPrompt)
-        val assistantResponse = repository.getChatGptResponse(emptyList(), userPrompt, mutableStateOf(""))
+        val assistantResponse = repository.getChatGptResponse(chatHistory, userPrompt, mutableStateOf(ChatConfig.DEFAULT_CONVO_CONTEXT))
         Log.d("testchat", assistantResponse)
 
         // On construit le nouveau chat de l'assistant :

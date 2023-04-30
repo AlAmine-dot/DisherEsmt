@@ -1,6 +1,8 @@
 package com.example.esmt.cours.disher.feature_chatbox.presentation.chatbox
 
 import android.util.Log
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.esmt.cours.disher.core.common.Resource
@@ -11,13 +13,13 @@ import com.example.esmt.cours.disher.feature_chatbox.domain.utils.ChatConfig
 import com.example.esmt.cours.disher.feature_chatbox.domain.utils.SenderLabel
 import com.example.esmt.cours.disher.feature_chatbox.domain.utils.dateFormatter
 import com.example.esmt.cours.disher.feature_chatbox.domain.utils.timeFormatter
-import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,6 +40,9 @@ class ChatboxViewModel @Inject constructor(
         initChatbox()
     }
 
+    private fun onMainPromptTextChange(text: String){
+        _uiState.value = _uiState.value.copy(mainPromptField = text)
+    }
     private fun initChatbox(){
 
         getAllChats().onEach { result ->
@@ -76,10 +81,15 @@ class ChatboxViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun promptChat(chatRequest: Chat){
+    private fun promptChat(chatRequest: Chat,chatListState: LazyListState,scope: CoroutineScope){
         Log.d("testChatViewModel","Came here !")
 
+        _uiState.value = _uiState.value.copy(mainPromptField = "")
         _uiState.value.addChatMessage(chatRequest)
+
+        scope.launch{
+            chatListState.animateScrollToItem(_uiState.value.getChatMessages().size)
+        }
 
         generateChatResponse(chatRequest).onEach { result ->
             when (result){
@@ -91,17 +101,27 @@ class ChatboxViewModel @Inject constructor(
                         Log.d("testChatViewModel", chatResponse.toString())
 
                     if (chatResponse != null) {
-                        updatedState.addChatMessage(chatResponse)
+                        updatedState.replaceLastChatMessage(chatResponse)
                     }
                     _uiState.value = updatedState
+                        scope.launch{
+                            chatListState.animateScrollToItem(_uiState.value.getChatMessages().size)
+                        }
                     Log.d("testChatViewModel", _uiState.value.toString())
 
                 }
                 is Resource.Loading -> {
+                    val fakeResponse = result.data
                     var updatedState = _uiState.value.copy(
                         isTyping = true
                     )
+                    if (fakeResponse != null) {
+                        updatedState.addChatMessage(fakeResponse)
+                    }
                     _uiState.value = updatedState
+                    scope.launch{
+                        chatListState.animateScrollToItem(_uiState.value.getChatMessages().size)
+                    }
                     Log.d("testChatViewModel", _uiState.value.toString())
 
                 }
@@ -112,6 +132,9 @@ class ChatboxViewModel @Inject constructor(
                         error = result.message ?: "Oops, an unexpected error occured"
                     )
                     _uiState.value = updatedState
+                    scope.launch{
+                        chatListState.animateScrollToItem(_uiState.value.getChatMessages().size)
+                    }
                     Log.d("testChatViewModel", _uiState.value.toString())
 
                 }
@@ -133,7 +156,10 @@ class ChatboxViewModel @Inject constructor(
                     conversationName = ChatConfig.DEFAULT_CONVO_NAME
                 )
                 Log.d("testChatViewModel", "Prompted :" + newChat)
-                promptChat(newChat)
+                promptChat(newChat,event.chatListState, event.scope)
+            }
+            is ChatboxUiEvent.OnMainPromptTextChange -> {
+                onMainPromptTextChange(event.newPrompt)
             }
             else -> {}
             }

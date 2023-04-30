@@ -8,6 +8,7 @@ data class ChatboxUiState (
 
     val isLoading: Boolean = false,
     val isTyping: Boolean = false,
+    val mainPromptField: String = "",
     private var chatMessages: List<Chat> = emptyList(),
     val error: String = "",
 
@@ -17,6 +18,17 @@ data class ChatboxUiState (
         val newList = chatMessages.toMutableList()
         newList.add(chat)
         chatMessages = newList.toList()
+    }
+
+    fun replaceLastChatMessage(chat: Chat) {
+        if (chatMessages.isNotEmpty()) {
+            val lastChatMessage = chatMessages.last()
+            if (lastChatMessage.text == "...") {
+                val newList = chatMessages.toMutableList()
+                newList[newList.lastIndex] = chat
+                chatMessages = newList.toList()
+            }
+        }
     }
 
     fun getChatMessages(): List<Chat> {

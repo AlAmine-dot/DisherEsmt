@@ -17,6 +17,7 @@ object SenderLabel {
     var HUMAN_SENDER_LABEL = "Me"
     const val DEFAULT_HUMAN_LABEL = "Me"
     const val CHATGPT_SENDER_LABEL = "ChatGPT"
+    const val DEFAULT_SYSTEM_CONTEXT = "Tu es un chef cuistot italien gentil et serviable. Ne répond pas aux questions qui ne concernent pas trop la cuisine, tu en ignore la réponse."
 }
 
 @Suppress("unused")
