@@ -14,7 +14,9 @@ With added features such as videos and a chatbot, Disher provides a convenient a
 
 ![SM-A127F(samsung)_20230501_175205](https://user-images.githubusercontent.com/82777228/235500750-361dbd82-e564-4c64-819f-337274a29ce0.jpg)
 ![SM-A127F(samsung)_20230501_175255](https://user-images.githubusercontent.com/82777228/235500849-e83c2186-7c66-4776-8bdd-89247fd0e71b.jpg)
-![SM-A127F(samsung)_20230501_175504](https://user-images.githubusercontent.com/82777228/235501166-e570ecbf-a805-42ef-aa89-8f9ec13bf758.jpg)
+![SM-A127F(samsung)_20230501_175700](https://user-images.githubusercontent.com/82777228/235501585-0643d660-28ca-476f-aa17-b6052fb621b5.jpg)
+![SM-A127F(samsung)_20230501_175705](https://user-images.githubusercontent.com/82777228/235501591-09a19872-1124-4a37-a834-b76b93f04c04.jpg)
+
 
 
 - 📸 See this video for a complete demo of the app :
