@@ -66,6 +66,7 @@ import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import com.example.esmt.cours.disher.ui.theme.MeltyGreenLO
 import com.example.esmt.cours.disher.ui.theme.TextWhite
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartUiEvent
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
 
@@ -105,7 +106,13 @@ fun MainSearchScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Search.route, emptyList()),true,{}) }
+        topBar = {
+            TopAppBar2(
+                TopBarContent(BottomBarScreen.Search.route, emptyList()),
+                true,
+                {},
+                onNavigate = { onNavigate(MainSearchUiEvent.Navigate(it)) }
+            ) }
     ) { paddingValues ->
 
         Column(

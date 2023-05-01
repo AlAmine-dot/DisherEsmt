@@ -44,6 +44,7 @@ import com.example.esmt.cours.disher.feature_meals.domain.model.CartItem
 import com.example.esmt.cours.disher.feature_meals.domain.model.Meal
 import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartUiEvent
 import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartViewModel
+import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeUiEvent
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
 import com.example.esmt.cours.disher.ui.theme.DarkTurquoise
@@ -80,7 +81,15 @@ fun CartScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Cart.route, emptyList()),true,{}) }
+        topBar = {
+            TopAppBar2(
+            TopBarContent(BottomBarScreen.Cart.route, emptyList()),
+            true,
+            {},
+            onNavigate = { onNavigate(CartUiEvent.Navigate(it)) }
+            )
+
+        }
     ) { paddingValues ->
 
         Log.d("testCartView", cartUiState.cartItemList.toString())

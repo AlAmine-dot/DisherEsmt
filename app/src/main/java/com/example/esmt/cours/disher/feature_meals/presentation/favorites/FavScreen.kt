@@ -44,6 +44,7 @@ import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavUiE
 import com.example.esmt.cours.disher.feature_meals.presentation.favorites.FavViewModel
 import com.example.esmt.cours.disher.ui.theme.*
 import com.example.esmt.cours.disher.core.presentation.main_screen.UiEvent
+import com.example.esmt.cours.disher.feature_meals.presentation.cart.CartUiEvent
 import com.example.esmt.cours.disher.ui.customized_items.TopAppBar2
 import com.example.esmt.cours.disher.ui.customized_items.TopBarContent
 import kotlinx.coroutines.launch
@@ -144,7 +145,13 @@ fun FavScreen(
         val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar2(TopBarContent(BottomBarScreen.Favorites.route, emptyList()),true,{}) }
+        topBar = { TopAppBar2(
+            TopBarContent(BottomBarScreen.Favorites.route, emptyList()),
+            true,
+            {},
+            onNavigate = { onNavigate(FavUiEvent.Navigate(it)) }
+            )
+        }
     ) { paddingValues ->
 
 

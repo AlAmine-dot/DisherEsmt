@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,7 +73,10 @@ import com.example.esmt.cours.disher.ui.theme.DarkTurquoise
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
 import com.example.esmt.cours.disher.ui.theme.MeltyGreenLO
 import com.example.esmt.cours.disher.ui.theme.TextWhite
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -84,6 +88,8 @@ fun ChatboxScreen (
     sendMainUiEvent: (UiEvent) -> Unit,
 
     ){
+
+    val systemUiController = rememberSystemUiController()
 
 
     val scope = rememberCoroutineScope()
@@ -104,9 +110,15 @@ fun ChatboxScreen (
 
     Scaffold(
         topBar = {
-            ChatHeaderComponent(onPopBackStack, chatUiState.isTyping)
+            ChatHeaderComponent({
+                onPopBackStack()
+            }, chatUiState.isTyping)
         }
     ) {paddingValues ->
+
+//        SideEffect {
+
+//        }
 
         Column(
             modifier = Modifier
@@ -124,6 +136,7 @@ fun ChatboxScreen (
                     .background(TextWhite),
                 chatUiState.isTyping,
                 scope,
+                systemUiController
             )
             ChatTextFieldComponent(
                 modifier = Modifier
@@ -181,9 +194,9 @@ private fun ChatTextFieldComponent(
             ),
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Email,
+                    painter = painterResource(id = R.drawable.baseline_mic_24),
                     tint = Color.LightGray.copy(alpha = .8f),
-                    contentDescription = "Mic",
+                    contentDescription = "Microphone",
 //                modifier = micIconModifier
                 )
             },
@@ -205,7 +218,8 @@ private fun ChatboxComponent(
     listState: LazyListState,
     modifier: Modifier,
     isTyping: Boolean,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    systemUiController: SystemUiController
 ){
 
     LazyColumn(
@@ -215,6 +229,7 @@ private fun ChatboxComponent(
     ) {
         scope.launch {
             listState.animateScrollToItem(messages.size)
+            systemUiController.setStatusBarColor(MeltyGreen)
         }
         item{
             Spacer(modifier = Modifier.height(5.dp))
@@ -299,7 +314,7 @@ private fun ChatMessageItem(
                     Column(
                         modifier = Modifier
                             .heightIn(45.dp)
-                            .widthIn(20.dp,260.dp)
+                            .widthIn(20.dp, 260.dp)
                         ,
 //                            .fillMaxWidth(.8f),
                         verticalArrangement = Arrangement.Center
@@ -308,8 +323,8 @@ private fun ChatMessageItem(
                             LottieLoading(
                                 isTyping = isTyping,
                                 Modifier
-                                .padding(vertical = 5.dp, horizontal = 10.dp)
-                                .size(45.dp)
+                                    .padding(vertical = 5.dp, horizontal = 10.dp)
+                                    .size(45.dp)
 
                             )
                         }else{
@@ -346,7 +361,7 @@ private fun ChatMessageItem(
                 Card(
                     modifier = Modifier
                         .heightIn(45.dp)
-                        .widthIn(20.dp,260.dp)
+                        .widthIn(20.dp, 260.dp)
                     ,
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 0.dp,
                         bottomStart = 16.dp, bottomEnd = 16.dp),
@@ -354,7 +369,7 @@ private fun ChatMessageItem(
                     Column(
                         modifier = Modifier
                             .heightIn(45.dp)
-                            .widthIn(20.dp,260.dp)
+                            .widthIn(20.dp, 260.dp)
                         ,
                         verticalArrangement = Arrangement.Center
                     ){

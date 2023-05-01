@@ -65,6 +65,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -79,8 +82,11 @@ fun HomeScreen(
         val homeUiState by homeViewModel.uiState.collectAsState()
         val categoryFeatures = homeUiState.getCategoryFeatures()
         val swiperContent = homeUiState.swiperContent
+        val scope = rememberCoroutineScope()
+        val systemUiController = rememberSystemUiController()
 
-        val trigger by remember { mutableStateOf(homeUiState.feedModeOption == FeedMode.DISCOVERY) }
+
+    val trigger by remember { mutableStateOf(homeUiState.feedModeOption == FeedMode.DISCOVERY) }
         val pagerState = rememberPagerState()
         val loadedCategories = mutableListOf<CategoryFeature>()
         val shimmerCount = 5 - categoryFeatures.size.coerceAtMost(5) // calculer le nombre de CategoryShimmer() à afficher
@@ -127,6 +133,9 @@ fun HomeScreen(
                         .padding(start = 0.dp, bottom = 39.dp),
                     verticalArrangement = Arrangement.spacedBy(30.dp)
                 ) {
+                    scope.launch {
+                        systemUiController.setStatusBarColor(Color.White,darkIcons = true)
+                    }
                     item {
                         Spacer(modifier = Modifier.height(25.dp))
                         Row(

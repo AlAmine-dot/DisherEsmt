@@ -21,6 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.feature_meals.presentation.Mainsearch.main_screen.MainSearchScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.home.HomeScreen
 import com.example.esmt.cours.disher.feature_meals.presentation.meal_details.details_screen.MealDetailsScreen
@@ -398,12 +399,12 @@ sealed class SearchScreen(val route: String) {
 sealed class TopBarScreen(
     val route: String,
     val title: String,
-    val icon: ImageVector
+    val icon: Int
 ) {
     object Chatbox : TopBarScreen(
         route = "CHATBOX",
         title = "Chatbox",
-        icon = Icons.Default.Send
+        icon = R.drawable.baseline_send
     )
 }
 

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,8 +40,10 @@ import com.example.esmt.cours.disher.R
 import com.example.esmt.cours.disher.core.presentation.graphs.BottomBarScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.MealDetailsScreen
 import com.example.esmt.cours.disher.core.presentation.graphs.TopBarScreen
+import com.example.esmt.cours.disher.ui.theme.DarkTurquoise
 import com.example.esmt.cours.disher.ui.theme.LightTurquoise
 import com.example.esmt.cours.disher.ui.theme.MeltyGreen
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import java.util.Locale
 
 @Composable
@@ -52,6 +55,7 @@ fun TopAppBar2(
 ){
     Log.d("testTBState", isVisible.toString())
     val currentRoute = topBarContent.route
+    val systemUiController = rememberSystemUiController()
 
     AnimatedVisibility(
         visible = isVisible,
@@ -89,7 +93,15 @@ fun TopAppBar2(
                     MealDetailsScreen.Details.route.substringBefore("?") -> {
                         val mealName = topBarContent.getArgByKey("mealName")?.value.toString()
                         val isMealFavorite = topBarContent.getArgByKey("isFavorite")?.value as Boolean
-
+                        if(isVisible){
+                            SideEffect {
+                                systemUiController.setStatusBarColor(MeltyGreen)
+                            }
+                        }else {
+                            SideEffect {
+                                systemUiController.setStatusBarColor(Color.White, darkIcons = true)
+                            }
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth().padding(vertical = 10.dp),
@@ -168,9 +180,9 @@ fun TopAppBar2(
                                 )
                             }
                             Icon(
-                                imageVector = TopBarScreen.Chatbox.icon,
+                                painter = painterResource(id = R.drawable.baseline_send),
                                 contentDescription = TopBarScreen.Chatbox.title,
-                                tint = LightTurquoise,
+                                tint = MeltyGreen,
                                 modifier = Modifier
                                     .size(30.dp)
                                     .align(Alignment.CenterEnd)
@@ -182,6 +194,9 @@ fun TopAppBar2(
                         }
                     }
                     BottomBarScreen.Search.route -> {
+                        SideEffect {
+                            systemUiController.setStatusBarColor(Color.White, darkIcons = true)
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -207,17 +222,23 @@ fun TopAppBar2(
                                 )
                             }
                             Icon(
-                                imageVector = Icons.Outlined.AccountCircle,
-                                contentDescription = "",
-                                tint = LightTurquoise,
+                                painter = painterResource(id = R.drawable.baseline_send),
+                                contentDescription = TopBarScreen.Chatbox.title,
+                                tint = MeltyGreen,
                                 modifier = Modifier
                                     .size(30.dp)
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 5.dp)
+                                    .clickable {
+                                        onNavigate(TopBarScreen.Chatbox.route)
+                                    }
                             )
                         }
                     }
                     BottomBarScreen.Favorites.route -> {
+                        SideEffect {
+                            systemUiController.setStatusBarColor(Color.White, darkIcons = true)
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -243,17 +264,23 @@ fun TopAppBar2(
                                 )
                             }
                             Icon(
-                                imageVector = Icons.Outlined.AccountCircle,
-                                contentDescription = "",
-                                tint = LightTurquoise,
+                                painter = painterResource(id = R.drawable.baseline_send),
+                                contentDescription = TopBarScreen.Chatbox.title,
+                                tint = MeltyGreen,
                                 modifier = Modifier
                                     .size(30.dp)
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 5.dp)
+                                    .clickable {
+                                        onNavigate(TopBarScreen.Chatbox.route)
+                                    }
                             )
                         }
                     }
                     BottomBarScreen.Cart.route -> {
+                        SideEffect {
+                            systemUiController.setStatusBarColor(Color.White, darkIcons = true)
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -279,18 +306,20 @@ fun TopAppBar2(
                                 )
                             }
                             Icon(
-                                imageVector = Icons.Outlined.AccountCircle,
-                                contentDescription = "",
-                                tint = LightTurquoise,
+                                painter = painterResource(id = R.drawable.baseline_send),
+                                contentDescription = TopBarScreen.Chatbox.title,
+                                tint = MeltyGreen,
                                 modifier = Modifier
                                     .size(30.dp)
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 5.dp)
+                                    .clickable {
+                                        onNavigate(TopBarScreen.Chatbox.route)
+                                    }
                             )
                         }
                     }
                 }
-
             }
         }
     }
