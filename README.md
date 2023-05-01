@@ -12,7 +12,10 @@ With added features such as videos and a chatbot, Disher provides a convenient a
 
 - 🔭 Additionally, users also have access to a chatbot through which they can directly ask for advice from Disher's mascot, DishBuddy :
 
-![SM-A127F(samsung)_20230501_172736](https://user-images.githubusercontent.com/82777228/235496991-2bb94dd7-6b4a-477a-b5c1-bc238c84076c.jpg)
+![SM-A127F(samsung)_20230501_175205](https://user-images.githubusercontent.com/82777228/235500750-361dbd82-e564-4c64-819f-337274a29ce0.jpg)
+![SM-A127F(samsung)_20230501_175255](https://user-images.githubusercontent.com/82777228/235500849-e83c2186-7c66-4776-8bdd-89247fd0e71b.jpg)
+![SM-A127F(samsung)_20230501_175504](https://user-images.githubusercontent.com/82777228/235501166-e570ecbf-a805-42ef-aa89-8f9ec13bf758.jpg)
+
 
 - 📸 See this video for a complete demo of the app :
 
