@@ -9,7 +9,8 @@ With added features such as videos and a chatbot, Disher provides a convenient a
 
 
 
-
+![SM-A127F(samsung)_20230501_180415](https://user-images.githubusercontent.com/82777228/235502646-1ae10228-f6c4-4a68-8a20-757a9eca85a8.jpg)
+![SM-A127F(samsung)_20230501_180420](https://user-images.githubusercontent.com/82777228/235502658-a924aa78-1f41-433c-a286-25d694964e81.jpg)
 ![SM-A127F(samsung)_20230501_172302](https://user-images.githubusercontent.com/82777228/235496574-9f79dc87-3400-4645-9a14-f0f94857ffee.jpg)
 ![SM-A127F(samsung)_20230501_172430](https://user-images.githubusercontent.com/82777228/235496591-d8e14c94-ef9b-4549-909b-925a79ca24d3.jpg)
 ![SM-A127F(samsung)_20230501_174747](https://user-images.githubusercontent.com/82777228/235500130-9503bb89-92c6-43b1-97a2-ce1ce8a1870e.jpg)
