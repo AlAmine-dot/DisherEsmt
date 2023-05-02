@@ -43,7 +43,7 @@ With added features such as videos and a chatbot, Disher provides a convenient a
 
 - 📸 See this video for a complete demo of the app :
 
-(Not available yet)
+https://drive.google.com/file/d/1u2V1dN8D187XM8SK5EOQbGYHT0rV7G9b/view?usp=sharing
 
 # 🤔 What did I learn of this project :
 
